@@ -14,7 +14,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterTenantController;
 
 // Auth Routes
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
+Route::get('/login', [LoginController::class, 'showLoginForm']);
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
@@ -22,7 +23,7 @@ Route::get('/register', [RegisterTenantController::class, 'showRegistrationForm'
 Route::post('/register', [RegisterTenantController::class, 'register'])->name('register.post');
 
 // Main SaaS Dashboard
-Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // Super Admin SaaS Owner Routes
 Route::get('/superadmin', [SuperAdminController::class, 'index'])->name('superadmin.index');
