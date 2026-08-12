@@ -28,6 +28,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 // Super Admin SaaS Owner Routes
 Route::get('/superadmin', [SuperAdminController::class, 'index'])->name('superadmin.index');
 Route::post('/superadmin/tenants', [SuperAdminController::class, 'storeTenant'])->name('superadmin.tenants.store');
+Route::post('/superadmin/settings', [SuperAdminController::class, 'updateSettings'])->name('superadmin.settings.update');
+Route::post('/superadmin/sync-dolarapi', [SuperAdminController::class, 'syncDolarApi'])->name('superadmin.sync-dolarapi');
 
 // Core Business Modules
 Route::get('/pos', [PosController::class, 'index'])->name('pos.index');

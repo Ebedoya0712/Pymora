@@ -3,7 +3,18 @@
 @section('title', 'Panel de Administración - Pymora')
 
 @section('content')
-<div x-data="{ openTenantModal: false, activeTab: 'tenants' }" class="space-y-6">
+<div x-data="{ openTenantModal: false, activeTab: '{{ session('success') ? 'settings' : 'tenants' }}' }" class="space-y-6">
+
+    <!-- Flash Alert Message -->
+    @if(session('success'))
+    <div class="glass-card p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs flex items-center justify-between shadow-lg">
+        <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span class="font-semibold">{{ session('success') }}</span>
+        </div>
+        <button @click="$el.parentElement.remove()" class="text-emerald-400 hover:text-white">&times;</button>
+    </div>
+    @endif
 
     <!-- Header Title & Action -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
@@ -36,11 +47,11 @@
 
         <!-- Card 3: Tasa BCV -->
         <div class="glass-card p-4 rounded-xl border border-slate-800 space-y-1">
-            <div class="text-slate-400 text-xs">Tasa BCV (DolarApi)</div>
-            <div class="text-2xl font-bold text-amber-300 font-display" x-text="bcvRate ? bcvRate : '{{ number_format($bcvRate, 2) }}'">{{ number_format($bcvRate, 2) }} <span class="text-xs font-normal text-slate-400">VES</span></div>
+            <div class="text-slate-400 text-xs">Tasa BCV Oficial</div>
+            <div class="text-2xl font-bold text-amber-300 font-display">{{ number_format($bcvRate, 2) }} <span class="text-xs font-normal text-slate-400">VES</span></div>
             <div class="text-[11px] text-emerald-400 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Sincronizado en tiempo real</span>
+                <span>DolarApi en tiempo real</span>
             </div>
         </div>
 
@@ -108,7 +119,7 @@
                                 {{ strtoupper($t->plan_tier) }}
                             </span>
                         </td>
-                        <td class="p-3 font-mono text-emerald-400">{{ number_format($t->bcv_rate, 4) }} VES</td>
+                        <td class="p-3 font-mono text-emerald-400">{{ number_format($t->bcv_rate, 2) }} VES</td>
                         <td class="p-3 text-slate-400 font-mono">{{ $t->expires_at ? $t->expires_at->format('Y-m-d') : 'Activo' }}</td>
                         <td class="p-3">
                             @if($t->is_active ?? true)
@@ -172,24 +183,88 @@
     </div>
 
     <!-- TAB 3: Global Settings -->
-    <div x-show="activeTab === 'settings'" class="glass-card rounded-xl p-5 border border-slate-800 max-w-xl space-y-4">
-        <h3 class="font-bold text-white text-sm">Configuración General</h3>
+    <div x-show="activeTab === 'settings'" class="space-y-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+            <div>
+                <h3 class="font-bold text-white text-sm">Configuración General del Sistema</h3>
+                <p class="text-xs text-slate-400">Parámetros monetarios, sincronización BCV y normativas fiscales SENIAT.</p>
+            </div>
 
-        <form class="space-y-3 text-xs">
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-slate-400 mb-1">Tasa BCV Oficial (VES)</label>
-                    <input type="number" step="0.0001" value="52.4000" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+            <!-- Sync DolarApi Direct Form -->
+            <form action="{{ route('superadmin.sync-dolarapi') }}" method="POST">
+                @csrf
+                <button type="submit" class="px-3.5 py-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 shadow-sm">
+                    <svg class="w-4 h-4 animate-spin text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    Sincronizar ahora con DolarApi
+                </button>
+            </form>
+        </div>
+
+        <form action="{{ route('superadmin.settings.update') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            @csrf
+            
+            <!-- Section 1: Moneda & Tasa de Cambio -->
+            <div class="glass-card rounded-xl p-5 border border-slate-800 space-y-4">
+                <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">💱</div>
+                    <div>
+                        <h4 class="font-bold text-white text-xs uppercase tracking-wider">Tasas de Cambio & DolarApi</h4>
+                        <p class="text-[11px] text-slate-400">Configuración del dólar de referencia en Venezuela.</p>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-slate-400 mb-1">IGTF (%)</label>
-                    <input type="number" step="0.01" value="3.00" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <label class="block text-slate-300 font-medium mb-1">Tasa BCV Oficial (VES/USD)</label>
+                        <input type="number" step="0.0001" name="bcv_rate" value="{{ number_format($bcvRate, 4, '.', '') }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-emerald-400 font-mono font-bold focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-300 font-medium mb-1">Tasa Paralelo (VES/USD)</label>
+                        <input type="number" step="0.0001" name="paralelo_rate" value="{{ number_format($paraleloRate, 4, '.', '') }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-amber-400 font-mono font-bold focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-800 flex items-center gap-2">
+                        <input type="checkbox" id="auto_sync_dolarapi" name="auto_sync_dolarapi" {{ $autoSync ? 'checked' : '' }} class="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-indigo-500">
+                        <label for="auto_sync_dolarapi" class="text-xs text-slate-300 select-none">Sincronización automática periódica vía DolarApi</label>
+                    </div>
                 </div>
             </div>
 
-            <div class="pt-2 flex justify-end">
-                <button type="button" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg">
-                    Guardar Cambios
+            <!-- Section 2: Impuestos & SENIAT -->
+            <div class="glass-card rounded-xl p-5 border border-slate-800 space-y-4">
+                <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">🧾</div>
+                    <div>
+                        <h4 class="font-bold text-white text-xs uppercase tracking-wider">Normativa Fiscal SENIAT</h4>
+                        <p class="text-[11px] text-slate-400">Tasas de impuesto de ley para facturación.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <label class="block text-slate-300 font-medium mb-1">Porcentaje IGTF (%) - Pagos Divisa / Cripto</label>
+                        <input type="number" step="0.01" name="igtf_rate" value="{{ number_format($igtfRate, 2, '.', '') }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 font-mono font-bold focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-300 font-medium mb-1">Días de Prueba Gratis para Inquilinos</label>
+                        <input type="number" name="trial_days" value="{{ $trialDays }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-300 font-medium mb-1">Correo Electrónico de Soporte</label>
+                        <input type="email" name="support_email" value="{{ $supportEmail }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="md:col-span-2 flex justify-end">
+                <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Guardar Configuración General
                 </button>
             </div>
         </form>
