@@ -54,16 +54,16 @@
 
     <!-- Top Live Multimoneda & Company Header Ticker -->
     <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur px-4 py-2 text-xs flex flex-wrap items-center justify-between gap-3 sticky top-0 z-50">
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="font-bold text-slate-200 uppercase tracking-wider text-[11px]">Pymora Multi-Tenant</span>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="font-bold text-emerald-400 uppercase tracking-wider text-[10px]">Pymora SaaS Active</span>
             </div>
 
             @if(session('user_role') === 'super_admin')
-                <div class="flex items-center gap-2 bg-indigo-500/10 px-3 py-1 rounded-md border border-indigo-500/30">
-                    <span class="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span>
-                    <span class="font-bold text-indigo-300 text-[11px] uppercase tracking-wide">Portal Global Super Admin</span>
+                <div class="flex items-center gap-1.5 bg-indigo-500/15 px-3 py-1 rounded-lg border border-indigo-500/30 font-semibold text-indigo-300 text-[11px]">
+                    <span>👑</span>
+                    <span>Modo Super Admin Global</span>
                 </div>
             @else
                 <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 px-2.5 py-1 rounded-md border border-slate-700">
