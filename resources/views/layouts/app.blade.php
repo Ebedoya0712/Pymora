@@ -52,18 +52,13 @@
 </head>
 <body class="h-full bg-slate-950 text-slate-100 flex flex-col antialiased">
 
-    <!-- Top Live Multimoneda & Company Header Ticker -->
-    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur px-4 py-2 text-xs flex flex-wrap items-center justify-between gap-3 sticky top-0 z-50">
+    <!-- Top Header Ticker -->
+    <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur px-4 py-2 text-xs flex items-center justify-between gap-3 sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <div class="flex items-center gap-2 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="font-bold text-emerald-400 uppercase tracking-wider text-[10px]">Pymora SaaS Active</span>
-            </div>
-
             @if(session('user_role') === 'super_admin')
-                <div class="flex items-center gap-1.5 bg-indigo-500/15 px-3 py-1 rounded-lg border border-indigo-500/30 font-semibold text-indigo-300 text-[11px]">
-                    <span>👑</span>
-                    <span>Modo Super Admin Global</span>
+                <div class="flex items-center gap-2 text-slate-300 font-semibold text-xs">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>Panel de Control</span>
                 </div>
             @else
                 <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 px-2.5 py-1 rounded-md border border-slate-700">
@@ -106,9 +101,7 @@
                         </div>
                         <div>
                             <h1 class="font-bold text-lg text-white font-display leading-tight">Pymora</h1>
-                            <p class="text-[11px] text-indigo-400 font-medium">
-                                {{ session('user_role') === 'super_admin' ? 'Control SaaS Global' : 'Sistema Administrativo' }}
-                            </p>
+                            <p class="text-[11px] text-slate-400">Sistema Administrativo</p>
                         </div>
                     </div>
                 </div>
