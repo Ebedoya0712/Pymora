@@ -6,5 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class StockTransfer extends Model
 {
-    //
+    protected $guarded = [];
+
+    protected $casts = [
+        'items' => 'array',
+    ];
 }
