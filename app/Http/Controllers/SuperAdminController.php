@@ -27,6 +27,7 @@ class SuperAdminController extends Controller
                     'subdomain' => 'elsol',
                     'plan_tier' => 'pro',
                     'bcv_rate' => 52.4000,
+                    'is_active' => true,
                     'expires_at' => now()->addDays(365),
                 ],
                 (object) [
@@ -36,6 +37,7 @@ class SuperAdminController extends Controller
                     'subdomain' => 'plazacaracas',
                     'plan_tier' => 'enterprise',
                     'bcv_rate' => 52.4000,
+                    'is_active' => true,
                     'expires_at' => now()->addDays(180),
                 ],
                 (object) [
@@ -45,6 +47,7 @@ class SuperAdminController extends Controller
                     'subdomain' => 'chaguaramos',
                     'plan_tier' => 'starter',
                     'bcv_rate' => 52.4000,
+                    'is_active' => true,
                     'expires_at' => now()->addDays(30),
                 ]
             ]);

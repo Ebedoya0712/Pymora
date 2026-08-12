@@ -98,6 +98,12 @@ class RegisterTenantController extends Controller
 
             Auth::login($user);
 
+            session([
+                'user_role' => $user->role,
+                'user_email' => $user->email,
+                'user_name' => $user->name,
+            ]);
+
             return redirect()->route('dashboard')->with('success', '¡Bienvenido a Pymora! Tu empresa ' . $tenant->name . ' ha sido creada con 15 días de prueba gratis.');
 
         } catch (Exception $e) {

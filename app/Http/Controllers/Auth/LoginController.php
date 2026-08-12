@@ -51,6 +51,12 @@ class LoginController extends Controller
             $request->session()->regenerate();
             $user = Auth::user();
 
+            session([
+                'user_role' => $user->role,
+                'user_email' => $user->email,
+                'user_name' => $user->name,
+            ]);
+
             return match($user->role ?? 'owner') {
                 'super_admin' => redirect()->route('superadmin.index'),
                 'cashier' => redirect()->route('pos.index'),
