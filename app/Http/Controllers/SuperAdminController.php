@@ -18,6 +18,10 @@ class SuperAdminController extends Controller
             $tenants = collect();
         }
 
+        $rates = DolarApiService::getRates();
+        $bcvUsdRate = (float) GlobalSetting::get('bcv_usd_rate', $rates['bcv_usd']);
+        $bcvEurRate = (float) GlobalSetting::get('bcv_eur_rate', $rates['bcv_eur']);
+
         if ($tenants->isEmpty()) {
             $tenants = collect([
                 (object) [
@@ -26,7 +30,7 @@ class SuperAdminController extends Controller
                     'rif_tax_id' => 'J-12345678-9',
                     'subdomain' => 'elsol',
                     'plan_tier' => 'pro',
-                    'bcv_rate' => (float) GlobalSetting::get('bcv_rate', 764.35),
+                    'bcv_rate' => $bcvUsdRate,
                     'is_active' => true,
                     'expires_at' => now()->addDays(365),
                 ],
@@ -36,7 +40,7 @@ class SuperAdminController extends Controller
                     'rif_tax_id' => 'J-30555666-2',
                     'subdomain' => 'plazacaracas',
                     'plan_tier' => 'enterprise',
-                    'bcv_rate' => (float) GlobalSetting::get('bcv_rate', 764.35),
+                    'bcv_rate' => $bcvUsdRate,
                     'is_active' => true,
                     'expires_at' => now()->addDays(180),
                 ],
@@ -46,7 +50,7 @@ class SuperAdminController extends Controller
                     'rif_tax_id' => 'J-40999888-1',
                     'subdomain' => 'chaguaramos',
                     'plan_tier' => 'starter',
-                    'bcv_rate' => (float) GlobalSetting::get('bcv_rate', 764.35),
+                    'bcv_rate' => $bcvUsdRate,
                     'is_active' => true,
                     'expires_at' => now()->addDays(30),
                 ]
@@ -67,12 +71,8 @@ class SuperAdminController extends Controller
             });
         }
 
-        $rates = DolarApiService::getRates();
-        $bcvRate = (float) GlobalSetting::get('bcv_rate', $rates['bcv']);
-        $paraleloRate = (float) GlobalSetting::get('paralelo_rate', $rates['paralelo']);
-        $igtfRate = (float) GlobalSetting::get('igtf_rate', 3.00);
-        $autoSync = GlobalSetting::get('auto_sync_dolarapi', '1') === '1';
-        $trialDays = (int) GlobalSetting::get('trial_days', 15);
+        $igtfRate = 3.00; // Fijado por ley SENIAT
+        $trialDays = (int) GlobalSetting::get('trial_days', 30); // 1 Mes gratis
         $supportEmail = GlobalSetting::get('support_email', 'soporte@pymora.com');
 
         return view('superadmin.index', compact(
@@ -80,10 +80,9 @@ class SuperAdminController extends Controller
             'totalTenants', 
             'activeTenants', 
             'totalMrrUsd', 
-            'bcvRate', 
-            'paraleloRate',
+            'bcvUsdRate', 
+            'bcvEurRate',
             'igtfRate',
-            'autoSync',
             'trialDays',
             'supportEmail'
         ));
@@ -97,38 +96,29 @@ class SuperAdminController extends Controller
     public function updateSettings(Request $request)
     {
         $request->validate([
-            'bcv_rate' => 'required|numeric|min:0',
-            'igtf_rate' => 'required|numeric|min:0|max:100',
             'trial_days' => 'required|integer|min:1',
             'support_email' => 'required|email',
         ]);
 
-        GlobalSetting::set('bcv_rate', $request->input('bcv_rate'), 'exchange');
-        GlobalSetting::set('igtf_rate', $request->input('igtf_rate'), 'tax');
         GlobalSetting::set('trial_days', $request->input('trial_days'), 'saas');
         GlobalSetting::set('support_email', $request->input('support_email'), 'saas');
-        GlobalSetting::set('auto_sync_dolarapi', $request->has('auto_sync_dolarapi') ? '1' : '0', 'exchange');
 
-        try {
-            Tenant::query()->update(['bcv_rate' => $request->input('bcv_rate')]);
-        } catch (Exception $e) {}
-
-        return redirect()->route('superadmin.index')->with('success', 'Configuración general actualizada exitosamente.');
+        return redirect()->route('superadmin.index')->with('success', 'Parámetros SaaS actualizados exitosamente.');
     }
 
     public function syncDolarApi(Request $request)
     {
         $rates = DolarApiService::getRates();
-        $bcv = $rates['bcv'];
-        $paralelo = $rates['paralelo'];
+        $usd = $rates['bcv_usd'];
+        $eur = $rates['bcv_eur'];
 
-        GlobalSetting::set('bcv_rate', $bcv, 'exchange');
-        GlobalSetting::set('paralelo_rate', $paralelo, 'exchange');
+        GlobalSetting::set('bcv_usd_rate', $usd, 'exchange');
+        GlobalSetting::set('bcv_eur_rate', $eur, 'exchange');
 
         try {
-            Tenant::query()->update(['bcv_rate' => $bcv]);
+            Tenant::query()->update(['bcv_rate' => $usd]);
         } catch (Exception $e) {}
 
-        return redirect()->route('superadmin.index')->with('success', "Tasa BCV ({$bcv} VES) y Paralelo ({$paralelo} VES) sincronizadas exitosamente desde DolarApi.");
+        return redirect()->route('superadmin.index')->with('success', "Tasas BCV Oficiales (Dólar: {$usd} VES | Euro: {$eur} VES) sincronizadas automáticamente desde DolarApi.");
     }
 }

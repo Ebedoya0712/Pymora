@@ -47,11 +47,10 @@
 
         <!-- Card 3: Tasa BCV -->
         <div class="glass-card p-4 rounded-xl border border-slate-800 space-y-1">
-            <div class="text-slate-400 text-xs">Tasa BCV Oficial</div>
-            <div class="text-2xl font-bold text-amber-300 font-display">{{ number_format($bcvRate, 2) }} <span class="text-xs font-normal text-slate-400">VES</span></div>
-            <div class="text-[11px] text-emerald-400 flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>DolarApi en tiempo real</span>
+            <div class="text-slate-400 text-xs">Tasa Dólar BCV</div>
+            <div class="text-2xl font-bold text-amber-300 font-display">{{ number_format($bcvUsdRate, 2) }} <span class="text-xs font-normal text-slate-400">VES</span></div>
+            <div class="text-[11px] text-sky-400 flex items-center gap-1">
+                <span>Euro: {{ number_format($bcvEurRate, 2) }} VES</span>
             </div>
         </div>
 
@@ -188,86 +187,98 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
             <div>
                 <h3 class="font-bold text-white text-sm">Configuración General del Sistema</h3>
-                <p class="text-xs text-slate-400">Parámetros monetarios, sincronización BCV y normativas fiscales SENIAT.</p>
+                <p class="text-xs text-slate-400">Tasas oficiales BCV (Dólar y Euro), impuestos SENIAT y período de prueba.</p>
             </div>
 
             <!-- Sync DolarApi Direct Form -->
             <form action="{{ route('superadmin.sync-dolarapi') }}" method="POST">
                 @csrf
                 <button type="submit" class="px-3.5 py-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 shadow-sm">
-                    <svg class="w-4 h-4 animate-spin text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    Sincronizar ahora con DolarApi
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    Sincronizar Tasas con DolarApi
                 </button>
             </form>
         </div>
 
-        <form action="{{ route('superadmin.settings.update') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            @csrf
-            
-            <!-- Section 1: Moneda & Tasa de Cambio -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Section 1: Monedas BCV (Automático) -->
             <div class="glass-card rounded-xl p-5 border border-slate-800 space-y-4">
                 <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
                     <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">💱</div>
                     <div>
-                        <h4 class="font-bold text-white text-xs uppercase tracking-wider">Tasas de Cambio & DolarApi</h4>
-                        <p class="text-[11px] text-slate-400">Configuración del dólar de referencia en Venezuela.</p>
+                        <h4 class="font-bold text-white text-xs uppercase tracking-wider">Tasas Oficiales BCV (DolarApi)</h4>
+                        <p class="text-[11px] text-slate-400">Valores de referencia obtenidos en tiempo real.</p>
                     </div>
                 </div>
 
                 <div class="space-y-3 text-xs">
-                    <div>
-                        <label class="block text-slate-300 font-medium mb-1">Tasa BCV Oficial (VES/USD)</label>
-                        <input type="number" step="0.0001" name="bcv_rate" value="{{ number_format($bcvRate, 4, '.', '') }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-emerald-400 font-mono font-bold focus:outline-none focus:border-indigo-500">
+                    <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800 flex items-center justify-between">
+                        <div>
+                            <span class="text-slate-400 font-medium block">Dólar BCV Oficial (USD)</span>
+                            <span class="text-xl font-bold text-emerald-400 font-mono">{{ number_format($bcvUsdRate, 4) }} VES</span>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            AUTOMÁTICO
+                        </span>
                     </div>
 
-                    <div>
-                        <label class="block text-slate-300 font-medium mb-1">Tasa Paralelo (VES/USD)</label>
-                        <input type="number" step="0.0001" name="paralelo_rate" value="{{ number_format($paraleloRate, 4, '.', '') }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-amber-400 font-mono font-bold focus:outline-none focus:border-indigo-500">
+                    <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800 flex items-center justify-between">
+                        <div>
+                            <span class="text-slate-400 font-medium block">Euro BCV Oficial (EUR)</span>
+                            <span class="text-xl font-bold text-sky-400 font-mono">{{ number_format($bcvEurRate, 4) }} VES</span>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-sky-500/20 text-sky-300 border border-sky-500/30 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>
+                            AUTOMÁTICO
+                        </span>
                     </div>
 
-                    <div class="pt-2 border-t border-slate-800 flex items-center gap-2">
-                        <input type="checkbox" id="auto_sync_dolarapi" name="auto_sync_dolarapi" {{ $autoSync ? 'checked' : '' }} class="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-indigo-500">
-                        <label for="auto_sync_dolarapi" class="text-xs text-slate-300 select-none">Sincronización automática periódica vía DolarApi</label>
-                    </div>
+                    <p class="text-[11px] text-slate-400 italic">
+                        💡 Las tasas monetarias no requieren edición manual ya que se actualizan de forma continua desde la fuente oficial.
+                    </p>
                 </div>
             </div>
 
-            <!-- Section 2: Impuestos & SENIAT -->
-            <div class="glass-card rounded-xl p-5 border border-slate-800 space-y-4">
+            <!-- Section 2: Impuestos SENIAT & Parámetros SaaS -->
+            <form action="{{ route('superadmin.settings.update') }}" method="POST" class="glass-card rounded-xl p-5 border border-slate-800 space-y-4">
+                @csrf
                 <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
-                    <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">🧾</div>
+                    <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">⚙️</div>
                     <div>
-                        <h4 class="font-bold text-white text-xs uppercase tracking-wider">Normativa Fiscal SENIAT</h4>
-                        <p class="text-[11px] text-slate-400">Tasas de impuesto de ley para facturación.</p>
+                        <h4 class="font-bold text-white text-xs uppercase tracking-wider">Parámetros del SaaS & Ley SENIAT</h4>
+                        <p class="text-[11px] text-slate-400">Reglas comerciales y periodos de suscripción.</p>
                     </div>
                 </div>
 
                 <div class="space-y-3 text-xs">
                     <div>
-                        <label class="block text-slate-300 font-medium mb-1">Porcentaje IGTF (%) - Pagos Divisa / Cripto</label>
-                        <input type="number" step="0.01" name="igtf_rate" value="{{ number_format($igtfRate, 2, '.', '') }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 font-mono font-bold focus:outline-none focus:border-indigo-500">
+                        <label class="block text-slate-300 font-medium mb-1">Impuesto IGTF Ley SENIAT (%)</label>
+                        <div class="relative">
+                            <input type="text" value="3.00%" disabled class="w-full bg-slate-900/60 border border-slate-800 rounded-lg p-2.5 text-slate-400 font-mono font-bold cursor-not-allowed">
+                            <span class="absolute right-3 top-2.5 text-[10px] font-semibold bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">FIJO POR LEY (3%)</span>
+                        </div>
                     </div>
 
                     <div>
-                        <label class="block text-slate-300 font-medium mb-1">Días de Prueba Gratis para Inquilinos</label>
-                        <input type="number" name="trial_days" value="{{ $trialDays }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+                        <label class="block text-slate-300 font-medium mb-1">Días de Prueba Gratis (1 Mes = 30 Días)</label>
+                        <input type="number" name="trial_days" value="{{ $trialDays }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-indigo-300 font-mono font-bold focus:outline-none focus:border-indigo-500">
                     </div>
 
                     <div>
-                        <label class="block text-slate-300 font-medium mb-1">Correo Electrónico de Soporte</label>
+                        <label class="block text-slate-300 font-medium mb-1">Correo Electrónico de Soporte Técnic</label>
                         <input type="email" name="support_email" value="{{ $supportEmail }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-indigo-500">
                     </div>
                 </div>
-            </div>
 
-            <!-- Submit Button -->
-            <div class="md:col-span-2 flex justify-end">
-                <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    Guardar Configuración General
-                </button>
-            </div>
-        </form>
+                <div class="pt-2 flex justify-end">
+                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Guardar Parámetros SaaS
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Modal for registering new Tenant -->

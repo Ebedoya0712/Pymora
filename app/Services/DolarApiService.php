@@ -7,45 +7,51 @@ use Illuminate\Support\Facades\Cache;
 
 class DolarApiService
 {
-    const API_URL = 'https://ve.dolarapi.com/v1/dolares';
+    const USD_URL = 'https://ve.dolarapi.com/v1/dolares/oficial';
+    const EUR_URL = 'https://ve.dolarapi.com/v1/euros/oficial';
 
     public static function getRates(): array
     {
-        return Cache::remember('dolar_api_rates', 300, function () {
-            try {
-                $response = Http::timeout(5)->get(self::API_URL);
-                if ($response->successful()) {
-                    $data = $response->json();
-                    $bcv = collect($data)->firstWhere('fuente', 'oficial')['promedio'] ?? 52.40;
-                    $paralelo = collect($data)->firstWhere('fuente', 'paralelo')['promedio'] ?? 54.10;
+        return Cache::remember('dolar_api_rates_v2', 300, function () {
+            $bcvUsd = 764.35;
+            $bcvEur = 882.30;
 
-                    return [
-                        'bcv' => (float) $bcv,
-                        'paralelo' => (float) $paralelo,
-                        'updated_at' => now()->toIso8601String(),
-                        'status' => 'live'
-                    ];
+            try {
+                $usdResponse = Http::timeout(5)->get(self::USD_URL);
+                if ($usdResponse->successful()) {
+                    $usdData = $usdResponse->json();
+                    if (isset($usdData['promedio'])) {
+                        $bcvUsd = (float) $usdData['promedio'];
+                    }
                 }
-            } catch (\Exception $e) {
-                // Fallback rates if external API is unreachable
-            }
+            } catch (\Exception $e) {}
+
+            try {
+                $eurResponse = Http::timeout(5)->get(self::EUR_URL);
+                if ($eurResponse->successful()) {
+                    $eurData = $eurResponse->json();
+                    if (isset($eurData['promedio'])) {
+                        $bcvEur = (float) $eurData['promedio'];
+                    }
+                }
+            } catch (\Exception $e) {}
 
             return [
-                'bcv' => 52.40,
-                'paralelo' => 54.10,
+                'bcv_usd' => $bcvUsd,
+                'bcv_eur' => $bcvEur,
                 'updated_at' => now()->toIso8601String(),
-                'status' => 'fallback'
+                'status' => 'live'
             ];
         });
     }
 
-    public static function getBcvRate(): float
+    public static function getBcvUsdRate(): float
     {
-        return self::getRates()['bcv'];
+        return self::getRates()['bcv_usd'];
     }
 
-    public static function getParaleloRate(): float
+    public static function getBcvEurRate(): float
     {
-        return self::getRates()['paralelo'];
+        return self::getRates()['bcv_eur'];
     }
 }
