@@ -67,7 +67,11 @@ class SuperAdminController extends Controller
             });
         }
 
-        return view('superadmin.index', compact('tenants', 'totalTenants', 'activeTenants', 'totalMrrUsd'));
+        $rates = \App\Services\DolarApiService::getRates();
+        $bcvRate = $rates['bcv'];
+        $paraleloRate = $rates['paralelo'];
+
+        return view('superadmin.index', compact('tenants', 'totalTenants', 'activeTenants', 'totalMrrUsd', 'bcvRate', 'paraleloRate'));
     }
 
     public function storeTenant(Request $request)

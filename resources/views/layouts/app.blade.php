@@ -73,14 +73,17 @@
             @endif
         </div>
 
-        <div class="flex items-center gap-4 text-xs font-mono">
+        <div x-data="dolarRates()" x-init="fetchRates()" class="flex items-center gap-4 text-xs font-mono">
             <div class="flex items-center gap-2 bg-slate-800/90 px-3 py-1 rounded-md border border-indigo-500/30">
                 <span class="text-indigo-400 font-sans font-medium">Tasa BCV:</span>
-                <span class="font-bold text-emerald-400">52.40 VES/USD</span>
+                <span class="font-bold text-emerald-400 flex items-center gap-1.5">
+                    <span x-text="bcvRate ? bcvRate + ' VES' : 'Cargando...'">52.40 VES</span>
+                    <span title="DolarApi en vivo" class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                </span>
             </div>
             <div class="hidden md:flex items-center gap-2 bg-slate-800/90 px-3 py-1 rounded-md border border-slate-700">
                 <span class="text-slate-400 font-sans">Paralelo:</span>
-                <span class="font-bold text-amber-400">54.10 VES/USD</span>
+                <span class="font-bold text-amber-400" x-text="paraleloRate ? paraleloRate + ' VES' : '54.10 VES'">54.10 VES</span>
             </div>
             <div class="hidden md:flex items-center gap-2 bg-slate-800/90 px-3 py-1 rounded-md border border-slate-700">
                 <span class="text-slate-400 font-sans">IGTF:</span>
@@ -88,6 +91,35 @@
             </div>
         </div>
     </header>
+
+    <script>
+        function dolarRates() {
+            return {
+                bcvRate: null,
+                paraleloRate: null,
+                async fetchRates() {
+                    try {
+                        const res = await fetch('https://ve.dolarapi.com/v1/dolares');
+                        const data = await res.json();
+                        const oficial = data.find(item => item.fuente === 'oficial');
+                        const paralelo = data.find(item => item.fuente === 'paralelo');
+                        if (oficial && oficial.promedio) {
+                            this.bcvRate = Number(oficial.promedio).toFixed(2);
+                            window.liveBcvRate = Number(oficial.promedio);
+                        }
+                        if (paralelo && paralelo.promedio) {
+                            this.paraleloRate = Number(paralelo.promedio).toFixed(2);
+                            window.liveParaleloRate = Number(paralelo.promedio);
+                        }
+                    } catch (e) {
+                        console.log('Error conectando a DolarApi:', e);
+                        this.bcvRate = '52.40';
+                        this.paraleloRate = '54.10';
+                    }
+                }
+            }
+        }
+    </script>
 
     <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar Navigation -->

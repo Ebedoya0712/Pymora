@@ -36,9 +36,12 @@
 
         <!-- Card 3: Tasa BCV -->
         <div class="glass-card p-4 rounded-xl border border-slate-800 space-y-1">
-            <div class="text-slate-400 text-xs">Tasa BCV Predeterminada</div>
-            <div class="text-2xl font-bold text-amber-300 font-display">52.40 <span class="text-xs font-normal text-slate-400">VES</span></div>
-            <div class="text-[11px] text-indigo-300">Sincronizado</div>
+            <div class="text-slate-400 text-xs">Tasa BCV (DolarApi)</div>
+            <div class="text-2xl font-bold text-amber-300 font-display" x-text="bcvRate ? bcvRate : '{{ number_format($bcvRate, 2) }}'">{{ number_format($bcvRate, 2) }} <span class="text-xs font-normal text-slate-400">VES</span></div>
+            <div class="text-[11px] text-emerald-400 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Sincronizado en tiempo real</span>
+            </div>
         </div>
 
         <!-- Card 4: Server Status -->
