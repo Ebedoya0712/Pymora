@@ -92,6 +92,21 @@
         </div>
     </header>
 
+    @if(session('superadmin_impersonating'))
+    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-amber-600 px-4 py-2 text-white text-xs font-semibold flex items-center justify-between shadow-lg">
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-300 animate-ping"></span>
+            <span>🔍 MODO AUDITORÍA SUPER ADMIN: Estás previsualizando la vista de <strong>{{ session('tenant_name') }}</strong></span>
+        </div>
+        <form action="{{ route('superadmin.stop-impersonation') }}" method="POST">
+            @csrf
+            <button type="submit" class="px-3 py-1 bg-white/20 hover:bg-white text-white hover:text-slate-900 rounded font-bold transition-all text-[11px]">
+                Salir de Modo Auditoría &rarr;
+            </button>
+        </form>
+    </div>
+    @endif
+
     <script>
         function dolarRates() {
             return {

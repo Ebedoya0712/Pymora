@@ -28,6 +28,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 // Super Admin SaaS Owner Routes
 Route::get('/superadmin', [SuperAdminController::class, 'index'])->name('superadmin.index');
 Route::post('/superadmin/tenants', [SuperAdminController::class, 'storeTenant'])->name('superadmin.tenants.store');
+Route::put('/superadmin/tenants/{id}', [SuperAdminController::class, 'updateTenant'])->name('superadmin.tenants.update');
+Route::post('/superadmin/tenants/{id}/toggle-status', [SuperAdminController::class, 'toggleTenantStatus'])->name('superadmin.tenants.toggle-status');
+Route::post('/superadmin/tenants/{id}/impersonate', [SuperAdminController::class, 'impersonateTenant'])->name('superadmin.tenants.impersonate');
+Route::post('/superadmin/stop-impersonation', [SuperAdminController::class, 'stopImpersonation'])->name('superadmin.stop-impersonation');
 Route::post('/superadmin/settings', [SuperAdminController::class, 'updateSettings'])->name('superadmin.settings.update');
 Route::post('/superadmin/sync-dolarapi', [SuperAdminController::class, 'syncDolarApi'])->name('superadmin.sync-dolarapi');
 

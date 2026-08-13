@@ -3,7 +3,7 @@
 @section('title', 'Panel de Administración - Pymora')
 
 @section('content')
-<div x-data="{ openTenantModal: false, activeTab: '{{ session('success') ? 'settings' : 'tenants' }}' }" class="space-y-6">
+<div x-data="{ openTenantModal: false, editTenantModal: false, editTenantData: {}, activeTab: '{{ session('success') ? 'tenants' : 'tenants' }}' }" class="space-y-6">
 
     <!-- Flash Alert Message -->
     @if(session('success'))
@@ -19,13 +19,15 @@
     <!-- Header Title & Action -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
         <div>
-            <h2 class="text-xl font-bold text-white font-display">Panel de Administración</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Gestión de empresas registradas, licencias y parámetros generales.</p>
+            <h2 class="text-xl font-bold text-white font-display flex items-center gap-2">
+                <span>👑 Panel de Super Admin</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Gestión de empresas registradas, licencias y parámetros generales del SaaS.</p>
         </div>
         
         <button @click="openTenantModal = true" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-md transition-all flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Registrar Empresa
+            Registrar Nueva Empresa
         </button>
     </div>
 
@@ -33,48 +35,48 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Card 1: Tenants -->
         <div class="glass-card p-4 rounded-xl border border-slate-800 space-y-1">
-            <div class="text-slate-400 text-xs">Empresas Registradas</div>
+            <div class="text-slate-400 text-xs font-medium">Empresas Registradas</div>
             <div class="text-2xl font-bold text-white font-display">{{ $totalTenants }}</div>
-            <div class="text-[11px] text-emerald-400">{{ $activeTenants }} Activas</div>
+            <div class="text-[11px] text-emerald-400 font-semibold">{{ $activeTenants }} Activas en SaaS</div>
         </div>
 
         <!-- Card 2: Revenue -->
         <div class="glass-card p-4 rounded-xl border border-slate-800 space-y-1">
-            <div class="text-slate-400 text-xs">Ingresos Mensuales</div>
+            <div class="text-slate-400 text-xs font-medium">Ingresos Recurrentes (MRR)</div>
             <div class="text-2xl font-bold text-emerald-400 font-display">${{ number_format($totalMrrUsd, 2) }} <span class="text-xs font-normal text-slate-400">/ mes</span></div>
             <div class="text-[11px] text-slate-400">Suscripciones activas</div>
         </div>
 
         <!-- Card 3: Tasa BCV -->
         <div class="glass-card p-4 rounded-xl border border-slate-800 space-y-1">
-            <div class="text-slate-400 text-xs">Tasa Dólar BCV</div>
+            <div class="text-slate-400 text-xs font-medium">Tasa Oficial Dólar BCV</div>
             <div class="text-2xl font-bold text-amber-300 font-display">{{ number_format($bcvUsdRate, 2) }} <span class="text-xs font-normal text-slate-400">VES</span></div>
-            <div class="text-[11px] text-sky-400 flex items-center gap-1">
+            <div class="text-[11px] text-sky-400 flex items-center gap-1 font-mono">
                 <span>Euro: {{ number_format($bcvEurRate, 2) }} VES</span>
             </div>
         </div>
 
         <!-- Card 4: Server Status -->
         <div class="glass-card p-4 rounded-xl border border-slate-800 space-y-1">
-            <div class="text-slate-400 text-xs">Estado del Servidor</div>
+            <div class="text-slate-400 text-xs font-medium">Estado Plataforma SaaS</div>
             <div class="text-2xl font-bold text-indigo-400 font-display">100%</div>
-            <div class="text-[11px] text-emerald-400">Servidores Activos</div>
+            <div class="text-[11px] text-emerald-400 font-semibold">Servidores & DolarApi Online</div>
         </div>
     </div>
 
     <!-- Navigation Tabs -->
     <div class="flex items-center gap-2 border-b border-slate-800 text-xs font-medium">
-        <button @click="activeTab = 'tenants'" :class="activeTab === 'tenants' ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10' : 'border-transparent text-slate-400 hover:text-slate-200'" class="px-4 py-2 border-b-2 rounded-t-lg transition-all flex items-center gap-2">
+        <button @click="activeTab = 'tenants'" :class="activeTab === 'tenants' ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10 font-bold' : 'border-transparent text-slate-400 hover:text-slate-200'" class="px-4 py-2.5 border-b-2 rounded-t-lg transition-all flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-            Empresas ({{ count($tenants) }})
+            Empresas Inquilinas ({{ count($tenants) }})
         </button>
-        <button @click="activeTab = 'plans'" :class="activeTab === 'plans' ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10' : 'border-transparent text-slate-400 hover:text-slate-200'" class="px-4 py-2 border-b-2 rounded-t-lg transition-all flex items-center gap-2">
+        <button @click="activeTab = 'plans'" :class="activeTab === 'plans' ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10 font-bold' : 'border-transparent text-slate-400 hover:text-slate-200'" class="px-4 py-2.5 border-b-2 rounded-t-lg transition-all flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-            Planes & Precios
+            Planes & Planes Tarifarios
         </button>
-        <button @click="activeTab = 'settings'" :class="activeTab === 'settings' ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10' : 'border-transparent text-slate-400 hover:text-slate-200'" class="px-4 py-2 border-b-2 rounded-t-lg transition-all flex items-center gap-2">
+        <button @click="activeTab = 'settings'" :class="activeTab === 'settings' ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10 font-bold' : 'border-transparent text-slate-400 hover:text-slate-200'" class="px-4 py-2.5 border-b-2 rounded-t-lg transition-all flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            Configuración General
+            Parámetros & Configuración
         </button>
     </div>
 
@@ -82,11 +84,11 @@
     <div x-show="activeTab === 'tenants'" class="glass-card rounded-xl overflow-hidden border border-slate-800">
         <div class="p-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-                <h3 class="font-bold text-white text-sm">Empresas Registradas</h3>
-                <p class="text-[11px] text-slate-400">Listado de comercios y su estado actual.</p>
+                <h3 class="font-bold text-white text-sm font-display">Directorio de Inquilinos Pymora</h3>
+                <p class="text-[11px] text-slate-400">Control de empresas, suscripciones activas y auditoría rápida.</p>
             </div>
             <div class="flex items-center gap-2">
-                <input type="text" placeholder="Buscar empresa..." class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 w-52">
+                <input type="text" placeholder="Buscar por nombre o RIF..." class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 w-56">
             </div>
         </div>
 
@@ -100,17 +102,17 @@
                         <th class="p-3">Tasa BCV</th>
                         <th class="p-3">Vencimiento</th>
                         <th class="p-3">Estado</th>
-                        <th class="p-3 text-right">Acciones</th>
+                        <th class="p-3 text-right">Acciones Super Admin</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800/60">
                     @foreach($tenants as $t)
                     <tr class="hover:bg-slate-800/40 transition-colors">
                         <td class="p-3">
-                            <div class="font-bold text-white">{{ $t->name }}</div>
+                            <div class="font-bold text-white text-sm">{{ $t->name }}</div>
                             <div class="text-[10px] text-slate-400 font-mono">{{ $t->rif_tax_id }}</div>
                         </td>
-                        <td class="p-3 font-mono text-indigo-400">
+                        <td class="p-3 font-mono text-indigo-400 font-semibold">
                             {{ $t->subdomain }}.pymora.com
                         </td>
                         <td class="p-3">
@@ -118,8 +120,10 @@
                                 {{ strtoupper($t->plan_tier) }}
                             </span>
                         </td>
-                        <td class="p-3 font-mono text-emerald-400">{{ number_format($t->bcv_rate, 2) }} VES</td>
-                        <td class="p-3 text-slate-400 font-mono">{{ $t->expires_at ? $t->expires_at->format('Y-m-d') : 'Activo' }}</td>
+                        <td class="p-3 font-mono text-emerald-400 font-bold">{{ number_format($t->bcv_rate, 2) }} VES</td>
+                        <td class="p-3 text-slate-400 font-mono">
+                            {{ is_object($t->expires_at) ? $t->expires_at->format('Y-m-d') : ($t->expires_at ?? '365 días') }}
+                        </td>
                         <td class="p-3">
                             @if($t->is_active ?? true)
                                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">ACTIVO</span>
@@ -129,12 +133,27 @@
                         </td>
                         <td class="p-3 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <button class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] rounded border border-slate-700">
+                                <!-- Impersonate / Audit 1-Click Button -->
+                                <form action="{{ route('superadmin.tenants.impersonate', $t->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" title="Ingresar en Modo Auditoría" class="px-2.5 py-1 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 text-[10px] rounded font-semibold transition-all flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        Auditar
+                                    </button>
+                                </form>
+
+                                <!-- Edit Tenant Button -->
+                                <button @click="editTenantData = { id: {{ $t->id }}, name: '{{ $t->name }}', rif_tax_id: '{{ $t->rif_tax_id }}', subdomain: '{{ $t->subdomain }}', plan_tier: '{{ $t->plan_tier }}' }; editTenantModal = true" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] rounded border border-slate-700 font-medium">
                                     Editar
                                 </button>
-                                <a href="{{ route('dashboard') }}" class="px-2 py-1 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 text-[10px] rounded font-semibold">
-                                    Ingresar
-                                </a>
+
+                                <!-- Toggle Status Button -->
+                                <form action="{{ route('superadmin.tenants.toggle-status', $t->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="px-2.5 py-1 {{ ($t->is_active ?? true) ? 'bg-rose-500/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30' : 'bg-emerald-500/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30' }} text-[10px] rounded font-semibold transition-all">
+                                        {{ ($t->is_active ?? true) ? 'Suspender' : 'Activar' }}
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -266,7 +285,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-slate-300 font-medium mb-1">Correo Electrónico de Soporte Técnic</label>
+                        <label class="block text-slate-300 font-medium mb-1">Correo Electrónico de Soporte Técnico</label>
                         <input type="email" name="support_email" value="{{ $supportEmail }}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-indigo-500">
                     </div>
                 </div>
@@ -283,48 +302,92 @@
 
     <!-- Modal for registering new Tenant -->
     <div x-show="openTenantModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm" x-cloak>
-        <div class="glass-card w-full max-w-lg rounded-xl p-5 space-y-3 border border-slate-700">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h3 class="font-bold text-white text-sm">Registrar Empresa</h3>
+        <div class="glass-card w-full max-w-lg rounded-2xl p-6 space-y-4 border border-slate-700 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-white text-sm font-display">Registrar Nueva Empresa Inquilina</h3>
                 <button @click="openTenantModal = false" class="text-slate-400 hover:text-white">&times;</button>
             </div>
 
-            <form action="{{ route('superadmin.tenants.store') }}" method="POST" class="space-y-3 text-xs">
+            <form action="{{ route('superadmin.tenants.store') }}" method="POST" class="space-y-3.5 text-xs">
                 @csrf
                 <div>
-                    <label class="block text-slate-400 mb-1">Nombre Comercial</label>
-                    <input type="text" name="name" required placeholder="Ej: Comercializadora Valera C.A." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:outline-none focus:border-indigo-500">
+                    <label class="block text-slate-300 font-medium mb-1">Nombre Comercial de la Empresa</label>
+                    <input type="text" name="name" required placeholder="Ej: Comercializadora Valera C.A." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-indigo-500">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-slate-400 mb-1">RIF</label>
-                        <input type="text" name="rif_tax_id" required placeholder="J-12345678-0" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+                        <label class="block text-slate-300 font-medium mb-1">RIF / Cédula Fiscal</label>
+                        <input type="text" name="rif_tax_id" required placeholder="J-12345678-0" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
                     </div>
                     <div>
-                        <label class="block text-slate-400 mb-1">Subdominio</label>
-                        <input type="text" name="subdomain" required placeholder="valera" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+                        <label class="block text-slate-300 font-medium mb-1">Subdominio Deseado</label>
+                        <input type="text" name="subdomain" required placeholder="valera" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-slate-400 mb-1">Plan</label>
-                        <select name="plan_tier" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:outline-none focus:border-indigo-500">
+                        <label class="block text-slate-300 font-medium mb-1">Plan Tarifario</label>
+                        <select name="plan_tier" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 font-medium">
                             <option value="starter">Starter ($29/mes)</option>
                             <option value="pro" selected>Pro Multi-Sucursal ($79/mes)</option>
                             <option value="enterprise">Enterprise ($199/mes)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-slate-400 mb-1">Correo Administrador</label>
-                        <input type="email" name="email" required placeholder="admin@empresa.com" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:outline-none focus:border-indigo-500">
+                        <label class="block text-slate-300 font-medium mb-1">Correo de Administrador</label>
+                        <input type="email" name="email" required placeholder="admin@empresa.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-indigo-500">
                     </div>
                 </div>
 
                 <div class="pt-2 flex justify-end gap-2">
-                    <button type="button" @click="openTenantModal = false" class="px-3 py-1.5 bg-slate-800 text-slate-300 rounded-lg">Cancelar</button>
-                    <button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white font-semibold rounded-lg">Crear Empresa</button>
+                    <button type="button" @click="openTenantModal = false" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-md">Crear Empresa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for editing existing Tenant -->
+    <div x-show="editTenantModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm" x-cloak>
+        <div class="glass-card w-full max-w-lg rounded-2xl p-6 space-y-4 border border-slate-700 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-white text-sm font-display">Editar Empresa Inquilina</h3>
+                <button @click="editTenantModal = false" class="text-slate-400 hover:text-white">&times;</button>
+            </div>
+
+            <form :action="'{{ url('superadmin/tenants') }}/' + editTenantData.id" method="POST" class="space-y-3.5 text-xs">
+                @csrf
+                @method('PUT')
+                <div>
+                    <label class="block text-slate-300 font-medium mb-1">Nombre Comercial de la Empresa</label>
+                    <input type="text" name="name" x-model="editTenantData.name" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-300 font-medium mb-1">RIF / Cédula Fiscal</label>
+                        <input type="text" name="rif_tax_id" x-model="editTenantData.rif_tax_id" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 font-medium mb-1">Subdominio</label>
+                        <input type="text" name="subdomain" x-model="editTenantData.subdomain" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-medium mb-1">Plan Tarifario</label>
+                    <select name="plan_tier" x-model="editTenantData.plan_tier" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 font-medium">
+                        <option value="starter">Starter ($29/mes)</option>
+                        <option value="pro">Pro Multi-Sucursal ($79/mes)</option>
+                        <option value="enterprise">Enterprise ($199/mes)</option>
+                    </select>
+                </div>
+
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" @click="editTenantModal = false" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-md">Guardar Cambios</button>
                 </div>
             </form>
         </div>
