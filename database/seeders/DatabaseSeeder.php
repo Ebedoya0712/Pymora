@@ -19,6 +19,7 @@ use App\Models\Quote;
 use App\Models\StockTransfer;
 use App\Models\TaxRetention;
 use App\Models\SellerCommission;
+use App\Models\SaasPayment;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -332,6 +333,72 @@ class DatabaseSeeder extends Seeder
             'commission_rate' => 3.00,
             'commission_amount_usd' => 0.27,
             'status' => 'pending',
+        ]);
+
+        // 16. SaaS Subscription Payments
+        SaasPayment::create([
+            'tenant_id' => $tenant->id,
+            'amount_usd' => 158.00,
+            'exchange_rate_bcv' => 52.4000,
+            'amount_ves' => 8279.20,
+            'payment_method' => 'pago_movil',
+            'reference_code' => 'PM-TODAY-001',
+            'payment_date' => now()->toDateString(),
+            'plan_tier' => 'pro',
+            'months_paid' => 2,
+            'notes' => 'Pago recibido hoy vía Pago Móvil Banesco.',
+        ]);
+
+        SaasPayment::create([
+            'tenant_id' => $tenant->id,
+            'amount_usd' => 79.00,
+            'exchange_rate_bcv' => 52.4000,
+            'amount_ves' => 4139.60,
+            'payment_method' => 'binance_usdt',
+            'reference_code' => 'BIN-992211',
+            'payment_date' => now()->subDays(1)->toDateString(),
+            'plan_tier' => 'pro',
+            'months_paid' => 1,
+            'notes' => 'Abono en Binance USDT.',
+        ]);
+
+        SaasPayment::create([
+            'tenant_id' => $tenant->id,
+            'amount_usd' => 199.00,
+            'exchange_rate_bcv' => 52.4000,
+            'amount_ves' => 10427.60,
+            'payment_method' => 'zelle',
+            'reference_code' => 'ZEL-883322',
+            'payment_date' => now()->subDays(3)->toDateString(),
+            'plan_tier' => 'enterprise',
+            'months_paid' => 1,
+            'notes' => 'Plan Enterprise renovado por Zelle.',
+        ]);
+
+        SaasPayment::create([
+            'tenant_id' => $tenant->id,
+            'amount_usd' => 29.00,
+            'exchange_rate_bcv' => 52.4000,
+            'amount_ves' => 1519.60,
+            'payment_method' => 'cash_usd',
+            'reference_code' => 'CASH-001',
+            'payment_date' => now()->subDays(5)->toDateString(),
+            'plan_tier' => 'starter',
+            'months_paid' => 1,
+            'notes' => 'Efectivo en oficina.',
+        ]);
+
+        SaasPayment::create([
+            'tenant_id' => $tenant->id,
+            'amount_usd' => 237.00,
+            'exchange_rate_bcv' => 52.4000,
+            'amount_ves' => 12418.80,
+            'payment_method' => 'bank_transfer',
+            'reference_code' => 'TRF-774433',
+            'payment_date' => now()->subDays(12)->toDateString(),
+            'plan_tier' => 'pro',
+            'months_paid' => 3,
+            'notes' => 'Renovación trimestral Plan Pro vía Transferencia Bancaria.',
         ]);
     }
 }
