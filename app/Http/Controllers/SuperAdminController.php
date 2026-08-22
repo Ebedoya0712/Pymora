@@ -3,15 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tenant;
-<<<<<<< HEAD
 use App\Models\Branch;
 use App\Models\User;
 use App\Models\CashRegister;
 use App\Models\BankAccount;
-=======
-use App\Models\User;
 use App\Models\SaasPayment;
->>>>>>> de6794c (feat: módulo de Finanzas Propias SaaS con gráficas interactivas, gestión de Usuarios SaaS y menú exclusivo de Super Admin)
 use App\Models\GlobalSetting;
 use App\Services\DolarApiService;
 use Illuminate\Http\Request;
@@ -21,6 +17,40 @@ use Carbon\Carbon;
 
 class SuperAdminController extends Controller
 {
+    public static function getPlans(): array
+    {
+        $defaults = [
+            'trial' => [
+                'id' => 'trial',
+                'name' => 'Plan 1 Mes Gratis',
+                'price' => 0,
+                'features' => "✓ 1 Mes de acceso completo gratis\n✓ 1 Sucursal\n✓ 1 Caja POS\n✓ Acceso inicial completo para pruebas",
+            ],
+            'starter' => [
+                'id' => 'starter',
+                'name' => 'Plan Sencillo',
+                'price' => 29,
+                'features' => "✓ 1 Sucursal\n✓ 2 Cajas POS\n✓ 5 Usuarios\n✓ Control de Inventario & Ventas",
+            ],
+            'pro' => [
+                'id' => 'pro',
+                'name' => 'Plan Pro (Avanzado)',
+                'price' => 79,
+                'features' => "✓ Sucursales Ilimitadas\n✓ Cajas Ilimitadas\n✓ Usuarios Ilimitados\n✓ Cotizaciones & Traslados\n✓ Soporte Prioritario VIP",
+            ],
+        ];
+
+        $stored = GlobalSetting::get('saas_plans');
+        if ($stored) {
+            $decoded = json_decode($stored, true);
+            if (is_array($decoded)) {
+                return array_merge($defaults, $decoded);
+            }
+        }
+
+        return $defaults;
+    }
+
     public function index()
     {
         if (!session('is_impersonating')) {
@@ -40,20 +70,17 @@ class SuperAdminController extends Controller
         $bcvUsdRate = (float) GlobalSetting::get('bcv_usd_rate', $rates['bcv_usd']);
         $bcvEurRate = (float) GlobalSetting::get('bcv_eur_rate', $rates['bcv_eur']);
 
+        $plans = self::getPlans();
+
         if ($tenants->isEmpty()) {
             $totalTenants = 3;
             $activeTenants = 3;
-            $totalMrrUsd = 307.00;
+            $totalMrrUsd = (float) ($plans['starter']['price'] + $plans['pro']['price'] + $plans['enterprise']['price']);
         } else {
             $totalTenants = $tenants->count();
             $activeTenants = $tenants->where('is_active', true)->count();
-            $totalMrrUsd = $tenants->where('is_active', true)->sum(function ($t) {
-                return match($t->plan_tier) {
-                    'starter' => 29,
-                    'pro' => 79,
-                    'enterprise' => 199,
-                    default => 0
-                };
+            $totalMrrUsd = $tenants->where('is_active', true)->sum(function ($t) use ($plans) {
+                return (float) ($plans[$t->plan_tier]['price'] ?? 0);
             });
         }
 
@@ -61,6 +88,7 @@ class SuperAdminController extends Controller
         $trialDays = (int) GlobalSetting::get('trial_days', 30);
         $supportEmail = GlobalSetting::get('support_email', 'soporte@pymora.com');
         $broadcastMessage = GlobalSetting::get('broadcast_message', '');
+        $businessTypes = Tenant::getBusinessTypes();
 
         return view('superadmin.index', compact(
             'tenants', 
@@ -72,11 +100,13 @@ class SuperAdminController extends Controller
             'igtfRate',
             'trialDays',
             'supportEmail',
-            'broadcastMessage'
+            'broadcastMessage',
+            'plans',
+            'businessTypes'
         ));
     }
 
-    public function finanzas()
+    public function finanzas(Request $request)
     {
         if (!session('is_impersonating')) {
             session([
@@ -97,7 +127,6 @@ class SuperAdminController extends Controller
         $bcvUsdRate = (float) GlobalSetting::get('bcv_usd_rate', $rates['bcv_usd']);
 
         $today = now()->toDateString();
-        $sevenDaysAgo = now()->subDays(7)->toDateString();
 
         // Revenue Breakdown: Day, Week, Month, Total
         $todayPayments = $payments->filter(fn($p) => Carbon::parse($p->payment_date)->toDateString() === $today);
@@ -107,9 +136,7 @@ class SuperAdminController extends Controller
         });
 
         $weekRevenueUsd = (float) $payments->filter(fn($p) => Carbon::parse($p->payment_date)->gte(now()->startOfWeek()))->sum('amount_usd');
-
         $thisMonthRevenueUsd = (float) $payments->filter(fn($p) => Carbon::parse($p->payment_date)->isCurrentMonth())->sum('amount_usd');
-
         $totalRevenueUsd = (float) $payments->sum('amount_usd');
 
         $activeTenantsCount = $tenants->where('is_active', true)->count();
@@ -117,21 +144,47 @@ class SuperAdminController extends Controller
             return $t->expires_at && Carbon::parse($t->expires_at)->diffInDays(now(), false) >= -30 && Carbon::parse($t->expires_at)->isFuture();
         })->count();
 
-        // Chart 1: Last 7 Days Daily Breakdown
+        // Dynamic Chart Period Filtering: 7days, months, years
+        $period = $request->input('period', '7days');
         $dailyLabels = [];
         $dailyValues = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = now()->subDays($i);
-            $dateStr = $date->toDateString();
-            $dailyLabels[] = $date->translatedFormat('D d/m');
-            $dailyValues[] = (float) $payments->filter(fn($p) => Carbon::parse($p->payment_date)->toDateString() === $dateStr)->sum('amount_usd');
+        $chartTitle = 'Evolución Diaria de Ganancias ($ USD)';
+        $chartSubtitle = 'Ingresos registrados en los últimos 7 días.';
+
+        if ($period === 'months') {
+            $chartTitle = 'Evolución Mensual de Ganancias ($ USD)';
+            $chartSubtitle = 'Ingresos acumulados mes a mes (últimos 12 meses).';
+            for ($i = 11; $i >= 0; $i--) {
+                $date = now()->subMonths($i);
+                $monthStr = $date->format('Y-m');
+                $dailyLabels[] = ucfirst($date->translatedFormat('M Y'));
+                $dailyValues[] = (float) $payments->filter(fn($p) => Carbon::parse($p->payment_date)->format('Y-m') === $monthStr)->sum('amount_usd');
+            }
+        } elseif ($period === 'years') {
+            $chartTitle = 'Evolución Anual de Ganancias ($ USD)';
+            $chartSubtitle = 'Ingresos acumulados por año fiscal.';
+            $currentYear = (int) now()->format('Y');
+            for ($year = $currentYear - 4; $year <= $currentYear; $year++) {
+                $dailyLabels[] = (string) $year;
+                $dailyValues[] = (float) $payments->filter(fn($p) => (int) Carbon::parse($p->payment_date)->format('Y') === $year)->sum('amount_usd');
+            }
+        } else { // 7days default
+            for ($i = 6; $i >= 0; $i--) {
+                $date = now()->subDays($i);
+                $dateStr = $date->toDateString();
+                $dailyLabels[] = $date->translatedFormat('D d/m');
+                $dailyValues[] = (float) $payments->filter(fn($p) => Carbon::parse($p->payment_date)->toDateString() === $dateStr)->sum('amount_usd');
+            }
         }
 
-        // Chart 2: Revenue by Payment Method
+        // Revenue by Payment Method
         $methodsMap = [
             'pago_movil' => 'Pago Móvil VES',
-            'zelle' => 'Zelle (USD)',
+            'paypal' => 'PayPal (USD)',
+            'zinli' => 'Zinli Wallet',
+            'binance' => 'Binance USDT',
             'binance_usdt' => 'Binance USDT',
+            'zelle' => 'Zelle (USD)',
             'bank_transfer' => 'Transferencia Bancaria',
             'cash_usd' => 'Efectivo USD',
         ];
@@ -147,9 +200,11 @@ class SuperAdminController extends Controller
         }
 
         if (empty($methodLabels)) {
-            $methodLabels = ['Pago Móvil VES', 'Zelle (USD)', 'Binance USDT'];
-            $methodValues = [158.00, 199.00, 79.00];
+            $methodLabels = ['Pago Móvil VES', 'PayPal (USD)', 'Binance USDT', 'Zinli Wallet'];
+            $methodValues = [158.00, 29.00, 79.00, 79.00];
         }
+
+        $plans = self::getPlans();
 
         return view('superadmin.finanzas', compact(
             'tenants',
@@ -165,7 +220,63 @@ class SuperAdminController extends Controller
             'dailyLabels',
             'dailyValues',
             'methodLabels',
-            'methodValues'
+            'methodValues',
+            'plans',
+            'period',
+            'chartTitle',
+            'chartSubtitle'
+        ));
+    }
+
+    public function comprobantes(Request $request)
+    {
+        if (!session('is_impersonating')) {
+            session([
+                'user_role' => 'super_admin',
+                'user_name' => session('user_name', 'Eliecer (Super Admin)'),
+            ]);
+        }
+
+        $query = SaasPayment::with('tenant')->latest();
+
+        if ($request->filled('method') && $request->input('method') !== 'all') {
+            $query->where('payment_method', $request->input('method'));
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('reference_code', 'like', "%{$search}%")
+                  ->orWhere('notes', 'like', "%{$search}%")
+                  ->orWhereHas('tenant', function ($t) use ($search) {
+                      $t->where('name', 'like', "%{$search}%")
+                        ->orWhere('rif_tax_id', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $payments = $query->paginate(15)->withQueryString();
+        $tenants = Tenant::orderBy('name')->get();
+        $plans = self::getPlans();
+        $rates = DolarApiService::getRates();
+        $bcvUsdRate = (float) GlobalSetting::get('bcv_usd_rate', $rates['bcv_usd']);
+
+        $totalAmountUsd = SaasPayment::sum('amount_usd');
+        $countPaypal = SaasPayment::where('payment_method', 'paypal')->count();
+        $countPagoMovil = SaasPayment::where('payment_method', 'pago_movil')->count();
+        $countZinli = SaasPayment::where('payment_method', 'zinli')->count();
+        $countBinance = SaasPayment::where('payment_method', 'binance')->count();
+
+        return view('superadmin.comprobantes', compact(
+            'payments',
+            'tenants',
+            'plans',
+            'bcvUsdRate',
+            'totalAmountUsd',
+            'countPaypal',
+            'countPagoMovil',
+            'countZinli',
+            'countBinance'
         ));
     }
 
@@ -284,11 +395,11 @@ class SuperAdminController extends Controller
     {
         $request->validate([
             'tenant_id' => 'required|exists:tenants,id',
-            'amount_usd' => 'required|numeric|min:1',
+            'amount_usd' => 'required|numeric|min:0',
             'payment_method' => 'required|string',
             'reference_code' => 'required|string',
             'payment_date' => 'required|date',
-            'plan_tier' => 'required|string|in:starter,pro,enterprise',
+            'plan_tier' => 'required|string|in:trial,starter,pro,enterprise',
             'months_paid' => 'required|integer|min:1',
             'notes' => 'nullable|string',
         ]);
@@ -329,11 +440,13 @@ class SuperAdminController extends Controller
 
     public function storeTenant(Request $request)
     {
+        $validTypes = implode(',', array_keys(Tenant::getBusinessTypes()));
         $request->validate([
             'name' => 'required|string|max:255',
             'subdomain' => 'required|string|max:100',
             'rif_tax_id' => 'required|string|max:50',
             'plan_tier' => 'required|string|in:starter,pro,enterprise,trial',
+            'business_type' => 'nullable|string|in:' . $validTypes,
             'email' => 'required|email',
             'phone' => 'nullable|string',
         ]);
@@ -347,6 +460,7 @@ class SuperAdminController extends Controller
                 'rif_tax_id' => $request->input('rif_tax_id'),
                 'subdomain' => strtolower($request->input('subdomain')),
                 'plan_tier' => $request->input('plan_tier'),
+                'business_type' => $request->input('business_type', 'abasto'),
                 'email' => $request->input('email'),
                 'phone' => $request->input('phone'),
                 'is_active' => true,
@@ -405,7 +519,7 @@ class SuperAdminController extends Controller
             'is_impersonating' => true,
         ]);
 
-        return redirect()->route('dashboard')->with('success', "Modo Impersonación activo: Ahora navegas como '{$tenant->name}'.");
+        return redirect()->route('dashboard')->with('success', "Modo Auditoría Activo: Estás inspeccionando las ventas, ganancias y productos de '{$tenant->name}'.");
     }
 
     public function stopImpersonating()
@@ -413,7 +527,7 @@ class SuperAdminController extends Controller
         session()->forget(['impersonated_tenant_id', 'is_impersonating']);
         session(['company_name' => 'Bodega & Abasto El Sol C.A.']);
 
-        return redirect()->route('superadmin.index')->with('success', 'Has salido del modo impersonación. Has vuelto al Panel Super Admin.');
+        return redirect()->route('superadmin.index')->with('success', 'Has finalizado la auditoría de empresa. Has vuelto al Panel Super Admin.');
     }
 
     public function updateSettings(Request $request)
@@ -451,5 +565,29 @@ class SuperAdminController extends Controller
         } catch (Exception $e) {}
 
         return redirect()->route('superadmin.index')->with('success', "Tasas BCV Oficiales (Dólar: {$usd} VES | Euro: {$eur} VES) sincronizadas automáticamente desde DolarApi.");
+    }
+
+    public function updatePlan(Request $request)
+    {
+        $request->validate([
+            'plan_id' => 'required|string|in:trial,starter,pro',
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'features' => 'required|string',
+        ]);
+
+        $plans = self::getPlans();
+        $planId = $request->input('plan_id');
+
+        $plans[$planId] = [
+            'id' => $planId,
+            'name' => $request->input('name'),
+            'price' => (float) $request->input('price'),
+            'features' => $request->input('features'),
+        ];
+
+        GlobalSetting::set('saas_plans', json_encode($plans), 'saas');
+
+        return redirect()->route('superadmin.index')->with('success', "Plan '{$plans[$planId]['name']}' actualizado correctamente.");
     }
 }

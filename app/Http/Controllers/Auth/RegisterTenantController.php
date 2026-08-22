@@ -17,15 +17,18 @@ class RegisterTenantController extends Controller
 {
     public function showRegistrationForm()
     {
-        return view('auth.register');
+        $businessTypes = Tenant::getBusinessTypes();
+        return view('auth.register', compact('businessTypes'));
     }
 
     public function register(Request $request)
     {
+        $validTypes = implode(',', array_keys(Tenant::getBusinessTypes()));
         $request->validate([
             'company_name' => 'required|string|max:255',
             'rif_tax_id' => 'required|string|max:50',
             'subdomain' => 'required|string|alpha_dash|max:50',
+            'business_type' => 'nullable|string|in:' . $validTypes,
             'owner_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'phone' => 'required|string|max:50',
@@ -39,12 +42,13 @@ class RegisterTenantController extends Controller
                 'rif_tax_id' => $request->input('rif_tax_id'),
                 'subdomain' => strtolower($request->input('subdomain')),
                 'plan_tier' => 'trial',
+                'business_type' => $request->input('business_type', 'abasto'),
                 'email' => $request->input('email'),
                 'phone' => $request->input('phone'),
                 'bcv_rate' => 52.4000,
                 'parallel_rate' => 54.1000,
                 'igtf_percentage' => 3.00,
-                'expires_at' => now()->addDays(15), // 15 Days Free Trial
+                'expires_at' => now()->addDays((int) \App\Models\GlobalSetting::get('trial_days', 30)), // 1 Month Free Trial (30 days)
                 'is_active' => true,
             ]);
 
@@ -104,7 +108,7 @@ class RegisterTenantController extends Controller
                 'user_name' => $user->name,
             ]);
 
-            return redirect()->route('dashboard')->with('success', '¡Bienvenido a Pymora! Tu empresa ' . $tenant->name . ' ha sido creada con 15 días de prueba gratis.');
+            return redirect()->route('dashboard')->with('success', '¡Bienvenido a Pymora! Tu empresa ' . $tenant->name . ' ha sido creada con 1 mes (30 días) de prueba gratis.');
 
         } catch (Exception $e) {
             // Fallback for environment without active PDO drivers

@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Finanzas Propias SaaS - Pymora Super Admin')
+@section('title', 'Mis Finanzas - Pymora Super Admin')
 
 @section('content')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div x-data="{ showPaymentModal: false, selectedTenantId: '', selectedPlan: 'pro', selectedMonths: 1, amountUsd: 79, paymentMethod: 'pago_movil', referenceCode: '', notes: '', updateAmount() { const rates = { starter: 29, pro: 79, enterprise: 199 }; this.amountUsd = (rates[this.selectedPlan] || 79) * this.selectedMonths; } }" class="space-y-6">
+<div x-data="{ showPaymentModal: false, selectedTenantId: '', selectedPlan: 'pro', selectedMonths: 1, amountUsd: {{ $plans['pro']['price'] ?? 79 }}, paymentMethod: 'pago_movil', referenceCode: '', notes: '', updateAmount() { const rates = { trial: {{ $plans['trial']['price'] ?? 0 }}, starter: {{ $plans['starter']['price'] ?? 29 }}, pro: {{ $plans['pro']['price'] ?? 79 }} }; this.amountUsd = (rates[this.selectedPlan] !== undefined ? rates[this.selectedPlan] : 79) * this.selectedMonths; } }" class="space-y-6">
 
     <!-- Flash Alert -->
     @if(session('success'))
@@ -28,7 +28,7 @@
                 <span class="text-slate-500">•</span>
                 <span class="text-xs font-mono text-slate-400">Pymora Platform Revenue</span>
             </div>
-            <h1 class="text-2xl font-bold text-white font-display mt-1">Finanzas Propias & Cobranza SaaS</h1>
+            <h1 class="text-2xl font-bold text-white font-display mt-1">Mis Finanzas</h1>
             <p class="text-slate-400 text-sm">Rendimiento en tiempo real: ganancias por día, semana, mes y acumulado total.</p>
         </div>
 
@@ -106,14 +106,25 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Chart 1: Tendencia de Ingresos SaaS (2 cols) -->
         <div class="lg:col-span-2 glass-card rounded-2xl border border-slate-800 p-5">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
-                    <h3 class="font-bold text-white font-display text-base">Evolución Diaria de Ganancias SaaS ($ USD)</h3>
-                    <p class="text-slate-400 text-xs">Ingresos registrados en los últimos 7 días.</p>
+                    <h3 class="font-bold text-white font-display text-base">{{ $chartTitle }}</h3>
+                    <p class="text-slate-400 text-xs">{{ $chartSubtitle }}</p>
                 </div>
-                <div class="flex items-center gap-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
-                    <span>Tendencia Positiva</span>
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                <!-- Period Filter Pills -->
+                <div class="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs font-medium">
+                    <a href="{{ route('superadmin.finanzas', ['period' => '7days']) }}" 
+                       class="px-3 py-1 rounded-lg transition-all {{ $period === '7days' ? 'bg-emerald-600/20 text-emerald-300 font-bold border border-emerald-500/30' : 'text-slate-400 hover:text-white' }}">
+                       7 Días
+                    </a>
+                    <a href="{{ route('superadmin.finanzas', ['period' => 'months']) }}" 
+                       class="px-3 py-1 rounded-lg transition-all {{ $period === 'months' ? 'bg-emerald-600/20 text-emerald-300 font-bold border border-emerald-500/30' : 'text-slate-400 hover:text-white' }}">
+                       Por Meses
+                    </a>
+                    <a href="{{ route('superadmin.finanzas', ['period' => 'years']) }}" 
+                       class="px-3 py-1 rounded-lg transition-all {{ $period === 'years' ? 'bg-emerald-600/20 text-emerald-300 font-bold border border-emerald-500/30' : 'text-slate-400 hover:text-white' }}">
+                       Por Años
+                    </a>
                 </div>
             </div>
             <div class="h-64 relative">
@@ -137,119 +148,92 @@
         </div>
     </div>
 
-    <!-- Main Content Grid: Transactions Table & Licence Status -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Payments History Table (2 cols) -->
-        <div class="lg:col-span-2 glass-card rounded-2xl border border-slate-800 overflow-hidden">
-            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
-                <div>
-                    <h3 class="font-bold text-white font-display text-base">Historial de Cobros & Pagos SaaS</h3>
-                    <p class="text-slate-400 text-xs">Registro de transacciones por planes y licencias comerciales.</p>
+    <!-- Main Section: Subscriptions & Licenses Expiration Status -->
+    <div class="glass-card rounded-2xl border border-slate-800 p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+            <div>
+                <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-white font-display text-base">Estado de Licencias & Suscripciones</h3>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
+                        {{ $expiringSoonCount }} A punto de vencer
+                    </span>
                 </div>
-                <span class="bg-indigo-500/20 text-indigo-300 text-xs px-2.5 py-1 rounded-lg font-mono">
-                    {{ $payments->count() }} Registro(s)
-                </span>
+                <p class="text-slate-400 text-xs mt-0.5">Control de vencimientos y renovación de planes empresariales.</p>
             </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300">
-                    <thead class="bg-slate-900/80 text-slate-400 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-800">
-                        <tr>
-                            <th class="px-4 py-3">Empresa</th>
-                            <th class="px-4 py-3">Plan</th>
-                            <th class="px-4 py-3">Monto (USD)</th>
-                            <th class="px-4 py-3">Método / Ref</th>
-                            <th class="px-4 py-3">Fecha</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-800/60">
-                        @forelse($payments as $payment)
-                            <tr class="hover:bg-slate-800/30 transition-colors">
-                                <td class="px-4 py-3 font-semibold text-white">
-                                    {{ $payment->tenant->name ?? 'Empresa Registrada' }}
-                                    <div class="text-[10px] text-slate-400 font-mono">ID: #{{ $payment->tenant_id }}</div>
-                                </td>
-                                <td class="px-4 py-3">
-                                    @php
-                                        $badgeColor = match($payment->plan_tier) {
-                                            'starter' => 'bg-slate-800 text-slate-300 border-slate-700',
-                                            'pro' => 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
-                                            'enterprise' => 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-                                            default => 'bg-slate-800 text-slate-300',
-                                        };
-                                    @endphp
-                                    <span class="px-2 py-0.5 rounded border text-[10px] font-semibold uppercase font-mono {{ $badgeColor }}">
-                                        {{ $payment->plan_tier }} ({{ $payment->months_paid }}M)
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="font-extrabold text-emerald-400 font-mono text-sm">${{ number_format($payment->amount_usd, 2) }}</div>
-                                    @if($payment->amount_ves)
-                                        <div class="text-[10px] text-slate-400 font-mono">Bs. {{ number_format($payment->amount_ves, 2) }}</div>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="font-medium text-slate-200 uppercase text-[11px]">
-                                        {{ str_replace('_', ' ', $payment->payment_method) }}
-                                    </div>
-                                    <div class="text-[10px] text-slate-400 font-mono">Ref: <span class="text-slate-300 font-semibold">{{ $payment->reference_code }}</span></div>
-                                </td>
-                                <td class="px-4 py-3 text-slate-400 font-mono">
-                                    {{ \Carbon\Carbon::parse($payment->payment_date)->format('d/m/Y') }}
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="text-center py-8 text-slate-500 text-sm">
-                                    No hay pagos registrados aún en el sistema.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+            <div class="flex items-center gap-2 text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
+                <span>Tasa BCV Oficial:</span>
+                <span class="font-bold text-emerald-400">{{ number_format($bcvUsdRate, 2) }} VES/USD</span>
             </div>
         </div>
 
-        <!-- Tenant Expiration & Renewal Quick Actions Card -->
-        <div class="glass-card rounded-2xl border border-slate-800 p-5 flex flex-col justify-between">
-            <div>
-                <h3 class="font-bold text-white font-display text-base mb-1">Estado de Licencias</h3>
-                <p class="text-slate-400 text-xs mb-4">Vencimiento y estado actual de suscripción de empresas.</p>
-
-                <div class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-                    @foreach($tenants as $tenant)
-                        @php
-                            $daysLeft = $tenant->expires_at ? now()->diffInDays(\Carbon\Carbon::parse($tenant->expires_at), false) : 0;
-                            $isExpired = $daysLeft <= 0;
-                        @endphp
-                        <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-2">
-                            <div class="min-w-0 flex-1">
-                                <div class="font-semibold text-slate-200 text-xs truncate">{{ $tenant->name }}</div>
-                                <div class="flex items-center gap-2 mt-1 text-[11px]">
-                                    <span class="font-mono text-slate-400 uppercase font-semibold text-[10px]">{{ $tenant->plan_tier }}</span>
-                                    <span class="text-slate-600">•</span>
-                                    @if($isExpired)
-                                        <span class="text-rose-400 font-semibold">Vencida</span>
-                                    @else
-                                        <span class="{{ $daysLeft <= 15 ? 'text-amber-400 font-semibold' : 'text-emerald-400' }}">
-                                            Vence en {{ (int)$daysLeft }} días
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <button @click="showPaymentModal = true; selectedTenantId = '{{ $tenant->id }}'; selectedPlan = '{{ $tenant->plan_tier }}'; updateAmount();" class="px-2.5 py-1 text-[11px] font-medium bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-lg hover:bg-indigo-600/40 transition-colors whitespace-nowrap">
-                                + Renovar
-                            </button>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @foreach($tenants as $tenant)
+                @php
+                    $daysLeft = $tenant->expires_at ? now()->diffInDays(\Carbon\Carbon::parse($tenant->expires_at), false) : 0;
+                    $isExpired = $daysLeft <= 0;
+                    $isExpiringSoon = !$isExpired && $daysLeft <= 15;
+                    
+                    $cardBorder = $isExpired 
+                        ? 'border-rose-500/40 bg-rose-950/20' 
+                        : ($isExpiringSoon ? 'border-amber-500/40 bg-amber-950/20' : 'border-slate-800 bg-slate-900/60');
+                    
+                    $badgeStyle = match($tenant->plan_tier) {
+                        'trial' => 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+                        'starter' => 'bg-slate-800 text-slate-300 border-slate-700',
+                        'pro' => 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
+                        default => 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+                    };
+                    $planName = match($tenant->plan_tier) {
+                        'trial' => '1 Mes Gratis',
+                        'starter' => 'Plan Sencillo',
+                        'pro' => 'Plan Pro',
+                        default => 'Enterprise',
+                    };
+                @endphp
+                <div class="p-4 rounded-xl border {{ $cardBorder }} flex flex-col justify-between gap-3 transition-all hover:border-indigo-500/40">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="font-bold text-white text-sm font-display truncate">{{ $tenant->name }}</div>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase font-mono border {{ $badgeStyle }}">
+                                {{ $planName }}
+                            </span>
                         </div>
-                    @endforeach
-                </div>
-            </div>
+                        <div class="text-[11px] text-slate-400 font-mono flex items-center gap-1">
+                            <span>Subdominio:</span>
+                            <span class="text-indigo-400 font-semibold">{{ $tenant->subdomain }}.pymora.com</span>
+                        </div>
+                    </div>
 
-            <div class="mt-4 pt-4 border-t border-slate-800/80 text-xs text-slate-400 flex items-center justify-between">
-                <span>Tasa BCV Oficial:</span>
-                <span class="font-bold font-mono text-emerald-400">{{ number_format($bcvUsdRate, 2) }} VES/USD</span>
-            </div>
+                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                        <div>
+                            @if($isExpired)
+                                <div class="text-xs font-bold text-rose-400 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>Vencida</span>
+                                </div>
+                            @elseif($isExpiringSoon)
+                                <div class="text-xs font-bold text-amber-400 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                    <span>Vence en {{ (int)$daysLeft }} días</span>
+                                </div>
+                            @else
+                                <div class="text-xs font-semibold text-emerald-400 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>Vence en {{ (int)$daysLeft }} días</span>
+                                </div>
+                            @endif
+                            <div class="text-[10px] text-slate-500 font-mono">
+                                {{ $tenant->expires_at ? \Carbon\Carbon::parse($tenant->expires_at)->format('d/m/Y') : 'N/A' }}
+                            </div>
+                        </div>
+
+                        <button @click="showPaymentModal = true; selectedTenantId = '{{ $tenant->id }}'; selectedPlan = '{{ $tenant->plan_tier }}'; updateAmount();" class="px-3 py-1.5 text-xs font-semibold bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white border border-emerald-500/30 rounded-xl transition-all shadow flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            Renovar
+                        </button>
+                    </div>
+                </div>
+            @endforeach
         </div>
     </div>
 
@@ -282,9 +266,9 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Plan Contratado</label>
                         <select name="plan_tier" x-model="selectedPlan" @change="updateAmount()" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none font-mono">
-                            <option value="starter">STARTER ($29/mes)</option>
-                            <option value="pro">PRO ($79/mes)</option>
-                            <option value="enterprise">ENTERPRISE ($199/mes)</option>
+                            <option value="trial">{{ strtoupper($plans['trial']['name'] ?? 'Plan 1 Mes Gratis') }} (${{ number_format($plans['trial']['price'] ?? 0, 0) }}/mes)</option>
+                            <option value="starter">{{ strtoupper($plans['starter']['name'] ?? 'Plan Sencillo') }} (${{ number_format($plans['starter']['price'] ?? 29, 0) }}/mes)</option>
+                            <option value="pro">{{ strtoupper($plans['pro']['name'] ?? 'Plan Pro (Avanzado)') }} (${{ number_format($plans['pro']['price'] ?? 79, 0) }}/mes)</option>
                         </select>
                     </div>
                     <div>

@@ -3,7 +3,7 @@
 @section('title', 'Panel de Administración - Pymora SaaS')
 
 @section('content')
-<div x-data="{ openTenantModal: false, editTenantModal: false, editTenantData: {}, activeTab: '{{ session('success') ? 'tenants' : 'tenants' }}' }" class="space-y-6">
+<div x-data="{ openTenantModal: false, editTenantModal: false, editPlanModal: false, editPlanData: { id: '', name: '', price: 0, features: '' }, activeTab: '{{ session('success') ? 'tenants' : 'tenants' }}' }" class="space-y-6">
 
     <!-- Flash Alert Message -->
     @if(session('success'))
@@ -24,10 +24,6 @@
         </div>
         
         <div class="flex items-center gap-2">
-            <a href="{{ route('superadmin.finanzas') }}" class="px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 text-xs font-semibold rounded-lg shadow-md transition-all flex items-center gap-2">
-                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                Finanzas Propias SaaS
-            </a>
             <button @click="openTenantModal = true" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-md transition-all flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Registrar Empresa
@@ -36,7 +32,7 @@
     </div>
 
     <!-- Global Metrics Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <!-- Card 1: Tenants -->
         <div class="glass-card p-4 rounded-xl border border-slate-800 space-y-1">
             <div class="text-slate-400 text-xs font-medium">Empresas Registradas</div>
@@ -62,20 +58,13 @@
                 <span>Euro: {{ number_format($bcvEurRate, 2) }} VES</span>
             </div>
         </div>
-
-        <!-- Card 4: Server Status -->
-        <div class="glass-card p-4 rounded-xl border border-slate-800 space-y-1">
-            <div class="text-slate-400 text-xs font-medium">Estado Plataforma SaaS</div>
-            <div class="text-2xl font-bold text-indigo-400 font-display">100%</div>
-            <div class="text-[11px] text-emerald-400 font-semibold">Servidores & DolarApi Online</div>
-        </div>
     </div>
 
     <!-- Navigation Tabs -->
     <div class="flex items-center gap-2 border-b border-slate-800 text-xs font-medium">
         <button @click="activeTab = 'tenants'" :class="activeTab === 'tenants' ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10 font-bold' : 'border-transparent text-slate-400 hover:text-slate-200'" class="px-4 py-2.5 border-b-2 rounded-t-lg transition-all flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-            Empresas Inquilinas ({{ count($tenants) }})
+            Empresas ({{ count($tenants) }})
         </button>
         <button @click="activeTab = 'plans'" :class="activeTab === 'plans' ? 'border-indigo-500 text-indigo-400 bg-indigo-500/10 font-bold' : 'border-transparent text-slate-400 hover:text-slate-200'" class="px-4 py-2.5 border-b-2 rounded-t-lg transition-all flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
@@ -152,9 +141,10 @@
                                     </button>
                                 </form>
 
-                                <!-- Impersonate Link -->
-                                <a href="{{ route('superadmin.impersonate', $t->id) }}" class="px-2.5 py-1 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 text-[10px] rounded font-semibold transition-colors">
-                                    Ingresar
+                                 <!-- Auditar Empresa Link -->
+                                <a href="{{ route('superadmin.impersonate', $t->id) }}" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold rounded-lg transition-all shadow-md flex items-center gap-1.5 border border-indigo-400/30">
+                                    <svg class="w-3.5 h-3.5 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    <span>Auditar Empresa</span>
                                 </a>
                             </div>
                         </td>
@@ -167,39 +157,65 @@
 
     <!-- TAB 2: Plans & Pricing -->
     <div x-show="activeTab === 'plans'" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Starter Plan -->
-        <div class="glass-card rounded-xl p-5 border border-slate-800 space-y-3">
-            <div class="text-xs font-bold text-slate-400 uppercase">Plan Starter</div>
-            <div class="text-2xl font-bold text-white">$29 <span class="text-xs text-slate-400">/ mes</span></div>
-            <ul class="text-xs text-slate-300 space-y-1.5 pt-2 border-t border-slate-800">
-                <li>✓ 1 Sucursal</li>
-                <li>✓ 1 Caja POS</li>
-                <li>✓ 3 Usuarios</li>
-            </ul>
-        </div>
+        @foreach(['trial', 'starter', 'pro'] as $pKey)
+            @php
+                $plan = $plans[$pKey] ?? [
+                    'id' => $pKey,
+                    'name' => 'Plan ' . ucfirst($pKey),
+                    'price' => 0,
+                    'features' => ''
+                ];
+                $borderClass = $pKey === 'trial' ? 'border-emerald-500/40 bg-emerald-950/20' : ($pKey === 'pro' ? 'border-indigo-500/40 bg-indigo-950/20' : 'border-slate-800');
+                $titleClass = $pKey === 'trial' ? 'text-emerald-400' : ($pKey === 'pro' ? 'text-indigo-400' : 'text-slate-300');
+            @endphp
+            <div class="glass-card rounded-xl p-5 border {{ $borderClass }} space-y-4 flex flex-col justify-between">
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="text-xs font-bold {{ $titleClass }} uppercase tracking-wider">{{ $plan['name'] }}</div>
+                        @if($pKey === 'trial')
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">1er MES GRATIS</span>
+                        @elseif($pKey === 'pro')
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">MÁS COMPLETO</span>
+                        @else
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">PLAN SENCILLO</span>
+                        @endif
+                    </div>
+                    
+                    <div class="text-3xl font-bold text-white font-display">
+                        ${{ number_format($plan['price'], 2) }} <span class="text-xs font-normal text-slate-400">/ mes</span>
+                    </div>
 
-        <!-- Pro Plan -->
-        <div class="glass-card rounded-xl p-5 border border-indigo-500/40 space-y-3 bg-indigo-950/20">
-            <div class="text-xs font-bold text-indigo-400 uppercase">Plan Pro Multi-Sucursal</div>
-            <div class="text-2xl font-bold text-white">$79 <span class="text-xs text-slate-400">/ mes</span></div>
-            <ul class="text-xs text-slate-300 space-y-1.5 pt-2 border-t border-slate-800">
-                <li>✓ Hasta 5 Sucursales</li>
-                <li>✓ Cajas Ilimitadas</li>
-                <li>✓ Usuarios Ilimitados</li>
-                <li>✓ Cotizaciones & Traslados</li>
-            </ul>
-        </div>
+                    @if($pKey === 'trial')
+                        <div class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Asignado automáticamente por 30 días
+                        </div>
+                    @else
+                        <div class="text-[11px] text-indigo-300 font-medium">
+                            Opción disponible al finalizar el mes gratis
+                        </div>
+                    @endif
 
-        <!-- Enterprise Plan -->
-        <div class="glass-card rounded-xl p-5 border border-slate-800 space-y-3">
-            <div class="text-xs font-bold text-purple-400 uppercase">Plan Enterprise</div>
-            <div class="text-2xl font-bold text-white">$199 <span class="text-xs text-slate-400">/ mes</span></div>
-            <ul class="text-xs text-slate-300 space-y-1.5 pt-2 border-t border-slate-800">
-                <li>✓ Sucursales Ilimitadas</li>
-                <li>✓ Infraestructura Dedicada</li>
-                <li>✓ Soporte VIP 24/7</li>
-            </ul>
-        </div>
+                    <ul class="text-xs text-slate-300 space-y-2 pt-3 border-t border-slate-800/80">
+                        @foreach(explode("\n", str_replace("\r", "", $plan['features'])) as $feature)
+                            @if(trim($feature))
+                                <li class="flex items-start gap-1.5">
+                                    <span class="text-emerald-400 font-bold">✓</span>
+                                    <span>{{ preg_replace('/^[✓✔\s\-]+/', '', trim($feature)) }}</span>
+                                </li>
+                            @endif
+                        @endforeach
+                    </ul>
+                </div>
+                
+                <div class="pt-3 border-t border-slate-800/80">
+                    <button @click="editPlanData = { id: '{{ $plan['id'] }}', name: '{{ addslashes($plan['name']) }}', price: {{ $plan['price'] }}, features: `{{ addslashes($plan['features']) }}` }; editPlanModal = true" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2">
+                        <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        Editar Plan, Precio & Beneficios
+                    </button>
+                </div>
+            </div>
+        @endforeach
     </div>
 
     <!-- TAB 3: Global Settings & DolarApi Sync -->
@@ -267,7 +283,7 @@
     <div x-show="openTenantModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
         <div @click.away="openTenantModal = false" class="glass-card w-full max-w-lg rounded-2xl border border-slate-800 p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-lg font-bold text-white font-display">Registrar Empresa Inquilina</h3>
+                <h3 class="text-lg font-bold text-white font-display">Registrar Empresa</h3>
                 <button @click="openTenantModal = false" class="text-slate-400 hover:text-white">&times;</button>
             </div>
 
@@ -293,15 +309,28 @@
                     <div>
                         <label class="block font-semibold text-slate-300 mb-1">Plan Tarifario</label>
                         <select name="plan_tier" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none font-mono">
-                            <option value="starter">STARTER ($29/mes)</option>
-                            <option value="pro" selected>PRO ($79/mes)</option>
-                            <option value="enterprise">ENTERPRISE ($199/mes)</option>
+                            @foreach(['trial', 'starter', 'pro'] as $pKey)
+                                @if(isset($plans[$pKey]))
+                                    <option value="{{ $pKey }}" {{ $pKey === 'trial' ? 'selected' : '' }}>
+                                        {{ strtoupper($plans[$pKey]['name']) }} (${{ number_format($plans[$pKey]['price'], 0) }}/mes)
+                                    </option>
+                                @endif
+                            @endforeach
                         </select>
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-300 mb-1">Correo Administrador</label>
                         <input type="email" name="email" required placeholder="contacto@elsol.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
                     </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Tipo de Negocio (Rubro Comercial)</label>
+                    <select name="business_type" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-indigo-300 font-semibold focus:border-indigo-500 focus:outline-none">
+                        @foreach($businessTypes as $bKey => $bMeta)
+                            <option value="{{ $bKey }}">{{ $bMeta['icon'] }} {{ $bMeta['name'] }} — {{ $bMeta['description'] }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div>
@@ -312,6 +341,45 @@
                 <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
                     <button type="button" @click="openTenantModal = false" class="px-4 py-2 text-xs text-slate-400 hover:text-white">Cancelar</button>
                     <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg">Registrar & Generar Licencia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Plan Modal -->
+    <div x-show="editPlanModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+        <div @click.away="editPlanModal = false" class="glass-card w-full max-w-lg rounded-2xl border border-slate-800 p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-lg font-bold text-white font-display">Editar Plan de Suscripción</h3>
+                <button @click="editPlanModal = false" class="text-slate-400 hover:text-white">&times;</button>
+            </div>
+
+            <form action="{{ route('superadmin.plans.update') }}" method="POST" class="space-y-4 text-xs">
+                @csrf
+                <input type="hidden" name="plan_id" :value="editPlanData.id">
+
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Nombre del Plan</label>
+                    <input type="text" name="name" x-model="editPlanData.name" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Precio Mensual (USD)</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-2.5 text-slate-400 font-bold">$</span>
+                        <input type="number" step="0.01" name="price" x-model="editPlanData.price" required class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-7 pr-3 py-2 text-sm text-white font-mono focus:border-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Beneficios y Características (Un beneficio por línea)</label>
+                    <textarea name="features" x-model="editPlanData.features" rows="6" required placeholder="✓ 1 Sucursal&#10;✓ 1 Caja POS&#10;✓ 3 Usuarios" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white font-mono focus:border-indigo-500 focus:outline-none leading-relaxed"></textarea>
+                    <p class="text-[10px] text-slate-400 mt-1">Ingresa cada beneficio en una nueva línea.</p>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                    <button type="button" @click="editPlanModal = false" class="px-4 py-2 text-xs text-slate-400 hover:text-white">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg">Guardar Cambios del Plan</button>
                 </div>
             </form>
         </div>

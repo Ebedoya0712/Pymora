@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('rif_tax_id')->nullable();
             $table->string('subdomain')->unique();
             $table->enum('plan_tier', ['trial', 'starter', 'pro', 'enterprise'])->default('starter');
+            $table->string('business_type')->default('abasto');
             $table->boolean('is_active')->default(true);
             $table->string('phone')->nullable();
             $table->string('email')->nullable();

@@ -36,6 +36,7 @@
     </script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
+        [x-cloak] { display: none !important; }
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, .font-display { font-family: 'Outfit', sans-serif; }
         .glass-card {
@@ -52,15 +53,16 @@
 </head>
 <body class="h-full bg-slate-950 text-slate-100 flex flex-col antialiased">
 
-    <!-- Impersonation Active Banner -->
+    <!-- Audit Mode Active Banner -->
     @if(session('is_impersonating'))
-        <div class="bg-amber-600/90 text-white text-xs font-semibold px-4 py-2 flex items-center justify-between shadow-md">
+        <div class="bg-gradient-to-r from-amber-600 via-indigo-600 to-purple-600 text-white text-xs font-semibold px-4 py-2 flex items-center justify-between shadow-lg z-[60] relative">
             <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
-                <span>Modo Impersonación Activo: Estás navegando como <strong>{{ session('company_name') }}</strong> (Vista Soporte Super Admin)</span>
+                <span>🔍 MODO AUDITORÍA EN VIVO SUPER ADMIN: Estás inspeccionando las ventas, ganancias, productos e inventario de <strong>{{ session('company_name') }}</strong></span>
             </div>
-            <a href="{{ route('superadmin.stop-impersonating') }}" class="bg-slate-950 hover:bg-slate-900 text-amber-300 font-bold px-3 py-1 rounded-lg border border-amber-400/40 transition-colors">
-                Salir de Impersonación &rarr;
+            <a href="{{ route('superadmin.stop-impersonating') }}" class="bg-slate-950 hover:bg-slate-900 text-amber-300 font-bold px-3.5 py-1.5 rounded-lg border border-amber-400/40 transition-colors shadow flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"/></svg>
+                <span>Finalizar Auditoría & Volver</span>
             </a>
         </div>
     @endif
@@ -68,12 +70,7 @@
     <!-- Top Header Ticker -->
     <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur px-4 py-2 text-xs flex items-center justify-between gap-3 sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            @if(session('user_role') === 'super_admin' && !session('is_impersonating'))
-                <div class="flex items-center gap-2 text-slate-300 font-semibold text-xs">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span>Panel de Control Super Admin</span>
-                </div>
-            @else
+            @if(session('user_role') !== 'super_admin' || session('is_impersonating'))
                 <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 px-2.5 py-1 rounded-md border border-slate-700">
                     <span class="text-slate-400">Empresa:</span>
                     <span class="font-semibold text-indigo-400">{{ session('company_name', 'Bodega & Abasto El Sol C.A.') }}</span>
@@ -159,8 +156,24 @@
                 <!-- App Logo -->
                 <div class="flex items-center justify-between px-2">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-indigo-500/20 font-display">
-                            P
+                        <div class="relative w-10 h-10 rounded-xl bg-slate-900 border border-white/20 p-2 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                            <svg class="w-full h-full" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="logoGradPrimarySidebar" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#818CF8" />
+                                        <stop offset="50%" stop-color="#6366F1" />
+                                        <stop offset="100%" stop-color="#A855F7" />
+                                    </linearGradient>
+                                    <linearGradient id="logoGradAccentSidebar" x1="0%" y1="100%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#38BDF8" />
+                                        <stop offset="100%" stop-color="#34D399" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M12 8C12 5.79086 13.7909 4 16 4H28C34.6274 4 40 9.37258 40 16C40 22.6274 34.6274 28 28 28H20V40C20 42.2091 18.2091 44 16 44C13.7909 44 12 42.2091 12 40V8Z" fill="url(#logoGradPrimarySidebar)"/>
+                                <path d="M20 12H27.5C29.9853 12 32 14.0147 32 16.5C32 18.9853 29.9853 21 27.5 21H20V12Z" fill="#0F172A" />
+                                <path d="M26 32L32 26L36 30L42 24" stroke="url(#logoGradAccentSidebar)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M37 24H42V29" stroke="url(#logoGradAccentSidebar)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
                         </div>
                         <div>
                             <h1 class="font-bold text-lg text-white font-display leading-tight">Pymora</h1>
@@ -180,28 +193,31 @@
                         <!-- Super Admin Specific Dedicated Menu -->
                         <div class="px-3 py-1.5 text-[10px] font-semibold text-indigo-400 uppercase tracking-wider">Gestión Global SaaS</div>
 
-                        <a href="{{ route('superadmin.index') }}" class="flex items-center justify-between px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('superadmin.index') ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
-                            <span class="flex items-center gap-3">
-                                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                                Inquilinos & Empresas
-                            </span>
-                            <span class="bg-indigo-500/20 text-indigo-300 text-[10px] px-1.5 py-0.5 rounded font-mono">CORE</span>
+                        <a href="{{ route('superadmin.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('superadmin.index') ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            <span>Empresas</span>
                         </a>
 
-                        <a href="{{ route('superadmin.finanzas') }}" class="flex items-center justify-between px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('superadmin.finanzas') ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
-                            <span class="flex items-center gap-3">
+                        <div class="space-y-1">
+                            <a href="{{ route('superadmin.finanzas') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('superadmin.finanzas') ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                                 <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                Finanzas Propias SaaS
-                            </span>
-                            <span class="bg-emerald-500/20 text-emerald-300 text-[10px] px-1.5 py-0.5 rounded font-mono">COBRO</span>
-                        </a>
+                                <span>Mis Finanzas</span>
+                            </a>
+                            <div class="pl-9 space-y-1 text-xs">
+                                <a href="{{ route('superadmin.finanzas') }}" class="flex items-center gap-2 py-1 px-2 rounded hover:bg-slate-800 text-slate-300 hover:text-emerald-400 transition-colors group">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                                    <span>Ganancias</span>
+                                </a>
+                                <a href="{{ route('superadmin.comprobantes') }}" class="flex items-center gap-2 py-1 px-2 rounded hover:bg-slate-800 {{ request()->routeIs('superadmin.comprobantes') ? 'text-emerald-400 font-semibold bg-emerald-500/10' : 'text-slate-400 hover:text-emerald-400' }} transition-colors group">
+                                    <svg class="w-3.5 h-3.5 {{ request()->routeIs('superadmin.comprobantes') ? 'text-emerald-400' : 'text-slate-400 group-hover:text-emerald-400' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    <span>Comprobantes de pago</span>
+                                </a>
+                            </div>
+                        </div>
 
-                        <a href="{{ route('superadmin.users') }}" class="flex items-center justify-between px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('superadmin.users') ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
-                            <span class="flex items-center gap-3">
-                                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                                Usuarios & Roles SaaS
-                            </span>
-                            <span class="bg-purple-500/20 text-purple-300 text-[10px] px-1.5 py-0.5 rounded font-mono">USERS</span>
+                        <a href="{{ route('superadmin.users') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('superadmin.users') ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                            <span>Usuarios y Roles</span>
                         </a>
                     @endif
 
@@ -280,7 +296,7 @@
                     </div>
                     <div>
                         <div class="text-xs font-semibold text-slate-200">{{ session('user_name', 'Super Admin Pymora') }}</div>
-                        <div class="text-[10px] text-slate-400 font-mono uppercase">{{ session('user_role', 'super_admin') }}</div>
+                        <div class="text-[10px] text-slate-400 font-medium capitalize">{{ str_replace('_', ' ', session('user_role', 'super_admin')) }}</div>
                     </div>
                 </div>
 
@@ -305,5 +321,81 @@
             @yield('content')
         </main>
     </div>
+
+    <!-- Global Page Navigation Loader Overlay -->
+    <div id="page-loader" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="flex flex-col items-center gap-4 p-6 rounded-2xl glass-card border border-white/10 shadow-2xl">
+            <!-- Animated Pymora Emblem with Pulse Ring -->
+            <div class="relative w-14 h-14 flex items-center justify-center">
+                <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-emerald-400 animate-spin blur-sm opacity-70"></div>
+                <div class="relative w-12 h-12 rounded-xl bg-slate-900 border border-white/20 p-2 flex items-center justify-center shadow-xl">
+                    <svg class="w-full h-full animate-pulse" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="loaderGradPrimary" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#818CF8" />
+                                <stop offset="50%" stop-color="#6366F1" />
+                                <stop offset="100%" stop-color="#A855F7" />
+                            </linearGradient>
+                            <linearGradient id="loaderGradAccent" x1="0%" y1="100%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#38BDF8" />
+                                <stop offset="100%" stop-color="#34D399" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M12 8C12 5.79086 13.7909 4 16 4H28C34.6274 4 40 9.37258 40 16C40 22.6274 34.6274 28 28 28H20V40C20 42.2091 18.2091 44 16 44C13.7909 44 12 42.2091 12 40V8Z" fill="url(#loaderGradPrimary)"/>
+                        <path d="M20 12H27.5C29.9853 12 32 14.0147 32 16.5C32 18.9853 29.9853 21 27.5 21H20V12Z" fill="#0F172A" />
+                        <path d="M26 32L32 26L36 30L42 24" stroke="url(#loaderGradAccent)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M37 24H42V29" stroke="url(#loaderGradAccent)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-slate-200 font-display tracking-wider">Cargando</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce [animation-delay:0.2s]"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce [animation-delay:0.4s]"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loader = document.getElementById('page-loader');
+
+            function showLoader() {
+                if (loader) {
+                    loader.classList.remove('opacity-0', 'pointer-events-none');
+                    loader.classList.add('opacity-100');
+                }
+            }
+
+            function hideLoader() {
+                if (loader) {
+                    loader.classList.remove('opacity-100');
+                    loader.classList.add('opacity-0', 'pointer-events-none');
+                }
+            }
+
+            document.querySelectorAll('a').forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    const href = link.getAttribute('href');
+                    const target = link.getAttribute('target');
+                    if (e.defaultPrevented || !href || href === '#' || href.startsWith('#') || href.startsWith('javascript:') || target === '_blank' || link.hasAttribute('@click') || link.hasAttribute('x-on:click')) {
+                        return;
+                    }
+                    showLoader();
+                });
+            });
+
+            document.querySelectorAll('form').forEach(function (form) {
+                form.addEventListener('submit', function (e) {
+                    if (!e.defaultPrevented) {
+                        showLoader();
+                    }
+                });
+            });
+
+            window.addEventListener('pageshow', hideLoader);
+        });
+    </script>
 </body>
 </html>

@@ -28,6 +28,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 // Super Admin SaaS Owner Routes
 Route::get('/superadmin', [SuperAdminController::class, 'index'])->name('superadmin.index');
 Route::get('/superadmin/finanzas', [SuperAdminController::class, 'finanzas'])->name('superadmin.finanzas');
+Route::get('/superadmin/comprobantes', [SuperAdminController::class, 'comprobantes'])->name('superadmin.comprobantes');
 Route::post('/superadmin/finanzas/payments', [SuperAdminController::class, 'storePayment'])->name('superadmin.payments.store');
 
 // Super Admin SaaS User Management Routes
@@ -45,6 +46,7 @@ Route::get('/superadmin/stop-impersonating', [SuperAdminController::class, 'stop
 Route::post('/superadmin/stop-impersonation', [SuperAdminController::class, 'stopImpersonating'])->name('superadmin.stop-impersonation');
 
 Route::post('/superadmin/settings', [SuperAdminController::class, 'updateSettings'])->name('superadmin.settings.update');
+Route::post('/superadmin/plans/update', [SuperAdminController::class, 'updatePlan'])->name('superadmin.plans.update');
 Route::post('/superadmin/broadcast', [SuperAdminController::class, 'storeBroadcast'])->name('superadmin.broadcast.store');
 Route::post('/superadmin/sync-dolarapi', [SuperAdminController::class, 'syncDolarApi'])->name('superadmin.sync-dolarapi');
 
