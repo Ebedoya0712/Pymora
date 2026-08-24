@@ -9,8 +9,6 @@
         <div>
             <div class="flex items-center gap-2">
                 <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Executive Control Panel</span>
-                <span class="text-slate-500">•</span>
-                <span class="text-xs text-slate-400">Plataforma Pymora SaaS</span>
             </div>
             <h1 class="text-2xl font-black text-white tracking-tight mt-1 flex items-center gap-2">
                 📊 Dashboard SuperAdmin
