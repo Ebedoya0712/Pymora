@@ -24,7 +24,7 @@
     </div>
 
     <!-- Stats Bar -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="glass-card p-4 rounded-xl space-y-1">
             <div class="text-xs text-slate-400 font-medium">Total Empresas Registradas</div>
             <div class="text-2xl font-black text-white">{{ $tenants->count() }}</div>
@@ -39,11 +39,6 @@
             <div class="text-xs text-slate-400 font-medium">Empresas Suspendidas / Vencidas</div>
             <div class="text-2xl font-black text-amber-400">{{ $tenants->where('is_active', false)->count() }}</div>
             <div class="text-[11px] text-amber-400/80 font-mono">Requieren renovación</div>
-        </div>
-        <div class="glass-card p-4 rounded-xl space-y-1">
-            <div class="text-xs text-slate-400 font-medium">MRR Recaudación Estimada</div>
-            <div class="text-2xl font-black text-purple-400">${{ number_format($tenants->where('is_active', true)->sum(fn($t) => $plans[$t->plan_tier]['price'] ?? 29), 2) }} <span class="text-xs text-slate-400 font-normal">/ mes</span></div>
-            <div class="text-[11px] text-purple-400/80 font-mono">Ingreso Recurrente Pymora</div>
         </div>
     </div>
 
