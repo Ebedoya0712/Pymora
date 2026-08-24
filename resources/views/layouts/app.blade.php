@@ -83,19 +83,24 @@
             @endif
         </div>
 
-        <div x-data="dolarRates()" x-init="fetchRates()" class="flex items-center gap-4 text-xs font-mono">
+        @php
+            $ratesData = \App\Services\DolarApiService::getRates();
+            $bcvUsdLive = number_format((float)\App\Models\GlobalSetting::get('bcv_usd_rate', $ratesData['bcv_usd']), 2);
+            $bcvEurLive = number_format((float)\App\Models\GlobalSetting::get('bcv_eur_rate', $ratesData['bcv_eur']), 2);
+        @endphp
+        <div class="flex items-center gap-4 text-xs font-mono">
             <div class="flex items-center gap-2 bg-slate-800/90 px-3 py-1 rounded-md border border-indigo-500/30">
                 <span class="text-indigo-400 font-sans font-medium">Dólar BCV:</span>
                 <span class="font-bold text-emerald-400 flex items-center gap-1.5">
-                    <span x-text="usdRate ? usdRate + ' VES' : 'Cargando...'">764.35 VES</span>
-                    <span title="DolarApi en vivo" class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>{{ $bcvUsdLive }} VES</span>
+                    <span title="BCV Oficial DolarApi En Vivo" class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 </span>
             </div>
             <div class="hidden md:flex items-center gap-2 bg-slate-800/90 px-3 py-1 rounded-md border border-slate-700">
                 <span class="text-slate-400 font-sans">Euro BCV:</span>
-                <span class="font-bold text-sky-400" x-text="eurRate ? eurRate + ' VES' : '882.30 VES'">882.30 VES</span>
+                <span class="font-bold text-sky-400">{{ $bcvEurLive }} VES</span>
             </div>
-            <div class="hidden md:flex items-center gap-2 bg-slate-800/90 px-3 py-1 rounded-md border border-slate-700">
+            <div class="hidden md:flex items-center gap-2 bg-slate-800/90 px-3 py-1 rounded-md border border-slate-700" title="Impuesto a las Grandes Transacciones Financieras (SENIAT) sobre cobros en divisas / efectivo">
                 <span class="text-slate-400 font-sans">IGTF:</span>
                 <span class="font-bold text-slate-200">3.00%</span>
             </div>

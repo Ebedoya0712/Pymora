@@ -646,7 +646,7 @@ class SuperAdminController extends Controller
 
     public function syncDolarApi(Request $request)
     {
-        $rates = DolarApiService::getRates();
+        $rates = DolarApiService::getRates(true);
         $usd = $rates['bcv_usd'];
         $eur = $rates['bcv_eur'];
 
@@ -657,7 +657,7 @@ class SuperAdminController extends Controller
             Tenant::query()->update(['bcv_rate' => $usd]);
         } catch (Exception $e) {}
 
-        return redirect()->route('superadmin.index')->with('success', "Tasas BCV Oficiales (Dólar: {$usd} VES | Euro: {$eur} VES) sincronizadas automáticamente desde DolarApi.");
+        return redirect()->back()->with('success', "Tasas BCV Oficiales (Dólar: {$usd} VES | Euro: {$eur} VES) sincronizadas en vivo desde DolarApi.");
     }
 
     public function updatePlan(Request $request)
