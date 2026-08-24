@@ -13,7 +13,7 @@ class ReportController extends Controller
     public function index()
     {
         try {
-            $tenant = Tenant::first();
+            $tenant = Tenant::current();
         } catch (Exception $e) {
             $tenant = null;
         }

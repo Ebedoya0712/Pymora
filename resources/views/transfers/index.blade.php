@@ -41,7 +41,7 @@
                         <td class="p-3 font-mono font-bold text-indigo-400">{{ $t->transfer_number }}</td>
                         <td class="p-3 text-slate-300 font-semibold">{{ $t->fromBranch->name ?? 'Almacén Central' }}</td>
                         <td class="p-3 text-slate-300 font-semibold">{{ $t->toBranch->name ?? 'Sucursal Altamira' }}</td>
-                        <td class="p-3 font-mono text-slate-400">{{ $t->created_at->format('Y-m-d H:i') }}</td>
+                        <td class="p-3 font-mono text-slate-400">{{ is_object($t->created_at) ? $t->created_at->format('Y-m-d H:i') : ($t->created_at ? \Carbon\Carbon::parse($t->created_at)->format('Y-m-d H:i') : 'Hoy') }}</td>
                         <td class="p-3">
                             <span class="px-2 py-0.5 rounded font-mono font-bold text-[10px] uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                                 {{ strtoupper($t->status) }}

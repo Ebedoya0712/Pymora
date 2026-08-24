@@ -27,8 +27,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 // Super Admin SaaS Owner Routes
 Route::get('/superadmin', [SuperAdminController::class, 'index'])->name('superadmin.index');
+Route::get('/superadmin/empresas', [SuperAdminController::class, 'empresas'])->name('superadmin.empresas');
 Route::get('/superadmin/finanzas', [SuperAdminController::class, 'finanzas'])->name('superadmin.finanzas');
 Route::get('/superadmin/comprobantes', [SuperAdminController::class, 'comprobantes'])->name('superadmin.comprobantes');
+Route::get('/superadmin/configuracion', [SuperAdminController::class, 'configuracion'])->name('superadmin.configuracion');
 Route::post('/superadmin/finanzas/payments', [SuperAdminController::class, 'storePayment'])->name('superadmin.payments.store');
 
 // Super Admin SaaS User Management Routes
@@ -37,9 +39,12 @@ Route::post('/superadmin/users', [SuperAdminController::class, 'storeUser'])->na
 Route::post('/superadmin/users/{id}/update', [SuperAdminController::class, 'updateUser'])->name('superadmin.users.update');
 Route::post('/superadmin/users/{id}/toggle-status', [SuperAdminController::class, 'toggleUserStatus'])->name('superadmin.users.toggle');
 
-// Super Admin SaaS Tenant & System Routes
+// Super Admin SaaS Tenant Actions
 Route::post('/superadmin/tenants', [SuperAdminController::class, 'storeTenant'])->name('superadmin.tenants.store');
+Route::post('/superadmin/tenants/{id}/update', [SuperAdminController::class, 'updateTenant'])->name('superadmin.tenants.update');
+Route::post('/superadmin/tenants/{id}/delete', [SuperAdminController::class, 'deleteTenant'])->name('superadmin.tenants.delete');
 Route::post('/superadmin/tenants/{id}/toggle-status', [SuperAdminController::class, 'toggleTenantStatus'])->name('superadmin.tenants.toggle');
+Route::post('/superadmin/tenants/{id}/renew', [SuperAdminController::class, 'renewTenant'])->name('superadmin.tenants.renew');
 Route::get('/superadmin/impersonate/{id}', [SuperAdminController::class, 'impersonate'])->name('superadmin.impersonate');
 Route::post('/superadmin/tenants/{id}/impersonate', [SuperAdminController::class, 'impersonate'])->name('superadmin.tenants.impersonate');
 Route::get('/superadmin/stop-impersonating', [SuperAdminController::class, 'stopImpersonating'])->name('superadmin.stop-impersonating');

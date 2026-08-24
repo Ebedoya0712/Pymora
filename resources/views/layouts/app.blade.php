@@ -193,18 +193,26 @@
                         <!-- Super Admin Specific Dedicated Menu -->
                         <div class="px-3 py-1.5 text-[10px] font-semibold text-indigo-400 uppercase tracking-wider">Gestión Global SaaS</div>
 
+                        <!-- 1. Dashboard SuperAdmin -->
                         <a href="{{ route('superadmin.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('superadmin.index') ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                            <span>Dashboard</span>
+                        </a>
+
+                        <!-- 2. Módulo Empresas -->
+                        <a href="{{ route('superadmin.empresas') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('superadmin.empresas') ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                             <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                             <span>Empresas</span>
                         </a>
 
+                        <!-- 3. Módulo Mis Finanzas -->
                         <div class="space-y-1">
                             <a href="{{ route('superadmin.finanzas') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('superadmin.finanzas') ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                                 <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 <span>Mis Finanzas</span>
                             </a>
                             <div class="pl-9 space-y-1 text-xs">
-                                <a href="{{ route('superadmin.finanzas') }}" class="flex items-center gap-2 py-1 px-2 rounded hover:bg-slate-800 text-slate-300 hover:text-emerald-400 transition-colors group">
+                                <a href="{{ route('superadmin.finanzas') }}" class="flex items-center gap-2 py-1 px-2 rounded hover:bg-slate-800 {{ request()->routeIs('superadmin.finanzas') && !request()->has('tab') ? 'text-emerald-400 font-semibold bg-emerald-500/10' : 'text-slate-300 hover:text-emerald-400' }} transition-colors group">
                                     <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
                                     <span>Ganancias</span>
                                 </a>
@@ -212,20 +220,56 @@
                                     <svg class="w-3.5 h-3.5 {{ request()->routeIs('superadmin.comprobantes') ? 'text-emerald-400' : 'text-slate-400 group-hover:text-emerald-400' }} transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                     <span>Comprobantes de pago</span>
                                 </a>
+                                <a href="{{ route('superadmin.finanzas', ['tab' => 'plans']) }}" class="flex items-center gap-2 py-1 px-2 rounded hover:bg-slate-800 {{ request()->get('tab') === 'plans' ? 'text-emerald-400 font-semibold bg-emerald-500/10' : 'text-slate-400 hover:text-emerald-400' }} transition-colors group">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10M7 11h10M7 15h10"/></svg>
+                                    <span>Planes & Tarifas</span>
+                                </a>
                             </div>
                         </div>
 
+                        <!-- 4. Módulo Usuarios y Roles -->
                         <a href="{{ route('superadmin.users') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('superadmin.users') ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                             <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                             <span>Usuarios y Roles</span>
                         </a>
+
+                        <!-- 5. Módulo Configuración -->
+                        <a href="{{ route('superadmin.configuracion') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('superadmin.configuracion') ? 'bg-amber-600/20 text-amber-400 border border-amber-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
+                            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span>Configuración</span>
+                        </a>
                     @endif
 
                     @if($showTenantModules)
+                        @php
+                            $currentTenantObj = \App\Models\Tenant::current();
+                            $bTypeKey = session('business_type') ?? ($currentTenantObj->business_type ?? 'abasto');
+                            $bMeta = \App\Models\Tenant::getBusinessTypes()[$bTypeKey] ?? \App\Models\Tenant::getBusinessTypes()['abasto'];
+
+                            $posLabel = match($bTypeKey) {
+                                'restaurante' => 'Mesas & Comandero (POS)',
+                                'carniceria_hortalizas' => 'Punto de Venta (Báscula/Kg)',
+                                'tecnologia_electro' => 'Punto de Venta (Seriales/IMEI)',
+                                'servicios' => 'Agenda de Citas & POS',
+                                default => 'Punto de Venta (POS)',
+                            };
+
+                            $invLabel = match($bTypeKey) {
+                                'restaurante' => 'Inventario & Recetas',
+                                'fabricante' => 'Insumos & Recetas BOM',
+                                'ropa' => 'Inventario (Tallas & Colores)',
+                                'carniceria_hortalizas' => 'Inventario (Kilos & Mermas)',
+                                'tecnologia_electro' => 'Stock (Seriales & Garantías)',
+                                'repuestos' => 'Catálogo Marca/Modelo/Año',
+                                'servicios' => 'Órdenes de Trabajo & Servicios',
+                                default => 'Inventario Inteligente',
+                            };
+                        @endphp
+
                         @if(in_array($role, ['super_admin', 'owner', 'tenant_admin']) || $isImpersonating)
                         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('dashboard') ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-                            Resumen CFO / Dashboard
+                            <span>Dashboard {{ $bMeta['name'] }}</span>
                         </a>
                         @endif
 
@@ -233,28 +277,28 @@
                         <a href="{{ route('pos.index') }}" class="flex items-center justify-between px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('pos.index') ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                             <span class="flex items-center gap-3">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
-                                Punto de Venta (POS)
+                                <span>{{ $posLabel }}</span>
                             </span>
-                            <span class="bg-emerald-500/20 text-emerald-300 text-[10px] px-1.5 py-0.5 rounded font-mono">LIVE</span>
+                            <span class="bg-emerald-500/20 text-emerald-300 text-[10px] px-1.5 py-0.5 rounded font-mono">{{ $bMeta['icon'] }}</span>
                         </a>
                         @endif
 
                         @if(in_array($role, ['super_admin', 'owner', 'tenant_admin', 'warehouse_manager']) || $isImpersonating)
                         <a href="{{ route('inventory.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('inventory.index') ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                            Inventario Inteligente
+                            <span>{{ $invLabel }}</span>
                         </a>
                         @endif
 
                         @if(in_array($role, ['super_admin', 'owner', 'tenant_admin']) || $isImpersonating)
                         <a href="{{ route('cashbank.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('cashbank.index') ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            Caja & Bancos
+                            <span>Caja, Devoluciones & Bancos</span>
                         </a>
 
                         <a href="{{ route('cxc.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('cxc.index') ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                            Cuentas por Cobrar (CXC)
+                            <span>Cuentas por Cobrar & Deudas</span>
                         </a>
                         @endif
 
@@ -262,7 +306,7 @@
                         <a href="{{ route('quotes.index') }}" class="flex items-center justify-between px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('quotes.index') ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                             <span class="flex items-center gap-3">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                Cotizaciones Workflow
+                                <span>Cotizaciones & Canales</span>
                             </span>
                         </a>
                         @endif
@@ -271,7 +315,7 @@
                         <a href="{{ route('transfers.index') }}" class="flex items-center justify-between px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('transfers.index') ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                             <span class="flex items-center gap-3">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-                                Traslados Multi-Sucursal
+                                <span>Traslados Multi-Sucursal</span>
                             </span>
                         </a>
                         @endif
@@ -280,7 +324,7 @@
                         <a href="{{ route('reports.index') }}" class="flex items-center justify-between px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('reports.index') ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
                             <span class="flex items-center gap-3">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                SENIAT IVA / Comisiones
+                                <span>Reportes & Comisiones Equipo</span>
                             </span>
                         </a>
                         @endif
@@ -311,10 +355,67 @@
 
         <!-- Main Content Area -->
         <main class="flex-1 overflow-y-auto bg-slate-950 p-4 md:p-6">
-            @if(session('success'))
-                <div class="mb-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm flex items-center gap-3">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    {{ session('success') }}
+            <!-- Global Auto-Dismiss Notification Toast Banner -->
+            @if(session('success') || session('error') || session('warning') || session('info'))
+                @php
+                    $alertType = session('error') ? 'error' : (session('warning') ? 'warning' : (session('info') ? 'info' : 'success'));
+                    $alertMsg = session('success') ?? session('error') ?? session('warning') ?? session('info');
+                    $alertBg = [
+                        'success' => 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 shadow-emerald-950/40',
+                        'error' => 'bg-rose-500/15 border-rose-500/40 text-rose-300 shadow-rose-950/40',
+                        'warning' => 'bg-amber-500/15 border-amber-500/40 text-amber-300 shadow-amber-950/40',
+                        'info' => 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300 shadow-indigo-950/40',
+                    ][$alertType];
+                    $alertIconColor = [
+                        'success' => 'text-emerald-400',
+                        'error' => 'text-rose-400',
+                        'warning' => 'text-amber-400',
+                        'info' => 'text-indigo-400',
+                    ][$alertType];
+                    $barBg = [
+                        'success' => 'bg-emerald-400',
+                        'error' => 'bg-rose-400',
+                        'warning' => 'bg-amber-400',
+                        'info' => 'bg-indigo-400',
+                    ][$alertType];
+                @endphp
+                <div x-data="{ show: true, progress: 100, timer: null }"
+                     x-init="
+                        timer = setInterval(() => {
+                            progress -= 1.5;
+                            if (progress <= 0) {
+                                show = false;
+                                clearInterval(timer);
+                            }
+                        }, 60);
+                     "
+                     x-show="show"
+                     x-transition:enter="transition ease-out duration-300 transform"
+                     x-transition:enter-start="opacity-0 -translate-y-2 scale-95"
+                     x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                     x-transition:leave="transition ease-in duration-200 transform"
+                     x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                     x-transition:leave-end="opacity-0 -translate-y-2 scale-95"
+                     x-cloak
+                     class="mb-5 relative overflow-hidden rounded-xl border p-4 text-xs font-semibold shadow-xl flex items-center justify-between gap-3 {{ $alertBg }}">
+                    
+                    <div class="flex items-center gap-3">
+                        @if($alertType === 'success')
+                            <svg class="w-5 h-5 {{ $alertIconColor }} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        @elseif($alertType === 'error')
+                            <svg class="w-5 h-5 {{ $alertIconColor }} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        @else
+                            <svg class="w-5 h-5 {{ $alertIconColor }} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        @endif
+                        <span class="text-sm font-medium leading-tight">{{ $alertMsg }}</span>
+                    </div>
+
+                    <button type="button" @click="show = false; clearInterval(timer)" title="Cerrar notificación" class="text-slate-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+
+                    <!-- Auto-Dismiss Progress Bar -->
+                    <div class="absolute bottom-0 left-0 h-1 {{ $barBg }} opacity-75 transition-all duration-75" :style="'width: ' + progress + '%'"></div>
                 </div>
             @endif
 

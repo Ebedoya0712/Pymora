@@ -127,4 +127,23 @@ class Tenant extends Model
             ],
         ];
     }
+
+    public static function currentId(): int
+    {
+        if (session('is_impersonating') && session('impersonated_tenant_id')) {
+            return (int) session('impersonated_tenant_id');
+        }
+
+        if (auth()->check() && auth()->user()->tenant_id) {
+            return (int) auth()->user()->tenant_id;
+        }
+
+        return (int) session('tenant_id', 1);
+    }
+
+    public static function current(): ?Tenant
+    {
+        $id = static::currentId();
+        return static::find($id) ?? static::first();
+    }
 }

@@ -19,7 +19,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         try {
-            $tenant = Tenant::first();
+            $tenant = Tenant::current();
         } catch (Exception $e) {
             $tenant = null;
         }

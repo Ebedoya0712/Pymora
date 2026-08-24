@@ -49,7 +49,7 @@
                             {{ strtoupper($s->status) }}
                         </span>
                     </div>
-                    <div class="text-[11px] text-slate-400">Apertura: {{ $s->opened_at->format('d/m/Y H:i') }}</div>
+                    <div class="text-[11px] text-slate-400">Apertura: {{ is_object($s->opened_at) ? $s->opened_at->format('d/m/Y H:i') : ($s->opened_at ? \Carbon\Carbon::parse($s->opened_at)->format('d/m/Y H:i') : 'Hoy') }}</div>
                     <div class="flex justify-between font-mono font-bold text-white pt-1">
                         <span>Esperado: ${{ number_format($s->expected_cash_usd, 2) }}</span>
                         <span class="text-emerald-400">Inicial: ${{ number_format($s->initial_cash_usd, 2) }}</span>

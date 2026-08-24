@@ -106,6 +106,101 @@ class SuperAdminController extends Controller
         ));
     }
 
+    public function empresas()
+    {
+        if (!session('is_impersonating')) {
+            session([
+                'user_role' => 'super_admin',
+                'user_name' => session('user_name', 'Eliecer (Super Admin)'),
+            ]);
+        }
+
+        try {
+            $tenants = Tenant::withCount('users')->orderBy('name')->get();
+        } catch (Exception $e) {
+            $tenants = collect();
+        }
+
+        $plans = self::getPlans();
+        $businessTypes = Tenant::getBusinessTypes();
+
+        return view('superadmin.empresas', compact('tenants', 'plans', 'businessTypes'));
+    }
+
+    public function updateTenant($id, Request $request)
+    {
+        $tenant = Tenant::findOrFail($id);
+        
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'rif_tax_id' => 'required|string|max:50',
+            'subdomain' => 'required|string|max:50|unique:tenants,subdomain,' . $id,
+            'business_type' => 'required|string',
+            'plan_tier' => 'required|string',
+        ]);
+
+        $tenant->update([
+            'name' => $request->input('name'),
+            'rif_tax_id' => $request->input('rif_tax_id'),
+            'subdomain' => strtolower($request->input('subdomain')),
+            'business_type' => $request->input('business_type'),
+            'plan_tier' => $request->input('plan_tier'),
+            'expires_at' => $request->input('expires_at') ? Carbon::parse($request->input('expires_at')) : $tenant->expires_at,
+        ]);
+
+        return redirect()->back()->with('success', "Empresa '{$tenant->name}' actualizada exitosamente.");
+    }
+
+    public function deleteTenant($id)
+    {
+        $tenant = Tenant::findOrFail($id);
+        $name = $tenant->name;
+        $tenant->delete();
+
+        return redirect()->back()->with('success', "Empresa '{$name}' eliminada correctamente.");
+    }
+
+    public function renewTenant($id, Request $request)
+    {
+        $tenant = Tenant::findOrFail($id);
+        $months = (int) $request->input('months', 1);
+
+        $currentExpire = ($tenant->expires_at && Carbon::parse($tenant->expires_at)->isFuture())
+            ? Carbon::parse($tenant->expires_at)
+            : now();
+
+        $tenant->expires_at = $currentExpire->addMonths($months);
+        $tenant->is_active = true;
+        $tenant->save();
+
+        return redirect()->back()->with('success', "Suscripción de '{$tenant->name}' renovada por {$months} mes(es) hasta " . $tenant->expires_at->format('d/m/Y') . ".");
+    }
+
+    public function configuracion()
+    {
+        if (!session('is_impersonating')) {
+            session([
+                'user_role' => 'super_admin',
+                'user_name' => session('user_name', 'Eliecer (Super Admin)'),
+            ]);
+        }
+
+        $rates = DolarApiService::getRates();
+        $bcvUsdRate = (float) GlobalSetting::get('bcv_usd_rate', $rates['bcv_usd']);
+        $bcvEurRate = (float) GlobalSetting::get('bcv_eur_rate', $rates['bcv_eur']);
+        $trialDays = (int) GlobalSetting::get('trial_days', 30);
+        $supportEmail = GlobalSetting::get('support_email', 'soporte@pymora.com');
+        $broadcastMessage = GlobalSetting::get('broadcast_message', '');
+
+        return view('superadmin.configuracion', compact(
+            'bcvUsdRate',
+            'bcvEurRate',
+            'trialDays',
+            'supportEmail',
+            'broadcastMessage'
+        ));
+    }
+
     public function finanzas(Request $request)
     {
         if (!session('is_impersonating')) {
@@ -488,15 +583,7 @@ class SuperAdminController extends Controller
             ]);
         } catch (Exception $e) {}
 
-        return redirect()->route('superadmin.index')->with('success', "Empresa '{$request->input('name')}' registrada en Pymora SaaS exitosamente.");
-    }
-
-    public function updateTenant(Request $request, $id)
-    {
-        $tenant = Tenant::findOrFail($id);
-        $tenant->update($request->only(['name', 'rif_tax_id', 'subdomain', 'plan_tier']));
-
-        return redirect()->route('superadmin.index')->with('success', "Empresa '{$tenant->name}' actualizada correctamente.");
+        return redirect()->route('superadmin.empresas')->with('success', "Empresa '{$request->input('name')}' registrada en Pymora SaaS exitosamente.");
     }
 
     public function toggleTenantStatus($id)
@@ -515,17 +602,23 @@ class SuperAdminController extends Controller
         
         session([
             'impersonated_tenant_id' => $tenant->id,
+            'tenant_id' => $tenant->id,
             'company_name' => $tenant->name,
+            'business_type' => $tenant->business_type ?? 'abasto',
             'is_impersonating' => true,
         ]);
 
-        return redirect()->route('dashboard')->with('success', "Modo Auditoría Activo: Estás inspeccionando las ventas, ganancias y productos de '{$tenant->name}'.");
+        return redirect()->route('dashboard')->with('success', "Modo Auditoría Activo: Tienes acceso total para operar e inspeccionar a '{$tenant->name}'.");
     }
 
     public function stopImpersonating()
     {
-        session()->forget(['impersonated_tenant_id', 'is_impersonating']);
-        session(['company_name' => 'Bodega & Abasto El Sol C.A.']);
+        session()->forget(['impersonated_tenant_id', 'is_impersonating', 'business_type']);
+        $firstTenant = Tenant::first();
+        session([
+            'tenant_id' => $firstTenant->id ?? 1,
+            'company_name' => $firstTenant->name ?? 'Bodega & Abasto El Sol C.A.',
+        ]);
 
         return redirect()->route('superadmin.index')->with('success', 'Has finalizado la auditoría de empresa. Has vuelto al Panel Super Admin.');
     }

@@ -7,17 +7,6 @@
 
 <div x-data="{ showPaymentModal: false, selectedTenantId: '', selectedPlan: 'pro', selectedMonths: 1, amountUsd: {{ $plans['pro']['price'] ?? 79 }}, paymentMethod: 'pago_movil', referenceCode: '', notes: '', updateAmount() { const rates = { trial: {{ $plans['trial']['price'] ?? 0 }}, starter: {{ $plans['starter']['price'] ?? 29 }}, pro: {{ $plans['pro']['price'] ?? 79 }} }; this.amountUsd = (rates[this.selectedPlan] !== undefined ? rates[this.selectedPlan] : 79) * this.selectedMonths; } }" class="space-y-6">
 
-    <!-- Flash Alert -->
-    @if(session('success'))
-    <div class="glass-card p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs flex items-center justify-between shadow-lg">
-        <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span class="font-semibold">{{ session('success') }}</span>
-        </div>
-        <button @click="$el.parentElement.remove()" class="text-emerald-400 hover:text-white">&times;</button>
-    </div>
-    @endif
-
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
         <div>
@@ -323,6 +312,58 @@
         </div>
     </div>
 </div>
+
+    <!-- Planes & Planes Tarifarios SaaS Section -->
+    <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10M7 11h10M7 15h10"/></svg>
+                    <span>Planes & Tarifas Tarifarias SaaS</span>
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">Modifica las características, costos y límites de los planes de suscripción ofrecidos a las empresas.</p>
+            </div>
+            <span class="px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-mono rounded-full">Configuración Tarifaria</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            @foreach($plans as $planKey => $plan)
+            <form action="{{ route('superadmin.plans.update') }}" method="POST" class="bg-slate-900/80 border border-slate-800 rounded-xl p-5 space-y-4 shadow flex flex-col justify-between">
+                @csrf
+                <input type="hidden" name="plan_key" value="{{ $planKey }}">
+                
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono uppercase font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">{{ $planKey }}</span>
+                        <div class="text-right">
+                            <span class="text-2xl font-black text-white font-mono">${{ $plan['price'] }}</span>
+                            <span class="text-xs text-slate-400 font-mono">/mes</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-300">Nombre del Plan</label>
+                        <input type="text" name="name" value="{{ $plan['name'] }}" required class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2 text-xs focus:border-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-300">Precio Mensual ($ USD)</label>
+                        <input type="number" step="1" name="price" value="{{ $plan['price'] }}" required class="w-full bg-slate-950 border border-slate-800 text-emerald-400 font-bold font-mono rounded-lg p-2 text-xs focus:border-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-300">Lista de Características (1 por línea)</label>
+                        <textarea name="features" rows="5" required class="w-full bg-slate-950 border border-slate-800 text-slate-300 rounded-lg p-2 text-xs font-mono leading-relaxed focus:border-indigo-500 focus:outline-none">{{ $plan['features'] }}</textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-lg text-xs shadow transition-colors mt-2">
+                    Actualizar Plan {{ $plan['name'] }}
+                </button>
+            </form>
+            @endforeach
+        </div>
+    </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
