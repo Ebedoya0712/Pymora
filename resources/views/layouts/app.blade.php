@@ -199,7 +199,7 @@
                 <nav class="space-y-1 text-sm font-medium">
                     @if($role === 'super_admin' && !$isImpersonating)
                         <!-- Super Admin Specific Dedicated Menu -->
-                        <div class="px-3 py-1.5 text-[10px] font-semibold text-indigo-400 uppercase tracking-wider">Gestión Global SaaS</div>
+                        <div class="px-3 py-1.5 text-[10px] font-semibold text-indigo-400 uppercase tracking-wider">Gestión Global Pymora</div>
 
                         <!-- 1. Dashboard SuperAdmin -->
                         <a href="{{ route('superadmin.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors {{ request()->routeIs('superadmin.index') ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-semibold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">

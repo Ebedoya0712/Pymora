@@ -12,7 +12,7 @@
         <div>
             <div class="flex items-center gap-2">
                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    Control Financiero SaaS
+                    Control Financiero Pymora
                 </span>
                 <span class="text-slate-500">•</span>
                 <span class="text-xs font-mono text-slate-400">Pymora Platform Revenue</span>
@@ -231,7 +231,7 @@
         <div @click.away="showPaymentModal = false" class="glass-card w-full max-w-lg rounded-2xl border border-slate-800 p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div>
-                    <h3 class="text-lg font-bold text-white font-display">Registrar Pago de Suscripción SaaS</h3>
+                    <h3 class="text-lg font-bold text-white font-display">Registrar Pago de Suscripción Pymora</h3>
                     <p class="text-xs text-slate-400">Extiende la licencia y emite comprobante de cobranza.</p>
                 </div>
                 <button @click="showPaymentModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg">
@@ -251,18 +251,19 @@
                     </select>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Plan Contratado</label>
-                        <select name="plan_tier" x-model="selectedPlan" @change="updateAmount()" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none font-mono">
-                            <option value="trial">{{ strtoupper($plans['trial']['name'] ?? 'Plan 1 Mes Gratis') }} (${{ number_format($plans['trial']['price'] ?? 0, 0) }}/mes)</option>
-                            <option value="starter">{{ strtoupper($plans['starter']['name'] ?? 'Plan Sencillo') }} (${{ number_format($plans['starter']['price'] ?? 29, 0) }}/mes)</option>
-                            <option value="pro">{{ strtoupper($plans['pro']['name'] ?? 'Plan Pro (Avanzado)') }} (${{ number_format($plans['pro']['price'] ?? 79, 0) }}/mes)</option>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Plan de Suscripción</label>
+                        <select name="plan_tier" x-model="selectedPlan" @change="updateAmount()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
+                            @foreach($plans as $pk => $pv)
+                                <option value="{{ $pk }}">{{ $pv['name'] }} (${{ $pv['price'] }}/mes)</option>
+                            @endforeach
                         </select>
                     </div>
+
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Duración (Meses)</label>
-                        <select name="months_paid" x-model="selectedMonths" @change="updateAmount()" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none font-mono">
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Meses a Cancelar</label>
+                        <select name="months_paid" x-model.number="selectedMonths" @change="updateAmount()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
                             <option value="1">1 Mes</option>
                             <option value="3">3 Meses</option>
                             <option value="6">6 Meses</option>
@@ -271,55 +272,57 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Monto en USD ($)</label>
-                        <input type="number" step="0.01" name="amount_usd" x-model="amountUsd" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-emerald-400 font-bold font-mono focus:border-indigo-500 focus:outline-none">
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Monto Cobrado ($ USD)</label>
+                        <input type="number" step="0.01" name="amount_usd" x-model="amountUsd" required class="w-full bg-slate-900 border border-slate-700 text-emerald-400 font-bold font-mono rounded-xl px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
                     </div>
+
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Método de Pago</label>
-                        <select name="payment_method" x-model="paymentMethod" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
-                            <option value="pago_movil">Pago Móvil VES</option>
-                            <option value="zelle">Zelle (USD)</option>
-                            <option value="binance_usdt">Binance Pay (USDT)</option>
-                            <option value="bank_transfer">Transferencia Bancaria</option>
-                            <option value="cash_usd">Efectivo USD</option>
+                        <select name="payment_method" x-model="paymentMethod" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
+                            <option value="pago_movil">Pago Móvil</option>
+                            <option value="transferencia">Transferencia Bancaria VES</option>
+                            <option value="zelle">Zelle USD</option>
+                            <option value="efectivo_usd">Efectivo USD</option>
+                            <option value="binance">Binance Pay USDT</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Número / Código de Referencia</label>
-                        <input type="text" name="reference_code" required placeholder="Ej: 99887766" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:border-indigo-500 focus:outline-none">
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Código Referencia / Confirmación</label>
+                        <input type="text" name="reference_code" required placeholder="Ej: 84920481" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-2 text-xs font-mono focus:border-indigo-500 focus:outline-none">
                     </div>
+
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha del Pago</label>
-                        <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:border-indigo-500 focus:outline-none">
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha de Pago</label>
+                        <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" required class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Notas / Observaciones (Opcional)</label>
-                    <textarea name="notes" rows="2" placeholder="Detalle adicional sobre el cobro..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none"></textarea>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Notas Adicionales (Opcional)</label>
+                    <input type="text" name="notes" placeholder="Ej: Pago verificado en cuenta Banesco" class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none">
                 </div>
 
-                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
-                    <button type="button" @click="showPaymentModal = false" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-xl">Cancelar</button>
-                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/20">Registrar Pago & Activar Licencia</button>
+                <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-800">
+                    <button type="button" @click="showPaymentModal = false" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/30">Guardar Pago & Renovar</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-    <!-- Planes & Planes Tarifarios SaaS Section -->
+    <!-- 5. Configuración de Planes & Tarifas -->
     <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-6">
         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
             <div>
                 <h3 class="text-lg font-bold text-white flex items-center gap-2">
                     <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10M7 11h10M7 15h10"/></svg>
-                    <span>Planes & Tarifas Tarifarias SaaS</span>
+                    <span>Planes & Tarifas Pymora</span>
                 </h3>
                 <p class="text-xs text-slate-400 mt-1">Modifica las características, costos y límites de los planes de suscripción ofrecidos a las empresas.</p>
             </div>

@@ -31,7 +31,7 @@
             <div class="text-[11px] text-indigo-400 font-mono">Comercios en Base de Datos</div>
         </div>
         <div class="glass-card p-4 rounded-xl space-y-1">
-            <div class="text-xs text-slate-400 font-medium">Empresas Activas en SaaS</div>
+            <div class="text-xs text-slate-400 font-medium">Empresas Activas en Pymora</div>
             <div class="text-2xl font-black text-emerald-400">{{ $tenants->where('is_active', true)->count() }}</div>
             <div class="text-[11px] text-emerald-400/80 font-mono">Acceso total habilitado</div>
         </div>
@@ -43,7 +43,7 @@
         <div class="glass-card p-4 rounded-xl space-y-1">
             <div class="text-xs text-slate-400 font-medium">MRR Recaudación Estimada</div>
             <div class="text-2xl font-black text-purple-400">${{ number_format($tenants->where('is_active', true)->sum(fn($t) => $plans[$t->plan_tier]['price'] ?? 29), 2) }} <span class="text-xs text-slate-400 font-normal">/ mes</span></div>
-            <div class="text-[11px] text-purple-400/80 font-mono">Ingreso Recurrente SaaS</div>
+            <div class="text-[11px] text-purple-400/80 font-mono">Ingreso Recurrente Pymora</div>
         </div>
     </div>
 
@@ -214,7 +214,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div class="space-y-1">
-                        <label class="font-semibold text-slate-300">Plan SaaS</label>
+                        <label class="font-semibold text-slate-300">Plan Pymora</label>
                         <select name="plan_tier" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-indigo-500 focus:outline-none">
                             @foreach($plans as $pk => $pv)
                             <option value="{{ $pk }}">{{ $pv['name'] }} (${{ $pv['price'] }}/mes)</option>
@@ -275,7 +275,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div class="space-y-1">
-                        <label class="font-semibold text-slate-300">Plan SaaS</label>
+                        <label class="font-semibold text-slate-300">Plan Pymora</label>
                         <select name="plan_tier" x-model="selectedTenant.plan_tier" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-indigo-500 focus:outline-none">
                             @foreach($plans as $pk => $pv)
                             <option value="{{ $pk }}">{{ $pv['name'] }} (${{ $pv['price'] }}/mes)</option>
