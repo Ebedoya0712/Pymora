@@ -199,17 +199,16 @@
                     </div>
                     <div class="space-y-1">
                         <label class="font-semibold text-slate-300">Plan Inicial por Defecto</label>
-                        <div class="w-full bg-slate-950 border border-slate-800 text-emerald-400 font-bold rounded-lg p-2.5 flex items-center justify-between text-xs font-mono">
-                            <span>🎁 1 Mes Gratis ($0.00 / mes)</span>
-                            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">AUTOMÁTICO</span>
+                        <div class="w-full bg-slate-950 border border-slate-800 text-emerald-400 font-bold rounded-lg p-2.5 text-xs font-mono">
+                            <span>1 Mes Gratis</span>
                         </div>
                         <input type="hidden" name="plan_tier" value="trial">
                     </div>
                 </div>
 
                 <div class="space-y-1">
-                    <label class="font-semibold text-slate-300">Correo Admin Principal</label>
-                    <input type="email" name="admin_email" required placeholder="admin@empresa.com" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-indigo-500 focus:outline-none">
+                    <label class="font-semibold text-slate-300">Correo de la Empresa</label>
+                    <input type="email" name="admin_email" required placeholder="contacto@empresa.com" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-indigo-500 focus:outline-none">
                 </div>
 
                 <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
