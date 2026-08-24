@@ -141,7 +141,6 @@
                 <thead class="bg-slate-900/90 text-slate-400 uppercase font-mono text-[10px]">
                     <tr>
                         <th class="p-3">Empresa / RIF</th>
-                        <th class="p-3">Subdominio</th>
                         <th class="p-3">Plan</th>
                         <th class="p-3">Estado</th>
                         <th class="p-3 text-right">Acción Rápida</th>
@@ -162,7 +161,6 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="p-3 font-mono text-indigo-400">{{ $t->subdomain }}.pymora.com</td>
                         <td class="p-3 font-mono font-bold uppercase text-indigo-300">{{ $t->plan_tier }}</td>
                         <td class="p-3">
                             <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase {{ $t->is_active ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300' }}">

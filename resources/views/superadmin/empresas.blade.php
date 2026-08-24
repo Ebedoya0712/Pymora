@@ -50,7 +50,7 @@
                 <span class="bg-indigo-500/20 text-indigo-300 text-xs px-2.5 py-0.5 rounded-full font-mono">{{ $tenants->count() }}</span>
             </h3>
             <div class="w-full md:w-72 relative">
-                <input type="text" placeholder="Buscar por Nombre, RIF o Subdominio..." class="w-full bg-slate-900 border border-slate-700/80 text-white rounded-xl text-xs px-3.5 py-2 pl-9 focus:outline-none focus:border-indigo-500 transition-colors">
+                <input type="text" placeholder="Buscar por Nombre o RIF..." class="w-full bg-slate-900 border border-slate-700/80 text-white rounded-xl text-xs px-3.5 py-2 pl-9 focus:outline-none focus:border-indigo-500 transition-colors">
                 <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             </div>
         </div>
@@ -60,7 +60,6 @@
                 <thead class="bg-slate-900/90 text-slate-400 uppercase font-mono text-[10px]">
                     <tr>
                         <th class="p-3.5">Empresa / RIF / Rubro</th>
-                        <th class="p-3.5">Subdominio</th>
                         <th class="p-3.5">Plan Contratado</th>
                         <th class="p-3.5">Vencimiento Licencia</th>
                         <th class="p-3.5">Estado</th>
@@ -85,12 +84,6 @@
                                     <div class="text-[11px] font-mono text-slate-400">{{ $t->rif_tax_id ?: 'J-12345678-9' }} • <span class="text-indigo-300 font-semibold">{{ $bMeta['name'] }}</span></div>
                                 </div>
                             </div>
-                        </td>
-                        <td class="p-3.5 font-mono text-indigo-400 whitespace-nowrap">
-                            <a href="http://{{ $t->subdomain }}.pymora.com:8000" target="_blank" class="hover:underline inline-flex items-center gap-1">
-                                <span>{{ $t->subdomain }}.pymora.com</span>
-                                <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                            </a>
                         </td>
                         <td class="p-3.5 whitespace-nowrap">
                             <span class="inline-block px-2.5 py-1 rounded-md text-[11px] font-mono font-bold uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 whitespace-nowrap">
@@ -197,13 +190,6 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div class="space-y-1">
-                        <label class="font-semibold text-slate-300">Subdominio Único</label>
-                        <div class="flex items-center">
-                            <input type="text" name="subdomain" required placeholder="elsol" class="w-full bg-slate-950 border border-slate-800 text-white rounded-l-lg p-2.5 focus:border-indigo-500 focus:outline-none font-mono">
-                            <span class="bg-slate-800 text-slate-400 px-2.5 py-2.5 rounded-r-lg border border-l-0 border-slate-800 text-[10px] font-mono">.pymora.com</span>
-                        </div>
-                    </div>
-                    <div class="space-y-1">
                         <label class="font-semibold text-slate-300">Tipo de Negocio / Rubro</label>
                         <select name="business_type" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-indigo-500 focus:outline-none">
                             @foreach($businessTypes as $key => $bt)
@@ -211,9 +197,6 @@
                             @endforeach
                         </select>
                     </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div class="space-y-1">
                         <label class="font-semibold text-slate-300">Plan Pymora</label>
                         <select name="plan_tier" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-indigo-500 focus:outline-none">
@@ -222,10 +205,11 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="space-y-1">
-                        <label class="font-semibold text-slate-300">Correo Admin Principal</label>
-                        <input type="email" name="admin_email" required placeholder="admin@empresa.com" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-indigo-500 focus:outline-none">
-                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="font-semibold text-slate-300">Correo Admin Principal</label>
+                    <input type="email" name="admin_email" required placeholder="admin@empresa.com" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-indigo-500 focus:outline-none">
                 </div>
 
                 <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
@@ -261,10 +245,6 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div class="space-y-1">
-                        <label class="font-semibold text-slate-300">Subdominio Único</label>
-                        <input type="text" name="subdomain" :value="selectedTenant.subdomain" required class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-indigo-500 focus:outline-none font-mono">
-                    </div>
-                    <div class="space-y-1">
                         <label class="font-semibold text-slate-300">Tipo de Negocio / Rubro</label>
                         <select name="business_type" x-model="selectedTenant.business_type" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-indigo-500 focus:outline-none">
                             @foreach($businessTypes as $key => $bt)
@@ -272,7 +252,6 @@
                             @endforeach
                         </select>
                     </div>
-                </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div class="space-y-1">

@@ -538,13 +538,17 @@ class SuperAdminController extends Controller
         $validTypes = implode(',', array_keys(Tenant::getBusinessTypes()));
         $request->validate([
             'name' => 'required|string|max:255',
-            'subdomain' => 'required|string|max:100',
+            'subdomain' => 'nullable|string|max:100',
             'rif_tax_id' => 'required|string|max:50',
             'plan_tier' => 'required|string|in:starter,pro,enterprise,trial',
             'business_type' => 'nullable|string|in:' . $validTypes,
             'email' => 'required|email',
             'phone' => 'nullable|string',
         ]);
+
+        $subdomain = $request->input('subdomain') 
+            ? strtolower($request->input('subdomain')) 
+            : \Illuminate\Support\Str::slug($request->input('name')) . '-' . rand(100, 999);
 
         $rates = DolarApiService::getRates();
         $bcvRate = (float) GlobalSetting::get('bcv_usd_rate', $rates['bcv_usd']);
@@ -553,7 +557,7 @@ class SuperAdminController extends Controller
             $tenant = Tenant::create([
                 'name' => $request->input('name'),
                 'rif_tax_id' => $request->input('rif_tax_id'),
-                'subdomain' => strtolower($request->input('subdomain')),
+                'subdomain' => $subdomain,
                 'plan_tier' => $request->input('plan_tier'),
                 'business_type' => $request->input('business_type', 'abasto'),
                 'email' => $request->input('email'),
