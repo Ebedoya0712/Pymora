@@ -134,10 +134,6 @@
                 <span>Resumen de Empresas Recientes</span>
                 <span class="bg-indigo-500/20 text-indigo-300 text-xs px-2.5 py-0.5 rounded-full font-mono">{{ $tenants->count() }}</span>
             </h3>
-            <a href="{{ route('superadmin.empresas') }}" class="text-xs text-indigo-400 hover:underline font-semibold flex items-center gap-1">
-                <span>Ver Módulo Completo de Empresas</span>
-                <span>&rarr;</span>
-            </a>
         </div>
 
         <div class="overflow-x-auto rounded-xl border border-slate-800">
