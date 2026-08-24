@@ -7,10 +7,7 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-slate-900/60 p-6 rounded-2xl border border-slate-800 backdrop-blur-xl">
         <div>
-            <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Executive Control Panel</span>
-            </div>
-            <h1 class="text-2xl font-black text-white tracking-tight mt-1 flex items-center gap-2">
+            <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
                 📊 Dashboard SuperAdmin
             </h1>
             <p class="text-sm text-slate-400 mt-1">Resumen ejecutivo de comercios activos, facturación recurrente, salud financiera y parámetros globales.</p>
