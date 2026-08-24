@@ -39,12 +39,6 @@
             <form action="{{ route('superadmin.settings.update') }}" method="POST" class="space-y-4 text-xs">
                 @csrf
                 <div class="space-y-1">
-                    <label class="font-semibold text-slate-300">Días de Prueba Gratis por Defecto (Trial Period)</label>
-                    <input type="number" name="trial_days" value="{{ $trialDays }}" required min="1" max="90" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-amber-500 focus:outline-none font-mono">
-                    <p class="text-[10px] text-slate-500">Cantidad de días concedidos automáticamente a los comercios en el registro.</p>
-                </div>
-
-                <div class="space-y-1">
                     <label class="font-semibold text-slate-300">Correo Oficial de Soporte Técnico</label>
                     <input type="email" name="support_email" value="{{ $supportEmail }}" required class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-amber-500 focus:outline-none">
                     <p class="text-[10px] text-slate-500">Recibe las solicitudes de soporte y comprobantes adjuntados.</p>
