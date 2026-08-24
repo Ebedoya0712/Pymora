@@ -80,7 +80,7 @@
                         $isExpired = $t->expires_at && \Carbon\Carbon::parse($t->expires_at)->isPast();
                     @endphp
                     <tr class="hover:bg-slate-800/40 transition-colors">
-                        <td class="p-3.5">
+                        <td class="p-3.5 whitespace-nowrap">
                             <div class="flex items-center gap-3">
                                 <div class="w-9 h-9 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-lg shadow">
                                     {{ $bMeta['icon'] }}
@@ -91,72 +91,78 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="p-3.5 font-mono text-indigo-400">
-                            <a href="http://{{ $t->subdomain }}.pymora.com:8000" target="_blank" class="hover:underline flex items-center gap-1">
+                        <td class="p-3.5 font-mono text-indigo-400 whitespace-nowrap">
+                            <a href="http://{{ $t->subdomain }}.pymora.com:8000" target="_blank" class="hover:underline inline-flex items-center gap-1">
                                 <span>{{ $t->subdomain }}.pymora.com</span>
                                 <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                             </a>
                         </td>
-                        <td class="p-3.5">
-                            <span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                                {{ strtoupper($t->plan_tier) }} (${{ $pMeta['price'] }}/mes)
+                        <td class="p-3.5 whitespace-nowrap">
+                            <span class="inline-block px-2.5 py-1 rounded-md text-[11px] font-mono font-bold uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 whitespace-nowrap">
+                                {{ strtoupper($t->plan_tier) }} (${{ $pMeta['price'] }}/MES)
                             </span>
                         </td>
-                        <td class="p-3.5 font-mono">
+                        <td class="p-3.5 font-mono whitespace-nowrap">
                             @if($t->expires_at)
-                                <div class="{{ $isExpired ? 'text-rose-400 font-bold' : 'text-slate-300' }}">
+                                <div class="{{ $isExpired ? 'text-rose-400 font-bold' : 'text-slate-300' }} whitespace-nowrap">
                                     {{ \Carbon\Carbon::parse($t->expires_at)->format('d/m/Y') }}
                                 </div>
-                                <div class="text-[10px] text-slate-500">
+                                <div class="text-[10px] text-slate-500 whitespace-nowrap">
                                     {{ $isExpired ? 'Licencia Vencida' : \Carbon\Carbon::parse($t->expires_at)->diffForHumans() }}
                                 </div>
                             @else
-                                <span class="text-emerald-400 font-semibold">Ilimitada / Gratis</span>
+                                <span class="text-emerald-400 font-semibold whitespace-nowrap">Ilimitada / Gratis</span>
                             @endif
                         </td>
-                        <td class="p-3.5">
+                        <td class="p-3.5 whitespace-nowrap">
                             @if($t->is_active && !$isExpired)
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                                    ● ACTIVO
-                                </span>
+                                <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 whitespace-nowrap">● ACTIVO</span>
                             @else
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                                    ● SUSPENDIDO
-                                </span>
+                                <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30 whitespace-nowrap">● SUSPENDIDO</span>
                             @endif
                         </td>
-                        <td class="p-3.5 text-right space-x-1">
-                            <!-- Auditar -->
-                            <a href="{{ route('superadmin.impersonate', $t->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 text-[11px] font-bold rounded-lg border border-indigo-500/30 transition-colors shadow">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                <span>Auditar</span>
-                            </a>
+                        <td class="p-3.5 text-right whitespace-nowrap">
+                            <div class="inline-flex items-center gap-1.5 align-middle">
+                                <!-- Auditar -->
+                                <a href="{{ route('superadmin.impersonate', $t->id) }}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 text-xs font-bold rounded-lg border border-indigo-500/30 transition-colors shadow whitespace-nowrap">
+                                    <svg class="w-3.5 h-3.5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    <span>Auditar</span>
+                                </a>
 
-                            <!-- Renovar -->
-                            <button @click="selectedTenant = {{ json_encode($t) }}; showRenewModal = true" class="px-2.5 py-1.5 bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 text-[11px] font-bold rounded-lg border border-emerald-500/30 transition-colors shadow">
-                                🔄 Renovar
-                            </button>
-
-                            <!-- Editar -->
-                            <button @click="selectedTenant = {{ json_encode($t) }}; showEditModal = true" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold rounded-lg border border-slate-700 transition-colors shadow">
-                                ✏️ Editar
-                            </button>
-
-                            <!-- Toggle Status -->
-                            <form action="{{ route('superadmin.tenants.toggle', $t->id) }}" method="POST" class="inline">
-                                @csrf
-                                <button type="submit" class="px-2.5 py-1.5 {{ $t->is_active ? 'bg-amber-950/60 hover:bg-amber-900 text-amber-300 border-amber-800/60' : 'bg-emerald-950/60 hover:bg-emerald-900 text-emerald-300 border-emerald-800/60' }} text-[11px] font-bold rounded-lg border transition-colors shadow">
-                                    {{ $t->is_active ? '⏸️ Suspender' : '▶️ Reactivar' }}
+                                <!-- Renovar -->
+                                <button @click="selectedTenant = {{ json_encode($t) }}; showRenewModal = true" class="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 text-xs font-bold rounded-lg border border-emerald-500/30 transition-colors shadow whitespace-nowrap">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                    <span>Renovar</span>
                                 </button>
-                            </form>
 
-                            <!-- Eliminar -->
-                            <form action="{{ route('superadmin.tenants.delete', $t->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás 100% seguro de ELIMINAR esta empresa y todos sus datos?')">
-                                @csrf
-                                <button type="submit" class="px-2.5 py-1.5 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-[11px] font-bold rounded-lg transition-colors shadow">
-                                    🗑️
+                                <!-- Editar -->
+                                <button @click="selectedTenant = {{ json_encode($t) }}; showEditModal = true" class="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg border border-slate-700 transition-colors shadow whitespace-nowrap">
+                                    <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    <span>Editar</span>
                                 </button>
-                            </form>
+
+                                <!-- Toggle Status -->
+                                <form action="{{ route('superadmin.tenants.toggle', $t->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 {{ $t->is_active ? 'bg-amber-950/60 hover:bg-amber-900 text-amber-300 border-amber-800/60' : 'bg-emerald-950/60 hover:bg-emerald-900 text-emerald-300 border-emerald-800/60' }} text-xs font-bold rounded-lg border transition-colors shadow whitespace-nowrap">
+                                        @if($t->is_active)
+                                            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span>Suspender</span>
+                                        @else
+                                            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span>Reactivar</span>
+                                        @endif
+                                    </button>
+                                </form>
+
+                                <!-- Eliminar -->
+                                <form action="{{ route('superadmin.tenants.delete', $t->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás 100% seguro de ELIMINAR esta empresa y todos sus datos?')">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center justify-center p-2 bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 rounded-lg transition-colors shadow whitespace-nowrap" title="Eliminar Empresa">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @empty
