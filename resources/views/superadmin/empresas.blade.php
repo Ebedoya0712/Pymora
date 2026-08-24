@@ -96,7 +96,7 @@
                                     {{ \Carbon\Carbon::parse($t->expires_at)->format('d/m/Y') }}
                                 </div>
                                 <div class="text-[10px] text-slate-500 whitespace-nowrap">
-                                    {{ $isExpired ? 'Licencia Vencida' : \Carbon\Carbon::parse($t->expires_at)->diffForHumans() }}
+                                    {{ $isExpired ? 'Licencia Vencida' : \Carbon\Carbon::parse($t->expires_at)->locale('es')->diffForHumans() }}
                                 </div>
                             @else
                                 <span class="text-emerald-400 font-semibold whitespace-nowrap">Ilimitada / Gratis</span>
