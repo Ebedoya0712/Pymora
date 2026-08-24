@@ -198,12 +198,12 @@
                         </select>
                     </div>
                     <div class="space-y-1">
-                        <label class="font-semibold text-slate-300">Plan Pymora</label>
-                        <select name="plan_tier" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-indigo-500 focus:outline-none">
-                            @foreach($plans as $pk => $pv)
-                            <option value="{{ $pk }}">{{ $pv['name'] }} (${{ $pv['price'] }}/mes)</option>
-                            @endforeach
-                        </select>
+                        <label class="font-semibold text-slate-300">Plan Inicial por Defecto</label>
+                        <div class="w-full bg-slate-950 border border-slate-800 text-emerald-400 font-bold rounded-lg p-2.5 flex items-center justify-between text-xs font-mono">
+                            <span>🎁 1 Mes Gratis ($0.00 / mes)</span>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">AUTOMÁTICO</span>
+                        </div>
+                        <input type="hidden" name="plan_tier" value="trial">
                     </div>
                 </div>
 
