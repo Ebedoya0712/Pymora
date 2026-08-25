@@ -245,7 +245,7 @@ class SuperAdminController extends Controller
         $todayRevenueUsd = (float) $todayPayments->sum('amount_usd');
         $todayRevenueVes = (float) round($todayRevenueUsd * $bcvUsdRate, 2);
 
-        $weekRevenueUsd = (float) $payments->filter(fn($p) => Carbon::parse($p->payment_date)->gte(now()->startOfWeek()))->sum('amount_usd');
+        $weekRevenueUsd = (float) $payments->filter(fn($p) => Carbon::parse($p->payment_date)->gte(now()->subDays(6)->startOfDay()))->sum('amount_usd');
         $thisMonthRevenueUsd = (float) $payments->filter(fn($p) => Carbon::parse($p->payment_date)->isCurrentMonth())->sum('amount_usd');
         $totalRevenueUsd = (float) $payments->sum('amount_usd');
 
