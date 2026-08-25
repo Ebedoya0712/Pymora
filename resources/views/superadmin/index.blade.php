@@ -161,7 +161,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="p-3 font-mono font-bold uppercase text-indigo-300">{{ $t->plan_tier }}</td>
+                        <td class="p-3 font-mono font-bold uppercase text-indigo-300">{{ $t->plan_tier === 'trial' ? 'MES GRATIS' : $t->plan_tier }}</td>
                         <td class="p-3">
                             <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase {{ $t->is_active ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300' }}">
                                 {{ $t->is_active ? 'ACTIVO' : 'SUSPENDIDO' }}

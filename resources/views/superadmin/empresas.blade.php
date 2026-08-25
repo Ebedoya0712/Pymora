@@ -87,7 +87,7 @@
                         </td>
                         <td class="p-3.5 whitespace-nowrap">
                             <span class="inline-block px-2.5 py-1 rounded-md text-[11px] font-mono font-bold uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 whitespace-nowrap">
-                                {{ strtoupper($t->plan_tier) }} (${{ $pMeta['price'] }}/MES)
+                                {{ $t->plan_tier === 'trial' ? 'MES GRATIS ($0/MES)' : strtoupper($t->plan_tier) . ' ($' . $pMeta['price'] . '/MES)' }}
                             </span>
                         </td>
                         <td class="p-3.5 font-mono whitespace-nowrap">
