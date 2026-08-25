@@ -336,11 +336,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 16. SaaS Subscription Payments
+        $seedBcvRate = 52.40;
+
         SaasPayment::create([
             'tenant_id' => $tenant->id,
             'amount_usd' => 158.00,
-            'exchange_rate_bcv' => 764.3500,
-            'amount_ves' => 120767.30,
+            'exchange_rate_bcv' => $seedBcvRate,
+            'amount_ves' => round(158.00 * $seedBcvRate, 2),
             'payment_method' => 'pago_movil',
             'reference_code' => 'PM-883921',
             'payment_date' => now()->toDateString(),
@@ -352,8 +354,8 @@ class DatabaseSeeder extends Seeder
         SaasPayment::create([
             'tenant_id' => $tenant->id,
             'amount_usd' => 79.00,
-            'exchange_rate_bcv' => 764.3500,
-            'amount_ves' => 60383.65,
+            'exchange_rate_bcv' => $seedBcvRate,
+            'amount_ves' => round(79.00 * $seedBcvRate, 2),
             'payment_method' => 'binance',
             'reference_code' => 'BIN-772910',
             'payment_date' => now()->subDays(1)->toDateString(),
@@ -365,8 +367,8 @@ class DatabaseSeeder extends Seeder
         SaasPayment::create([
             'tenant_id' => $tenant->id,
             'amount_usd' => 29.00,
-            'exchange_rate_bcv' => 764.3500,
-            'amount_ves' => 22166.15,
+            'exchange_rate_bcv' => $seedBcvRate,
+            'amount_ves' => round(29.00 * $seedBcvRate, 2),
             'payment_method' => 'paypal',
             'reference_code' => 'PP-994821',
             'payment_date' => now()->subDays(2)->toDateString(),
@@ -378,8 +380,8 @@ class DatabaseSeeder extends Seeder
         SaasPayment::create([
             'tenant_id' => $tenant->id,
             'amount_usd' => 79.00,
-            'exchange_rate_bcv' => 764.3500,
-            'amount_ves' => 60383.65,
+            'exchange_rate_bcv' => $seedBcvRate,
+            'amount_ves' => round(79.00 * $seedBcvRate, 2),
             'payment_method' => 'zinli',
             'reference_code' => 'ZIN-332910',
             'payment_date' => now()->subDays(4)->toDateString(),
