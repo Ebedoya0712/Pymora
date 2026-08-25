@@ -535,6 +535,9 @@ class SuperAdminController extends Controller
 
     public function storeTenant(Request $request)
     {
+        $email = $request->input('email') ?: $request->input('admin_email');
+        $request->merge(['email' => $email]);
+
         $validTypes = implode(',', array_keys(Tenant::getBusinessTypes()));
         $request->validate([
             'name' => 'required|string|max:255',
@@ -560,7 +563,7 @@ class SuperAdminController extends Controller
                 'subdomain' => $subdomain,
                 'plan_tier' => $request->input('plan_tier', 'trial'),
                 'business_type' => $request->input('business_type', 'abasto'),
-                'email' => $request->input('email'),
+                'email' => $email,
                 'phone' => $request->input('phone'),
                 'is_active' => true,
                 'bcv_rate' => $bcvRate,
@@ -576,18 +579,22 @@ class SuperAdminController extends Controller
                 'is_active' => true,
             ]);
 
+            $ownerEmail = User::where('email', $email)->exists() ? 'admin_' . $tenant->id . '_' . $email : $email;
+
             User::create([
                 'tenant_id' => $tenant->id,
                 'branch_id' => $branch->id,
                 'name' => 'Administrador ' . $tenant->name,
-                'email' => $request->input('email'),
+                'email' => $ownerEmail,
                 'password' => Hash::make('password123'),
                 'role' => 'owner',
                 'is_active' => true,
             ]);
-        } catch (Exception $e) {}
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al registrar empresa: ' . $e->getMessage());
+        }
 
-        return redirect()->route('superadmin.empresas')->with('success', "Empresa '{$request->input('name')}' registrada en Pymora SaaS exitosamente.");
+        return redirect()->route('superadmin.empresas')->with('success', "Empresa '{$tenant->name}' registrada exitosamente en Pymora (1 Mes Gratis activado).");
     }
 
     public function toggleTenantStatus($id)

@@ -208,7 +208,7 @@
 
                 <div class="space-y-1">
                     <label class="font-semibold text-slate-300">Correo de la Empresa</label>
-                    <input type="email" name="admin_email" required placeholder="contacto@empresa.com" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-indigo-500 focus:outline-none">
+                    <input type="email" name="email" required placeholder="contacto@empresa.com" class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-indigo-500 focus:outline-none">
                 </div>
 
                 <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
