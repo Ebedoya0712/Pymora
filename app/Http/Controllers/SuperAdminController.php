@@ -686,6 +686,19 @@ class SuperAdminController extends Controller
         return redirect()->back()->with('success', "Tasas BCV Oficiales (Dólar: {$usd} VES | Euro: {$eur} VES) sincronizadas en vivo desde DolarApi.");
     }
 
+    public function planes()
+    {
+        if (!session('is_impersonating')) {
+            session([
+                'user_role' => 'super_admin',
+                'user_name' => session('user_name', 'Eliecer (Super Admin)'),
+            ]);
+        }
+
+        $plans = self::getPlans();
+        return view('superadmin.planes', compact('plans'));
+    }
+
     public function updatePlan(Request $request)
     {
         $request->validate([
@@ -707,6 +720,6 @@ class SuperAdminController extends Controller
 
         GlobalSetting::set('saas_plans', json_encode($plans), 'saas');
 
-        return redirect()->route('superadmin.index')->with('success', "Plan '{$plans[$planId]['name']}' actualizado correctamente.");
+        return redirect()->route('superadmin.planes')->with('success', "Plan '{$plans[$planId]['name']}' actualizado correctamente.");
     }
 }

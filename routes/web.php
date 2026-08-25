@@ -30,6 +30,7 @@ Route::get('/superadmin', [SuperAdminController::class, 'index'])->name('superad
 Route::get('/superadmin/empresas', [SuperAdminController::class, 'empresas'])->name('superadmin.empresas');
 Route::get('/superadmin/finanzas', [SuperAdminController::class, 'finanzas'])->name('superadmin.finanzas');
 Route::get('/superadmin/comprobantes', [SuperAdminController::class, 'comprobantes'])->name('superadmin.comprobantes');
+Route::get('/superadmin/planes', [SuperAdminController::class, 'planes'])->name('superadmin.planes');
 Route::get('/superadmin/configuracion', [SuperAdminController::class, 'configuracion'])->name('superadmin.configuracion');
 Route::post('/superadmin/finanzas/payments', [SuperAdminController::class, 'storePayment'])->name('superadmin.payments.store');
 
