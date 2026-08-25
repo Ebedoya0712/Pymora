@@ -5,7 +5,26 @@
 @section('content')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div x-data="{ showPaymentModal: false, selectedTenantId: '', selectedPlan: 'pro', selectedMonths: 1, amountUsd: {{ $plans['pro']['price'] ?? 79 }}, paymentMethod: 'pago_movil', referenceCode: '', notes: '', updateAmount() { const rates = { trial: {{ $plans['trial']['price'] ?? 0 }}, starter: {{ $plans['starter']['price'] ?? 29 }}, pro: {{ $plans['pro']['price'] ?? 79 }} }; this.amountUsd = (rates[this.selectedPlan] !== undefined ? rates[this.selectedPlan] : 79) * this.selectedMonths; } }" class="space-y-6">
+<div x-data="{ 
+    showPaymentModal: false, 
+    editPlanModal: false,
+    editPlanData: { id: '', name: '', price: 0, features: '' },
+    selectedTenantId: '', 
+    selectedPlan: 'pro', 
+    selectedMonths: 1, 
+    amountUsd: {{ $plans['pro']['price'] ?? 79 }}, 
+    paymentMethod: 'pago_movil', 
+    referenceCode: '', 
+    notes: '', 
+    openEditPlan(key, name, price, features) {
+        this.editPlanData = { id: key, name: name, price: price, features: features };
+        this.editPlanModal = true;
+    },
+    updateAmount() { 
+        const rates = { trial: {{ $plans['trial']['price'] ?? 0 }}, starter: {{ $plans['starter']['price'] ?? 29 }}, pro: {{ $plans['pro']['price'] ?? 79 }} }; 
+        this.amountUsd = (rates[this.selectedPlan] !== undefined ? rates[this.selectedPlan] : 79) * this.selectedMonths; 
+    } 
+}" class="space-y-6">
 
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
@@ -316,55 +335,106 @@
     </div>
 </div>
 
-    <!-- 5. Configuración de Planes & Tarifas -->
+    <!-- 5. Tarjetas de Tarifas & Planes SaaS -->
     <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-6">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
             <div>
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10M7 11h10M7 15h10"/></svg>
+                <h3 class="text-lg font-bold text-white flex items-center gap-2 font-display">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                     <span>Planes & Tarifas Pymora</span>
                 </h3>
-                <p class="text-xs text-slate-400 mt-1">Modifica las características, costos y límites de los planes de suscripción ofrecidos a las empresas.</p>
+                <p class="text-xs text-slate-400 mt-0.5">Estructura comercial de suscripciones activas ofertadas a las empresas.</p>
             </div>
-            <span class="px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-mono rounded-full">Configuración Tarifaria</span>
+            <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-mono rounded-full self-start sm:self-auto">Costo de Licencias</span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             @foreach($plans as $planKey => $plan)
-            <form action="{{ route('superadmin.plans.update') }}" method="POST" class="bg-slate-900/80 border border-slate-800 rounded-xl p-5 space-y-4 shadow flex flex-col justify-between">
-                @csrf
-                <input type="hidden" name="plan_key" value="{{ $planKey }}">
-                
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-mono uppercase font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">{{ $planKey }}</span>
+            @php
+                $isPro = $planKey === 'pro';
+                $isTrial = $planKey === 'trial';
+                $badgeBg = $isTrial ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : ($isPro ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20');
+                $borderCard = $isPro ? 'border-purple-500/40 shadow-lg shadow-purple-500/10' : ($isTrial ? 'border-emerald-500/30' : 'border-slate-800');
+            @endphp
+            <div class="relative bg-slate-900/90 rounded-2xl p-6 border {{ $borderCard }} transition-all hover:border-slate-700 flex flex-col justify-between group">
+                @if($isPro)
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[10px] font-extrabold uppercase px-3 py-0.5 rounded-full shadow-md tracking-wider">
+                        Recomendado / Más Popular
+                    </div>
+                @endif
+
+                <div>
+                    <!-- Plan Header -->
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border {{ $badgeBg }}">
+                            {{ $isTrial ? '1 Mes Gratis' : strtoupper($planKey) }}
+                        </span>
                         <div class="text-right">
-                            <span class="text-2xl font-black text-white font-mono">${{ $plan['price'] }}</span>
+                            <span class="text-3xl font-black text-white font-display">${{ number_format($plan['price'], 0) }}</span>
                             <span class="text-xs text-slate-400 font-mono">/mes</span>
                         </div>
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="text-xs font-semibold text-slate-300">Nombre del Plan</label>
-                        <input type="text" name="name" value="{{ $plan['name'] }}" required class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2 text-xs focus:border-indigo-500 focus:outline-none">
-                    </div>
+                    <h4 class="text-base font-bold text-white font-display mb-3">{{ $plan['name'] }}</h4>
 
-                    <div class="space-y-1">
-                        <label class="text-xs font-semibold text-slate-300">Precio Mensual ($ USD)</label>
-                        <input type="number" step="1" name="price" value="{{ $plan['price'] }}" required class="w-full bg-slate-950 border border-slate-800 text-emerald-400 font-bold font-mono rounded-lg p-2 text-xs focus:border-indigo-500 focus:outline-none">
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="text-xs font-semibold text-slate-300">Lista de Características (1 por línea)</label>
-                        <textarea name="features" rows="5" required class="w-full bg-slate-950 border border-slate-800 text-slate-300 rounded-lg p-2 text-xs font-mono leading-relaxed focus:border-indigo-500 focus:outline-none">{{ $plan['features'] }}</textarea>
+                    <!-- Features List -->
+                    <div class="space-y-2 border-t border-slate-800/80 pt-4 mb-6 text-xs text-slate-300">
+                        @foreach(explode("\n", str_replace(["\r", "✓"], "", $plan['features'])) as $feature)
+                            @if(trim($feature))
+                                <div class="flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    <span>{{ trim($feature) }}</span>
+                                </div>
+                            @endif
+                        @endforeach
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-lg text-xs shadow transition-colors mt-2">
-                    Actualizar Plan {{ $plan['name'] }}
+                <!-- Action to open Edit Modal -->
+                <button type="button" @click="openEditPlan('{{ $planKey }}', '{{ addslashes($plan['name']) }}', {{ $plan['price'] }}, '{{ addslashes($plan['features']) }}')" class="w-full mt-2 py-2.5 px-4 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition-all flex items-center justify-center gap-2 group-hover:border-slate-600">
+                    <svg class="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    <span>Editar Tarifa & Características</span>
                 </button>
-            </form>
+            </div>
             @endforeach
+        </div>
+    </div>
+
+    <!-- Modal Editar Tarifa & Plan -->
+    <div x-show="editPlanModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div @click.away="editPlanModal = false" class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2 font-display">
+                    <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    <span>Editar Plan de Suscripción</span>
+                </h3>
+                <button type="button" @click="editPlanModal = false" class="text-slate-400 hover:text-white text-lg">✕</button>
+            </div>
+
+            <form action="{{ route('superadmin.plans.update') }}" method="POST" class="space-y-4">
+                @csrf
+                <input type="hidden" name="plan_id" :value="editPlanData.id">
+
+                <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-300">Nombre Comercial del Plan</label>
+                    <input type="text" name="name" x-model="editPlanData.name" required class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-300">Precio Mensual ($ USD)</label>
+                    <input type="number" step="1" name="price" x-model="editPlanData.price" required class="w-full bg-slate-950 border border-slate-700 text-emerald-400 font-bold font-mono rounded-xl px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-300">Lista de Características (1 por línea)</label>
+                    <textarea name="features" rows="5" x-model="editPlanData.features" required class="w-full bg-slate-950 border border-slate-700 text-slate-300 rounded-xl px-3 py-2 text-xs font-mono leading-relaxed focus:border-indigo-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-800">
+                    <button type="button" @click="editPlanModal = false" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-indigo-600/30">Guardar Cambios</button>
+                </div>
+            </form>
         </div>
     </div>
 
