@@ -106,7 +106,7 @@ class SuperAdminController extends Controller
         ));
     }
 
-    public function empresas()
+    public function empresas(Request $request)
     {
         if (!session('is_impersonating')) {
             session([
@@ -116,15 +116,32 @@ class SuperAdminController extends Controller
         }
 
         try {
-            $tenants = Tenant::withCount('users')->orderBy('name')->get();
+            $query = Tenant::withCount('users')->latest('id');
+
+            if ($request->filled('search')) {
+                $search = $request->input('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('rif_tax_id', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            }
+
+            $tenants = $query->paginate(10)->withQueryString();
+            $totalTenants = Tenant::count();
+            $activeTenants = Tenant::where('is_active', true)->count();
+            $suspendedTenants = Tenant::where('is_active', false)->count();
         } catch (Exception $e) {
-            $tenants = collect();
+            $tenants = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
+            $totalTenants = 0;
+            $activeTenants = 0;
+            $suspendedTenants = 0;
         }
 
         $plans = self::getPlans();
         $businessTypes = Tenant::getBusinessTypes();
 
-        return view('superadmin.empresas', compact('tenants', 'plans', 'businessTypes'));
+        return view('superadmin.empresas', compact('tenants', 'totalTenants', 'activeTenants', 'suspendedTenants', 'plans', 'businessTypes'));
     }
 
     public function updateTenant($id, Request $request)

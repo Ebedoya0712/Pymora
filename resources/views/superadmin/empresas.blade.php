@@ -27,17 +27,17 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="glass-card p-4 rounded-xl space-y-1">
             <div class="text-xs text-slate-400 font-medium">Total Empresas Registradas</div>
-            <div class="text-2xl font-black text-white">{{ $tenants->count() }}</div>
+            <div class="text-2xl font-black text-white">{{ $totalTenants }}</div>
             <div class="text-[11px] text-indigo-400 font-mono">Comercios en Base de Datos</div>
         </div>
         <div class="glass-card p-4 rounded-xl space-y-1">
             <div class="text-xs text-slate-400 font-medium">Empresas Activas en Pymora</div>
-            <div class="text-2xl font-black text-emerald-400">{{ $tenants->where('is_active', true)->count() }}</div>
+            <div class="text-2xl font-black text-emerald-400">{{ $activeTenants }}</div>
             <div class="text-[11px] text-emerald-400/80 font-mono">Acceso total habilitado</div>
         </div>
         <div class="glass-card p-4 rounded-xl space-y-1">
             <div class="text-xs text-slate-400 font-medium">Empresas Suspendidas / Vencidas</div>
-            <div class="text-2xl font-black text-amber-400">{{ $tenants->where('is_active', false)->count() }}</div>
+            <div class="text-2xl font-black text-amber-400">{{ $suspendedTenants }}</div>
             <div class="text-[11px] text-amber-400/80 font-mono">Requieren renovación</div>
         </div>
     </div>
@@ -47,12 +47,12 @@
         <div class="flex flex-col md:flex-row items-center justify-between gap-4">
             <h3 class="font-bold text-white text-lg flex items-center gap-2">
                 <span>Directorio de Empresas</span>
-                <span class="bg-indigo-500/20 text-indigo-300 text-xs px-2.5 py-0.5 rounded-full font-mono">{{ $tenants->count() }}</span>
+                <span class="bg-indigo-500/20 text-indigo-300 text-xs px-2.5 py-0.5 rounded-full font-mono">{{ $tenants->total() }}</span>
             </h3>
-            <div class="w-full md:w-72 relative">
-                <input type="text" placeholder="Buscar por Nombre o RIF..." class="w-full bg-slate-900 border border-slate-700/80 text-white rounded-xl text-xs px-3.5 py-2 pl-9 focus:outline-none focus:border-indigo-500 transition-colors">
+            <form action="{{ route('superadmin.empresas') }}" method="GET" class="w-full md:w-72 relative">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por Nombre o RIF..." class="w-full bg-slate-900 border border-slate-700/80 text-white rounded-xl text-xs px-3.5 py-2 pl-9 focus:outline-none focus:border-indigo-500 transition-colors">
                 <svg class="w-4 h-4 text-slate-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            </div>
+            </form>
         </div>
 
         <div class="overflow-x-auto rounded-xl border border-slate-800">
@@ -163,6 +163,12 @@
                 </tbody>
             </table>
         </div>
+
+        @if($tenants->hasPages())
+            <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+                {{ $tenants->links() }}
+            </div>
+        @endif
     </div>
 
     <!-- MODAL 1: Registrar Nueva Empresa -->
