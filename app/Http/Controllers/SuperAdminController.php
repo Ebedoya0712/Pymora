@@ -400,7 +400,7 @@ class SuperAdminController extends Controller
         }
 
         try {
-            $query = User::with('tenant')->where('role', '!=', 'owner')->latest();
+            $query = User::with('tenant')->whereNotIn('role', ['owner', 'super_admin'])->latest();
 
             if ($request->has('tenant_id') && $request->input('tenant_id') != '') {
                 $query->where('tenant_id', $request->input('tenant_id'));
@@ -424,15 +424,13 @@ class SuperAdminController extends Controller
 
         $totalUsers = $users->count();
         $activeUsers = $users->where('is_active', true)->count();
-        $superAdminCount = $users->where('role', 'super_admin')->count();
-        $tenantUsersCount = $users->where('role', '!=', 'super_admin')->count();
+        $tenantUsersCount = $users->count();
 
         return view('superadmin.users', compact(
             'users',
             'tenants',
             'totalUsers',
             'activeUsers',
-            'superAdminCount',
             'tenantUsersCount'
         ));
     }

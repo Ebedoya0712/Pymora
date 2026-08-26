@@ -23,7 +23,7 @@
         this.editUserRole = user.role;
         this.editUserTenantId = user.tenant_id || '';
         this.editUserPhone = user.phone || '';
-        this.editUserAvatarUrl = user.avatar ? '/storage/' + user.avatar : null;
+        this.editUserAvatarUrl = user.avatar_url || (user.avatar ? '/storage/' + user.avatar : null);
         this.editAvatarPreview = null;
         this.removeAvatar = false;
         this.showEditModal = true;
@@ -64,7 +64,7 @@
     </div>
 
     <!-- KPI Metric Cards Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <!-- Total Users -->
         <div class="glass-card p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
             <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
@@ -73,9 +73,9 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                 </div>
             </div>
-            <div class="text-2xl font-extrabold text-white font-display">{{ $totalUsers }} <span class="text-xs text-slate-400 font-normal">Cuentas</span></div>
+            <div class="text-2xl font-extrabold text-white font-display">{{ $totalUsers }} <span class="text-xs text-slate-400 font-normal">Personal</span></div>
             <div class="text-xs text-indigo-400 flex items-center gap-1 mt-2">
-                <span>Registradas en la plataforma</span>
+                <span>Registrados en la plataforma</span>
             </div>
         </div>
 
@@ -90,20 +90,6 @@
             <div class="text-2xl font-extrabold text-emerald-400 font-display">{{ $activeUsers }} <span class="text-xs text-slate-400 font-normal">Activos</span></div>
             <div class="text-xs text-emerald-400 flex items-center gap-1 mt-2">
                 <span>Acceso permitido</span>
-            </div>
-        </div>
-
-        <!-- Super Admins -->
-        <div class="glass-card p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
-            <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-2">
-                <span>Super Administradores</span>
-                <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                </div>
-            </div>
-            <div class="text-2xl font-extrabold text-purple-400 font-display">{{ $superAdminCount }} <span class="text-xs text-slate-400 font-normal">Globales</span></div>
-            <div class="text-xs text-purple-400 flex items-center gap-1 mt-2">
-                <span>Acceso root Plataforma</span>
             </div>
         </div>
 
@@ -168,8 +154,8 @@
                         <tr class="hover:bg-slate-800/40 transition-colors">
                             <td class="px-4 py-3.5">
                                 <div class="flex items-center gap-3">
-                                    @if($user->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->avatar))
-                                        <img src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}" class="w-9 h-9 rounded-full object-cover border border-slate-700 shadow-md">
+                                    @if($user->avatar_url)
+                                        <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-9 h-9 rounded-full object-cover border border-slate-700 shadow-md">
                                     @else
                                         <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-xs shadow-md">
                                             {{ strtoupper(substr($user->name, 0, 2)) }}
