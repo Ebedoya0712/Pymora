@@ -14,6 +14,13 @@
     paymentMethod: 'pago_movil', 
     referenceCode: '', 
     notes: '', 
+    imagePreview: null,
+    previewImage(e) {
+        const file = e.target.files[0];
+        if (file) {
+            this.imagePreview = URL.createObjectURL(file);
+        }
+    },
     updateAmount() { 
         const rates = { 
             trial: {{ $plans['trial']['price'] ?? 0 }}, 
@@ -224,9 +231,16 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3.5">
-                                <span class="bg-slate-900 border border-slate-700 text-indigo-300 font-mono text-[11px] px-2.5 py-1 rounded-lg">
-                                    {{ $payment->reference_code }}
-                                </span>
+                                <div class="flex items-center gap-2">
+                                    <span class="bg-slate-900 border border-slate-700 text-indigo-300 font-mono text-[11px] px-2.5 py-1 rounded-lg">
+                                        {{ $payment->reference_code }}
+                                    </span>
+                                    @if($payment->proof_image)
+                                        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30 font-semibold flex items-center gap-1">
+                                            📷 Foto Adjunta
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-4 py-3.5 text-slate-400 font-mono text-[11px]">
                                 {{ \Carbon\Carbon::parse($payment->payment_date)->format('d/m/Y') }}
@@ -258,49 +272,69 @@
 
     <!-- Modal: Detail View of Payment Voucher -->
     <div x-show="viewReceiptModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-        <div @click.away="viewReceiptModal = false" class="glass-card w-full max-w-md rounded-2xl border border-slate-800 p-6 shadow-2xl space-y-5">
+        <div @click.away="viewReceiptModal = false" class="glass-card w-full max-w-lg rounded-2xl border border-slate-800 p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <h3 class="text-base font-bold text-white font-display">Comprobante de Pago Oficial</h3>
+                    <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">
+                        ✓
+                    </div>
+                    <h3 class="text-base font-bold text-white font-display">Comprobante de Operación Oficial</h3>
                 </div>
-                <button @click="viewReceiptModal = false" class="text-slate-400 hover:text-white">&times;</button>
+                <button @click="viewReceiptModal = false" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
             </div>
 
             <template x-if="selectedReceipt">
                 <div class="space-y-4 text-xs text-slate-300">
                     <!-- Voucher Digital Card -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3 font-mono">
-                        <div class="flex justify-between border-b border-slate-800 pb-2">
-                            <span class="text-slate-400">Empresa:</span>
-                            <span class="font-bold text-white font-sans" x-text="selectedReceipt.tenant ? selectedReceipt.tenant.name : 'Empresa'"></span>
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-3 font-mono">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
+                            <span class="text-slate-400">Empresa Cliente:</span>
+                            <span class="font-bold text-white font-sans text-sm" x-text="selectedReceipt.tenant ? selectedReceipt.tenant.name : 'Empresa'"></span>
                         </div>
-                        <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
                             <span class="text-slate-400">Método de Pago:</span>
-                            <span class="font-bold text-emerald-400 uppercase" x-text="selectedReceipt.payment_method"></span>
+                            <span class="font-bold text-emerald-400 uppercase text-xs" x-text="selectedReceipt.payment_method"></span>
                         </div>
-                        <div class="flex justify-between border-b border-slate-800 pb-2">
-                            <span class="text-slate-400">Nro. Referencia:</span>
-                            <span class="font-bold text-indigo-400" x-text="selectedReceipt.reference_code"></span>
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
+                            <span class="text-slate-400">Nro. Operación / Referencia:</span>
+                            <span class="font-bold text-indigo-400 text-xs bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20" x-text="selectedReceipt.reference_code"></span>
                         </div>
-                        <div class="flex justify-between border-b border-slate-800 pb-2">
-                            <span class="text-slate-400">Monto USD:</span>
-                            <span class="font-bold text-emerald-400 text-sm" x-text="'$' + parseFloat(selectedReceipt.amount_usd).toFixed(2)"></span>
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
+                            <span class="text-slate-400">Monto Acreditado (USD):</span>
+                            <span class="font-bold text-emerald-400 text-sm font-sans" x-text="'$' + parseFloat(selectedReceipt.amount_usd).toFixed(2)"></span>
                         </div>
-                        <div class="flex justify-between border-b border-slate-800 pb-2" x-if="selectedReceipt.amount_ves">
-                            <span class="text-slate-400">Monto VES (BCV):</span>
-                            <span class="font-bold text-slate-200" x-text="'Bs. ' + parseFloat(selectedReceipt.amount_ves).toFixed(2)"></span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-400">Fecha de Pago:</span>
+                        <template x-if="selectedReceipt.amount_ves">
+                            <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
+                                <span class="text-slate-400">Monto Calculado (VES BCV):</span>
+                                <span class="font-bold text-slate-200" x-text="'Bs. ' + parseFloat(selectedReceipt.amount_ves).toFixed(2)"></span>
+                            </div>
+                        </template>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400">Fecha de Emisión:</span>
                             <span class="text-slate-300" x-text="selectedReceipt.payment_date"></span>
                         </div>
                     </div>
 
-                    <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800">
-                        <div class="text-[11px] font-semibold text-slate-400 mb-1">Notas / Observaciones:</div>
-                        <div class="text-xs text-slate-200 italic" x-text="selectedReceipt.notes || 'Sin observaciones adicionales.'"></div>
+                    <!-- Notes Section -->
+                    <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800 space-y-1">
+                        <div class="text-[11px] font-semibold text-slate-400">Notas / Observaciones del Pago:</div>
+                        <div class="text-xs text-slate-200 italic" x-text="selectedReceipt.notes || 'Sin observaciones adicionales registradas.'"></div>
                     </div>
+
+                    <!-- Receipt Image Preview -->
+                    <template x-if="selectedReceipt.proof_image">
+                        <div class="space-y-2 pt-2 border-t border-slate-800">
+                            <div class="flex items-center justify-between text-xs text-slate-300 font-semibold">
+                                <span>📄 Captura / Comprobante Bancario Adjunto:</span>
+                                <a :href="'/storage/' + selectedReceipt.proof_image" target="_blank" class="text-indigo-400 hover:text-indigo-300 hover:underline text-[11px] flex items-center gap-1">
+                                    <span>Abrir Imagen Completa</span> ↗
+                                </a>
+                            </div>
+                            <div class="relative group rounded-xl border border-slate-700 bg-slate-950 p-2 overflow-hidden text-center">
+                                <img :src="'/storage/' + selectedReceipt.proof_image" class="max-h-80 w-auto mx-auto rounded-lg object-contain shadow-2xl border border-slate-800">
+                            </div>
+                        </div>
+                    </template>
                 </div>
             </template>
 
@@ -314,20 +348,20 @@
 
     <!-- Modal: Register New Payment Voucher -->
     <div x-show="showPaymentModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-        <div @click.away="showPaymentModal = false" class="glass-card w-full max-w-lg rounded-2xl border border-slate-800 p-6 shadow-2xl space-y-4">
+        <div @click.away="showPaymentModal = false" class="glass-card w-full max-w-lg rounded-2xl border border-slate-800 p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 class="text-lg font-bold text-white font-display">Registrar Comprobante de Pago</h3>
-                <button @click="showPaymentModal = false" class="text-slate-400 hover:text-white">&times;</button>
+                <button @click="showPaymentModal = false" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
             </div>
 
-            <form action="{{ route('superadmin.payments.store') }}" method="POST" class="space-y-4 text-xs">
+            <form action="{{ route('superadmin.payments.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
                 @csrf
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1">Empresa Cliente</label>
                     <select name="tenant_id" x-model="selectedTenantId" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
                         <option value="">-- Seleccionar Empresa --</option>
                         @foreach($tenants as $t)
-                            <option value="{{ $t->id }}">{{ $t->name }} ({{ $t->subdomain }}.pymora.com)</option>
+                            <option value="{{ $t->id }}">{{ $t->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -356,15 +390,16 @@
                     <div>
                         <label class="block font-semibold text-slate-300 mb-1">Método de Pago</label>
                         <select name="payment_method" x-model="paymentMethod" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none font-mono">
+                            <option value="pago_movil">Pago Móvil (BDV / VES)</option>
                             <option value="paypal">PayPal (USD)</option>
-                            <option value="pago_movil">Pago Móvil (VES)</option>
                             <option value="zinli">Zinli Wallet (USD)</option>
                             <option value="binance">Binance Pay / USDT</option>
+                            <option value="bank_transfer">Transferencia Bancaria</option>
                         </select>
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-300 mb-1">Nro. Comprobante / Referencia</label>
-                        <input type="text" name="reference_code" x-model="referenceCode" required placeholder="Ej: PP-99210 o PM-88310" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:border-indigo-500 focus:outline-none">
+                        <input type="text" name="reference_code" x-model="referenceCode" required placeholder="Ej: 007121452792 o PP-99210" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:border-indigo-500 focus:outline-none">
                     </div>
                 </div>
 
@@ -376,6 +411,25 @@
                     <div>
                         <label class="block font-semibold text-slate-300 mb-1">Fecha de Pago</label>
                         <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono focus:border-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Proof Image Upload Field -->
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Adjuntar Captura / Foto del Comprobante</label>
+                    <div class="relative border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-xl p-4 text-center bg-slate-900/60 transition-colors">
+                        <input type="file" name="proof_image" accept="image/*,.pdf" @change="previewImage($event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div class="space-y-1" x-show="!imagePreview">
+                            <svg class="w-7 h-7 text-emerald-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <div class="text-xs text-slate-300 font-semibold">Haz clic o arrastra aquí la captura del comprobante</div>
+                            <div class="text-[10px] text-slate-500 font-mono">Formato Pago Móvil, Zelle o voucher bancario (JPG, PNG, WEBP hasta 10MB)</div>
+                        </div>
+                        <template x-if="imagePreview">
+                            <div class="relative z-20">
+                                <img :src="imagePreview" class="max-h-40 mx-auto rounded-lg shadow-lg border border-slate-700 object-contain">
+                                <button type="button" @click.prevent="imagePreview = null" class="mt-2 text-xs text-rose-400 hover:text-rose-300 font-bold underline">Cambiar o eliminar imagen</button>
+                            </div>
+                        </template>
                     </div>
                 </div>
 

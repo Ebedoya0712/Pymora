@@ -21,6 +21,7 @@ class SaasPayment extends Model
         'plan_tier',
         'months_paid',
         'notes',
+        'proof_image',
     ];
 
     protected $casts = [

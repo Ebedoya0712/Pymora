@@ -512,11 +512,17 @@ class SuperAdminController extends Controller
             'plan_tier' => 'required|string|in:trial,starter,pro,enterprise',
             'months_paid' => 'required|integer|min:1',
             'notes' => 'nullable|string',
+            'proof_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:10240',
         ]);
 
         $rates = DolarApiService::getRates();
         $bcvRate = (float) GlobalSetting::get('bcv_usd_rate', $rates['bcv_usd']);
         $amountVes = round($request->input('amount_usd') * $bcvRate, 2);
+
+        $proofImagePath = null;
+        if ($request->hasFile('proof_image')) {
+            $proofImagePath = $request->file('proof_image')->store('payment_proofs', 'public');
+        }
 
         $payment = SaasPayment::create([
             'tenant_id' => $request->input('tenant_id'),
@@ -529,6 +535,7 @@ class SuperAdminController extends Controller
             'plan_tier' => $request->input('plan_tier'),
             'months_paid' => $request->input('months_paid'),
             'notes' => $request->input('notes'),
+            'proof_image' => $proofImagePath,
         ]);
 
         // Extend tenant subscription expiration & reactivate if needed
@@ -545,7 +552,7 @@ class SuperAdminController extends Controller
             'is_active' => true,
         ]);
 
-        return redirect()->route('superadmin.finanzas')->with('success', "Pago registrado exitosamente. Licencia de '{$tenant->name}' renovada hasta " . $newExpiry->format('d/m/Y') . ".");
+        return redirect()->back()->with('success', "Comprobante de pago registrado exitosamente con foto/comprobante adjunto. Licencia de '{$tenant->name}' renovada hasta " . $newExpiry->format('d/m/Y') . ".");
     }
 
     public function storeTenant(Request $request)

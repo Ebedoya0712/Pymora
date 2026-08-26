@@ -258,7 +258,7 @@
                 </button>
             </div>
 
-            <form action="{{ route('superadmin.payments.store') }}" method="POST" class="space-y-4">
+            <form action="{{ route('superadmin.payments.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Empresa / Comercio</label>
@@ -319,6 +319,11 @@
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha de Pago</label>
                         <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" required class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none">
                     </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Adjuntar Captura / Comprobante (Opcional)</label>
+                    <input type="file" name="proof_image" accept="image/*,.pdf" class="w-full bg-slate-900 border border-slate-700 text-slate-300 rounded-xl px-3 py-1.5 text-xs focus:border-indigo-500 focus:outline-none">
                 </div>
 
                 <div>
