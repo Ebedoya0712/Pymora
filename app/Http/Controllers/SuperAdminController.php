@@ -518,7 +518,25 @@ class SuperAdminController extends Controller
         $user->save();
 
         $statusText = $user->is_active ? 'activado' : 'suspendido';
-        return redirect()->back()->with('success', "El usuario '{$user->name}' ha sido {$statusText}.");
+        return redirect()->route('superadmin.users')->with('success', "Usuario '{$user->name}' {$statusText} correctamente.");
+    }
+
+    public function deleteUser($id)
+    {
+        $user = User::findOrFail($id);
+
+        if (auth()->check() && auth()->id() === $user->id) {
+            return redirect()->back()->with('error', 'No puedes eliminar tu propia cuenta de usuario.');
+        }
+
+        if ($user->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->avatar)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+        }
+
+        $userName = $user->name;
+        $user->delete();
+
+        return redirect()->route('superadmin.users')->with('success', "Usuario '{$userName}' eliminado permanentemente.");
     }
 
     public function storePayment(Request $request)

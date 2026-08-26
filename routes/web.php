@@ -39,6 +39,7 @@ Route::get('/superadmin/users', [SuperAdminController::class, 'users'])->name('s
 Route::post('/superadmin/users', [SuperAdminController::class, 'storeUser'])->name('superadmin.users.store');
 Route::post('/superadmin/users/{id}/update', [SuperAdminController::class, 'updateUser'])->name('superadmin.users.update');
 Route::post('/superadmin/users/{id}/toggle-status', [SuperAdminController::class, 'toggleUserStatus'])->name('superadmin.users.toggle');
+Route::post('/superadmin/users/{id}/delete', [SuperAdminController::class, 'deleteUser'])->name('superadmin.users.delete');
 
 // Super Admin SaaS Tenant Actions
 Route::post('/superadmin/tenants', [SuperAdminController::class, 'storeTenant'])->name('superadmin.tenants.store');

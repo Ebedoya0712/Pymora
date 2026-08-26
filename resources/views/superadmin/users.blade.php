@@ -238,6 +238,14 @@
                                             {{ ($user->is_active ?? true) ? 'Suspender' : 'Activar' }}
                                         </button>
                                     </form>
+
+                                    <!-- Delete Form -->
+                                    <form action="{{ route('superadmin.users.delete', $user->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar permanentemente al usuario \'{{ addslashes($user->name) }}\'? Esta acción no se puede deshacer.');">
+                                        @csrf
+                                        <button type="submit" class="px-2.5 py-1 text-[10px] font-semibold text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-lg hover:bg-rose-500/20 transition-colors">
+                                            Eliminar
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
