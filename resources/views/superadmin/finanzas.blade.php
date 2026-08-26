@@ -34,7 +34,7 @@
                     Control Financiero Pymora
                 </span>
                 <span class="text-slate-500">•</span>
-                <span class="text-xs font-mono text-slate-400">Pymora Platform Revenue</span>
+                <span class="text-xs font-mono text-slate-400">Recaudación & Ingresos Pymora</span>
             </div>
             <h1 class="text-2xl font-bold text-white font-display mt-1">Mis Finanzas</h1>
             <p class="text-slate-400 text-sm">Rendimiento en tiempo real: ganancias por día, semana, mes y acumulado total.</p>

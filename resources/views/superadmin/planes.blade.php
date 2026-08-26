@@ -20,7 +20,7 @@
                     Configuración Comercial
                 </span>
                 <span class="text-slate-500">•</span>
-                <span class="text-xs font-mono text-slate-400">Pymora Subscription Tiers</span>
+                <span class="text-xs font-mono text-slate-400">Planes y Suscripciones Pymora</span>
             </div>
             <h1 class="text-2xl font-bold text-white font-display mt-1">Planes & Tarifas Pymora</h1>
             <p class="text-slate-400 text-sm">Modifica las características, precios y beneficios de los planes de suscripción para los comercios.</p>

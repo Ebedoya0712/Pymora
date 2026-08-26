@@ -51,7 +51,7 @@
                     Control Global de Cuentas
                 </span>
                 <span class="text-slate-500">•</span>
-                <span class="text-xs font-mono text-slate-400">Pymora Identity & Roles</span>
+                <span class="text-xs font-mono text-slate-400">Identidad & Permisos Pymora</span>
             </div>
             <h1 class="text-2xl font-bold text-white font-display mt-1">Gestión de Usuarios & Credenciales</h1>
             <p class="text-slate-400 text-sm">Alta de usuarios, asignación de permisos, cambio de claves y suspensión de cuentas.</p>
@@ -299,7 +299,7 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Correo Electrónico (Login)</label>
+                        <label class="block font-semibold text-slate-300 mb-1">Correo Electrónico (Acceso)</label>
                         <input type="email" name="email" required placeholder="pedro@empresa.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
                     </div>
                     <div>
