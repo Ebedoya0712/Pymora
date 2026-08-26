@@ -446,7 +446,13 @@ class SuperAdminController extends Controller
             'role' => 'required|string|in:super_admin,owner,branch_manager,cashier,warehouse_manager,accountant',
             'tenant_id' => 'nullable|exists:tenants,id',
             'phone' => 'nullable|string|max:50',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
         ]);
+
+        $avatarPath = null;
+        if ($request->hasFile('avatar')) {
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+        }
 
         User::create([
             'name' => $request->input('name'),
@@ -455,6 +461,7 @@ class SuperAdminController extends Controller
             'role' => $request->input('role'),
             'tenant_id' => $request->input('role') === 'super_admin' ? null : $request->input('tenant_id'),
             'phone' => $request->input('phone'),
+            'avatar' => $avatarPath,
             'is_active' => true,
         ]);
 
@@ -472,6 +479,7 @@ class SuperAdminController extends Controller
             'tenant_id' => 'nullable|exists:tenants,id',
             'phone' => 'nullable|string|max:50',
             'password' => 'nullable|string|min:6',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
         ]);
 
         $data = [
@@ -484,6 +492,18 @@ class SuperAdminController extends Controller
 
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->input('password'));
+        }
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->avatar)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+            }
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        } elseif ($request->boolean('remove_avatar')) {
+            if ($user->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->avatar)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+            }
+            $data['avatar'] = null;
         }
 
         $user->update($data);

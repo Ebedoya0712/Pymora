@@ -343,9 +343,13 @@
             <!-- User Info & Logout Footer -->
             <div class="p-4 border-t border-slate-800 flex items-center justify-between bg-slate-900/50">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white text-xs">
-                        {{ strtoupper(substr(session('user_name', 'Super Admin'), 0, 2)) }}
-                    </div>
+                    @if(auth()->check() && auth()->user()->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists(auth()->user()->avatar))
+                        <img src="{{ asset('storage/' . auth()->user()->avatar) }}" class="w-8 h-8 rounded-full object-cover border border-slate-700 shadow">
+                    @else
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white text-xs">
+                            {{ strtoupper(substr(session('user_name', 'Super Admin'), 0, 2)) }}
+                        </div>
+                    @endif
                     <div>
                         <div class="text-xs font-semibold text-slate-200">{{ session('user_name', 'Super Admin Pymora') }}</div>
                         <div class="text-[10px] text-slate-400 font-medium capitalize">{{ str_replace('_', ' ', session('user_role', 'super_admin')) }}</div>

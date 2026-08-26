@@ -12,6 +12,10 @@
     editUserRole: 'owner', 
     editUserTenantId: '', 
     editUserPhone: '',
+    editUserAvatarUrl: null,
+    createAvatarPreview: null,
+    editAvatarPreview: null,
+    removeAvatar: false,
     openEdit(user) {
         this.editUserId = user.id;
         this.editUserName = user.name;
@@ -19,7 +23,23 @@
         this.editUserRole = user.role;
         this.editUserTenantId = user.tenant_id || '';
         this.editUserPhone = user.phone || '';
+        this.editUserAvatarUrl = user.avatar ? '/storage/' + user.avatar : null;
+        this.editAvatarPreview = null;
+        this.removeAvatar = false;
         this.showEditModal = true;
+    },
+    previewCreateAvatar(e) {
+        const file = e.target.files[0];
+        if (file) {
+            this.createAvatarPreview = URL.createObjectURL(file);
+        }
+    },
+    previewEditAvatar(e) {
+        const file = e.target.files[0];
+        if (file) {
+            this.editAvatarPreview = URL.createObjectURL(file);
+            this.removeAvatar = false;
+        }
     }
 }" class="space-y-6">
 
@@ -148,9 +168,13 @@
                         <tr class="hover:bg-slate-800/40 transition-colors">
                             <td class="px-4 py-3.5">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-xs shadow-md">
-                                        {{ strtoupper(substr($user->name, 0, 2)) }}
-                                    </div>
+                                    @if($user->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->avatar))
+                                        <img src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}" class="w-9 h-9 rounded-full object-cover border border-slate-700 shadow-md">
+                                    @else
+                                        <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-xs shadow-md">
+                                            {{ strtoupper(substr($user->name, 0, 2)) }}
+                                        </div>
+                                    @endif
                                     <div>
                                         <div class="font-bold text-white text-xs">{{ $user->name }}</div>
                                         <div class="text-[11px] text-slate-400 font-mono">{{ $user->email }}</div>
@@ -242,11 +266,27 @@
                 </button>
             </div>
 
-            <form action="{{ route('superadmin.users.store') }}" method="POST" class="space-y-4 text-xs">
+            <form action="{{ route('superadmin.users.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
                 @csrf
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1">Nombre Completo</label>
                     <input type="text" name="name" required placeholder="Ej: Pedro Pérez" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
+                </div>
+
+                <!-- Foto de Perfil Upload -->
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Foto de Perfil (Opcional)</label>
+                    <div class="flex items-center gap-3">
+                        <div class="relative w-12 h-12 rounded-full overflow-hidden bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                            <template x-if="createAvatarPreview">
+                                <img :src="createAvatarPreview" class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="!createAvatarPreview">
+                                <svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            </template>
+                        </div>
+                        <input type="file" name="avatar" accept="image/*" @change="previewCreateAvatar($event)" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer">
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -309,11 +349,36 @@
                 </button>
             </div>
 
-            <form :action="'/superadmin/users/' + editUserId + '/update'" method="POST" class="space-y-4 text-xs">
+            <form :action="'/superadmin/users/' + editUserId + '/update'" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
                 @csrf
                 <div>
                     <label class="block font-semibold text-slate-300 mb-1">Nombre Completo</label>
                     <input type="text" name="name" x-model="editUserName" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
+                </div>
+
+                <!-- Foto de Perfil Upload -->
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Foto de Perfil</label>
+                    <div class="flex items-center gap-3">
+                        <div class="relative w-12 h-12 rounded-full overflow-hidden bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                            <template x-if="editAvatarPreview">
+                                <img :src="editAvatarPreview" class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="!editAvatarPreview && editUserAvatarUrl && !removeAvatar">
+                                <img :src="editUserAvatarUrl" class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="!editAvatarPreview && (!editUserAvatarUrl || removeAvatar)">
+                                <svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            </template>
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <input type="file" name="avatar" accept="image/*" @change="previewEditAvatar($event)" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700 cursor-pointer">
+                            <div x-show="editUserAvatarUrl && !removeAvatar" class="flex items-center gap-1">
+                                <input type="checkbox" name="remove_avatar" id="remove_avatar_cb" x-model="removeAvatar" class="rounded bg-slate-900 border-slate-700 text-rose-500 focus:ring-0">
+                                <label for="remove_avatar_cb" class="text-[10px] text-rose-400 font-semibold cursor-pointer">Eliminar foto actual</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">

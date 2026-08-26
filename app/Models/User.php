@@ -20,6 +20,7 @@ class User extends Authenticatable
         'password',
         'role',
         'phone',
+        'avatar',
         'is_active',
     ];
 
@@ -35,6 +36,14 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if ($this->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->avatar)) {
+            return asset('storage/' . $this->avatar);
+        }
+        return null;
     }
 
     public function tenant(): BelongsTo
