@@ -406,9 +406,8 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block font-semibold text-slate-300 mb-1">Monto de Suscripción (USD)</label>
-                        <div class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-emerald-400 font-bold font-mono flex items-center justify-between">
+                        <div class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-emerald-400 font-bold font-mono">
                             <span x-text="'$' + parseFloat(amountUsd).toFixed(2) + ' USD'"></span>
-                            <span class="text-[10px] text-slate-400 font-normal uppercase font-mono">AUTOMÁTICO</span>
                         </div>
                         <input type="hidden" name="amount_usd" :value="amountUsd">
                     </div>
