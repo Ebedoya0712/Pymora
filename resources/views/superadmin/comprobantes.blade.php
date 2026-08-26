@@ -40,7 +40,7 @@
         <div>
             <div class="flex items-center gap-2">
                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    Cobranza SaaS & Licencias
+                    Cobranza & Licencias
                 </span>
                 <span class="text-slate-500">•</span>
                 <span class="text-xs font-mono text-slate-400">Verificación de Comprobantes</span>
@@ -59,7 +59,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Card 1: Total USD -->
         <div class="glass-card p-4 rounded-xl border border-slate-800 space-y-1">
-            <div class="text-slate-400 text-xs font-medium">Total Recaudado SaaS</div>
+            <div class="text-slate-400 text-xs font-medium">Total Recaudado</div>
             <div class="text-2xl font-bold text-emerald-400 font-display">${{ number_format($totalAmountUsd, 2) }}</div>
             <div class="text-[11px] text-slate-400 font-mono">Suscripciones cobradas</div>
         </div>
@@ -140,7 +140,7 @@
         <div class="p-4 border-b border-slate-800 flex items-center justify-between">
             <div>
                 <h3 class="font-bold text-white font-display text-sm">Historial de Comprobantes de Pago Registrados</h3>
-                <p class="text-[11px] text-slate-400">Comprobantes emitidos por empresas suscritos al SaaS Pymora.</p>
+                <p class="text-[11px] text-slate-400">Comprobantes emitidos por empresas en la plataforma Pymora.</p>
             </div>
             <span class="text-xs text-slate-400 font-mono bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">
                 Mostrando {{ $payments->count() }} de {{ $payments->total() }} comprobante(s)

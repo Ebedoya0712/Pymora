@@ -17,7 +17,7 @@
         <div>
             <div class="flex items-center gap-2">
                 <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                    Configuración Comercial SaaS
+                    Configuración Comercial
                 </span>
                 <span class="text-slate-500">•</span>
                 <span class="text-xs font-mono text-slate-400">Pymora Subscription Tiers</span>

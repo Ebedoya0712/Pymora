@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard SuperAdmin - Pymora SaaS')
+@section('title', 'Dashboard SuperAdmin - Pymora Global')
 
 @section('content')
 <div class="space-y-6">

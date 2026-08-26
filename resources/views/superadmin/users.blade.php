@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Gestión de Usuarios SaaS - Pymora Super Admin')
+@section('title', 'Gestión de Usuarios - Pymora Super Admin')
 
 @section('content')
 <div x-data="{ 
@@ -83,7 +83,7 @@
             </div>
             <div class="text-2xl font-extrabold text-purple-400 font-display">{{ $superAdminCount }} <span class="text-xs text-slate-400 font-normal">Globales</span></div>
             <div class="text-xs text-purple-400 flex items-center gap-1 mt-2">
-                <span>Acceso root SaaS</span>
+                <span>Acceso root Plataforma</span>
             </div>
         </div>
 
@@ -95,9 +95,9 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 </div>
             </div>
-            <div class="text-2xl font-extrabold text-white font-display">{{ $tenantUsersCount }} <span class="text-xs text-slate-400 font-normal">Inquilinos</span></div>
+            <div class="text-2xl font-extrabold text-white font-display">{{ $tenantUsersCount }} <span class="text-xs text-slate-400 font-normal">Empresas</span></div>
             <div class="text-xs text-sky-400 flex items-center gap-1 mt-2">
-                <span>Owners, Cajeros & Almacén</span>
+                <span>Empresarios, Cajeros & Almacén</span>
             </div>
         </div>
     </div>
@@ -137,7 +137,7 @@
                     <tr>
                         <th class="px-4 py-3.5">Usuario</th>
                         <th class="px-4 py-3.5">Rol de Sistema</th>
-                        <th class="px-4 py-3.5">Empresa / Inquilino</th>
+                        <th class="px-4 py-3.5">Empresa / Comercio</th>
                         <th class="px-4 py-3.5">Teléfono</th>
                         <th class="px-4 py-3.5">Estado</th>
                         <th class="px-4 py-3.5 text-right">Acciones</th>
@@ -170,7 +170,7 @@
 
                                     $roleLabel = match($user->role) {
                                         'super_admin' => 'Super Admin',
-                                        'owner' => 'Owner / Inquilino',
+                                        'owner' => 'Empresario / Dueño',
                                         'branch_manager' => 'Gerente Sucursal',
                                         'cashier' => 'Cajero POS',
                                         'warehouse_manager' => 'Encargado Almacén',
@@ -185,9 +185,9 @@
                             <td class="px-4 py-3.5">
                                 @if($user->tenant)
                                     <div class="font-medium text-slate-200">{{ $user->tenant->name }}</div>
-                                    <div class="text-[10px] text-indigo-400 font-mono">{{ $user->tenant->subdomain }}.pymora.com</div>
+                                    <div class="text-[10px] text-slate-400 font-mono">{{ $user->tenant->rif_tax_id ?? 'RIF Registrado' }}</div>
                                 @else
-                                    <span class="text-purple-400 font-semibold font-mono text-[11px]">Plataforma Global (SaaS)</span>
+                                    <span class="text-purple-400 font-semibold font-mono text-[11px]">Plataforma Global</span>
                                 @endif
                             </td>
                             <td class="px-4 py-3.5 font-mono text-slate-300">
@@ -234,7 +234,7 @@
         <div @click.away="showCreateModal = false" class="glass-card w-full max-w-lg rounded-2xl border border-slate-800 p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div>
-                    <h3 class="text-lg font-bold text-white font-display">Crear Nuevo Usuario SaaS</h3>
+                    <h3 class="text-lg font-bold text-white font-display">Crear Nuevo Usuario</h3>
                     <p class="text-xs text-slate-400">Asigna credenciales de acceso y permisos de sistema.</p>
                 </div>
                 <button @click="showCreateModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg">
@@ -264,7 +264,7 @@
                     <div>
                         <label class="block font-semibold text-slate-300 mb-1">Rol de Acceso</label>
                         <select name="role" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
-                            <option value="owner">Owner / Admin Inquilino</option>
+                            <option value="owner">Empresario / Admin Empresa</option>
                             <option value="super_admin">Super Admin (Global)</option>
                             <option value="branch_manager">Gerente de Sucursal</option>
                             <option value="cashier">Cajero POS</option>
@@ -273,7 +273,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Empresa / Inquilino</label>
+                        <label class="block font-semibold text-slate-300 mb-1">Empresa / Comercio</label>
                         <select name="tenant_id" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
                             <option value="">-- Ninguna (Super Admin Global) --</option>
                             @foreach($tenants as $t)
@@ -331,7 +331,7 @@
                     <div>
                         <label class="block font-semibold text-slate-300 mb-1">Rol de Acceso</label>
                         <select name="role" x-model="editUserRole" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
-                            <option value="owner">Owner / Admin Inquilino</option>
+                            <option value="owner">Empresario / Admin Empresa</option>
                             <option value="super_admin">Super Admin (Global)</option>
                             <option value="branch_manager">Gerente de Sucursal</option>
                             <option value="cashier">Cajero POS</option>
@@ -340,7 +340,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Empresa / Inquilino</label>
+                        <label class="block font-semibold text-slate-300 mb-1">Empresa / Comercio</label>
                         <select name="tenant_id" x-model="editUserTenantId" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none">
                             <option value="">-- Ninguna (Super Admin Global) --</option>
                             @foreach($tenants as $t)
