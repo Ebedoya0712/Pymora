@@ -469,37 +469,24 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const loader = document.getElementById('page-loader');
-            let loaderTimer = null;
 
             function showLoader() {
                 if (loader) {
-                    clearTimeout(loaderTimer);
-                    // Only display loader overlay if page load takes longer than 200ms
-                    loaderTimer = setTimeout(function() {
-                        loader.classList.remove('opacity-0', 'pointer-events-none');
-                        loader.classList.add('opacity-100');
-                    }, 200);
-
-                    // Safety fallback: auto-hide after 1.5s max
-                    setTimeout(hideLoader, 1500);
+                    loader.classList.remove('opacity-0', 'pointer-events-none');
+                    loader.classList.add('opacity-100');
                 }
             }
 
             function hideLoader() {
                 if (loader) {
-                    clearTimeout(loaderTimer);
                     loader.classList.remove('opacity-100');
                     loader.classList.add('opacity-0', 'pointer-events-none');
                 }
             }
 
-            // Immediately hide loader on DOMReady, load, pageshow & beforeunload
             hideLoader();
             window.addEventListener('pageshow', hideLoader);
             window.addEventListener('load', hideLoader);
-            window.addEventListener('beforeunload', function() {
-                setTimeout(hideLoader, 500);
-            });
 
             document.querySelectorAll('a').forEach(function (link) {
                 link.addEventListener('click', function (e) {
