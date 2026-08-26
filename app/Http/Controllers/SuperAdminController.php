@@ -400,7 +400,7 @@ class SuperAdminController extends Controller
         }
 
         try {
-            $query = User::with('tenant')->latest();
+            $query = User::with('tenant')->where('role', '!=', 'owner')->latest();
 
             if ($request->has('tenant_id') && $request->input('tenant_id') != '') {
                 $query->where('tenant_id', $request->input('tenant_id'));
