@@ -437,76 +437,88 @@ class SuperAdminController extends Controller
 
     public function storeUser(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-            'role' => 'required|string|in:super_admin,owner,branch_manager,cashier,warehouse_manager,accountant',
-            'tenant_id' => 'nullable|exists:tenants,id',
-            'phone' => 'nullable|string|max:50',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|string|min:6',
+                'role' => 'required|string|in:super_admin,owner,branch_manager,cashier,warehouse_manager,accountant',
+                'tenant_id' => 'nullable',
+                'phone' => 'nullable|string|max:50',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
+            ]);
 
-        $avatarPath = null;
-        if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            $avatarPath = null;
+            if ($request->hasFile('avatar')) {
+                $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            }
+
+            $tenantId = $request->input('role') === 'super_admin' ? null : ($request->input('tenant_id') ?: null);
+
+            User::create([
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'password' => Hash::make($request->input('password')),
+                'role' => $request->input('role'),
+                'tenant_id' => $tenantId,
+                'phone' => $request->input('phone'),
+                'avatar' => $avatarPath,
+                'is_active' => true,
+            ]);
+
+            return redirect()->route('superadmin.users')->with('success', "Usuario '{$request->input('name')}' creado exitosamente.");
+        } catch (Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Error al crear usuario: ' . $e->getMessage());
         }
-
-        User::create([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => Hash::make($request->input('password')),
-            'role' => $request->input('role'),
-            'tenant_id' => $request->input('role') === 'super_admin' ? null : $request->input('tenant_id'),
-            'phone' => $request->input('phone'),
-            'avatar' => $avatarPath,
-            'is_active' => true,
-        ]);
-
-        return redirect()->route('superadmin.users')->with('success', "Usuario '{$request->input('name')}' creado exitosamente.");
     }
 
     public function updateUser(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+        try {
+            $user = User::findOrFail($id);
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|string|in:super_admin,owner,branch_manager,cashier,warehouse_manager,accountant',
-            'tenant_id' => 'nullable|exists:tenants,id',
-            'phone' => 'nullable|string|max:50',
-            'password' => 'nullable|string|min:6',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
-        ]);
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $user->id,
+                'role' => 'required|string|in:super_admin,owner,branch_manager,cashier,warehouse_manager,accountant',
+                'tenant_id' => 'nullable',
+                'phone' => 'nullable|string|max:50',
+                'password' => 'nullable|string|min:6',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
+            ]);
 
-        $data = [
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'role' => $request->input('role'),
-            'tenant_id' => $request->input('role') === 'super_admin' ? null : $request->input('tenant_id'),
-            'phone' => $request->input('phone'),
-        ];
+            $tenantId = $request->input('role') === 'super_admin' ? null : ($request->input('tenant_id') ?: null);
 
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->input('password'));
-        }
+            $data = [
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'role' => $request->input('role'),
+                'tenant_id' => $tenantId,
+                'phone' => $request->input('phone'),
+            ];
 
-        if ($request->hasFile('avatar')) {
-            if ($user->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->avatar)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+            if ($request->filled('password')) {
+                $data['password'] = Hash::make($request->input('password'));
             }
-            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
-        } elseif ($request->boolean('remove_avatar')) {
-            if ($user->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->avatar)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+
+            if ($request->hasFile('avatar')) {
+                if ($user->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->avatar)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+                }
+                $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            } elseif ($request->boolean('remove_avatar')) {
+                if ($user->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->avatar)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+                }
+                $data['avatar'] = null;
             }
-            $data['avatar'] = null;
+
+            $user->update($data);
+
+            return redirect()->route('superadmin.users')->with('success', "Usuario '{$user->name}' actualizado correctamente.");
+        } catch (Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Error al actualizar usuario: ' . $e->getMessage());
         }
-
-        $user->update($data);
-
-        return redirect()->route('superadmin.users')->with('success', "Usuario '{$user->name}' actualizado correctamente.");
     }
 
     public function toggleUserStatus($id)
