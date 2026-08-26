@@ -484,6 +484,11 @@
                 }
             }
 
+            // Immediately hide loader on DOMReady & load & pageshow
+            hideLoader();
+            window.addEventListener('pageshow', hideLoader);
+            window.addEventListener('load', hideLoader);
+
             document.querySelectorAll('a').forEach(function (link) {
                 link.addEventListener('click', function (e) {
                     const href = link.getAttribute('href');
@@ -497,13 +502,15 @@
 
             document.querySelectorAll('form').forEach(function (form) {
                 form.addEventListener('submit', function (e) {
+                    if (form.checkValidity && !form.checkValidity()) {
+                        hideLoader();
+                        return;
+                    }
                     if (!e.defaultPrevented) {
                         showLoader();
                     }
                 });
             });
-
-            window.addEventListener('pageshow', hideLoader);
         });
     </script>
 </body>
