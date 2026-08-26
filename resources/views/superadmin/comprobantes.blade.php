@@ -405,8 +405,12 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Monto Cobrado (USD)</label>
-                        <input type="number" step="0.01" name="amount_usd" x-model="amountUsd" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-emerald-400 font-bold font-mono focus:border-indigo-500 focus:outline-none">
+                        <label class="block font-semibold text-slate-300 mb-1">Monto de Suscripción (USD)</label>
+                        <div class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-emerald-400 font-bold font-mono flex items-center justify-between">
+                            <span x-text="'$' + parseFloat(amountUsd).toFixed(2) + ' USD'"></span>
+                            <span class="text-[10px] text-slate-400 font-normal uppercase font-mono">AUTOMÁTICO</span>
+                        </div>
+                        <input type="hidden" name="amount_usd" :value="amountUsd">
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-300 mb-1">Fecha de Pago</label>
