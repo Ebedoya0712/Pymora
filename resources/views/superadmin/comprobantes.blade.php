@@ -163,18 +163,18 @@
                 <tbody class="divide-y divide-slate-800/60 font-sans">
                     @forelse($payments as $payment)
                         <tr class="hover:bg-slate-800/40 transition-colors">
-                            <td class="px-4 py-3.5">
+                            <td class="px-4 py-3.5 whitespace-nowrap">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-xs shadow">
                                         {{ strtoupper(substr($payment->tenant->name ?? 'E', 0, 2)) }}
                                     </div>
                                     <div>
                                         <div class="font-semibold text-white text-sm">{{ $payment->tenant->name ?? 'Empresa Registrada' }}</div>
-                                        <div class="text-[10px] text-indigo-400 font-mono">{{ $payment->tenant->subdomain ?? 'subdominio' }}.pymora.com</div>
+                                        <div class="text-[10px] text-slate-400 font-mono">{{ $payment->tenant->rif_tax_id ?? 'RIF Registrado' }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-4 py-3.5">
+                            <td class="px-4 py-3.5 whitespace-nowrap">
                                 @php
                                     $planBadge = match($payment->plan_tier) {
                                         'trial' => 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
@@ -189,17 +189,17 @@
                                         default => 'Plan Enterprise',
                                     };
                                 @endphp
-                                <span class="px-2.5 py-1 rounded-md border text-[10px] font-semibold font-mono uppercase {{ $planBadge }}">
+                                <span class="px-2.5 py-1 rounded-md border text-[10px] font-semibold font-mono uppercase whitespace-nowrap inline-block {{ $planBadge }}">
                                     {{ $planName }} ({{ $payment->months_paid }}M)
                                 </span>
                             </td>
-                            <td class="px-4 py-3.5">
+                            <td class="px-4 py-3.5 whitespace-nowrap">
                                 <div class="font-extrabold text-emerald-400 font-mono text-sm">${{ number_format($payment->amount_usd, 2) }} <span class="text-[10px] text-slate-400 font-normal">USD</span></div>
                                 @if($payment->amount_ves)
                                     <div class="text-[10px] text-slate-400 font-mono">Bs. {{ number_format($payment->amount_ves, 2) }} VES</div>
                                 @endif
                             </td>
-                            <td class="px-4 py-3.5">
+                            <td class="px-4 py-3.5 whitespace-nowrap">
                                 @php
                                     $method = $payment->payment_method;
                                     $methodStyle = match($method) {
@@ -230,7 +230,7 @@
                                     {{ $methodLabel }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3.5">
+                            <td class="px-4 py-3.5 whitespace-nowrap">
                                 <div class="flex items-center gap-2">
                                     <span class="bg-slate-900 border border-slate-700 text-indigo-300 font-mono text-[11px] px-2.5 py-1 rounded-lg">
                                         {{ $payment->reference_code }}
@@ -242,10 +242,10 @@
                                     @endif
                                 </div>
                             </td>
-                            <td class="px-4 py-3.5 text-slate-400 font-mono text-[11px]">
+                            <td class="px-4 py-3.5 text-slate-400 font-mono text-[11px] whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($payment->payment_date)->format('d/m/Y') }}
                             </td>
-                            <td class="px-4 py-3.5 text-right">
+                            <td class="px-4 py-3.5 text-right whitespace-nowrap">
                                 <button @click="openReceipt({{ json_encode($payment) }})" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-[11px] font-semibold rounded-lg transition-all inline-flex items-center gap-1.5">
                                     <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     Ver Comprobante
