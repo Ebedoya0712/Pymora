@@ -10,7 +10,7 @@
             <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-2">
                 ⚙️ Configuración & Parámetros del Sistema
             </h1>
-            <p class="text-sm text-slate-400 mt-1">Administra la sincronización de divisas BCV en vivo, días de prueba gratis, avisos globales y correo de soporte.</p>
+            <p class="text-sm text-slate-400 mt-1">Administra los parámetros generales del sistema, días de prueba gratis, avisos globales y correo de soporte.</p>
         </div>
     </div>
 
@@ -74,52 +74,41 @@
             </form>
         </div>
 
-        <!-- 2. Tasas de Cambio Oficiales BCV (Sincronizadas Automáticas) -->
-        <div class="glass-card p-6 rounded-2xl space-y-4 flex flex-col justify-between">
-            <div>
-                <h3 class="font-bold text-white text-lg flex items-center justify-between border-b border-slate-800 pb-3">
-                    <span class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <span>Tasas de Cambio Oficiales BCV</span>
-                    </span>
-                    <span class="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        API EN VIVO
-                    </span>
-                </h3>
+        <!-- 2. Tasas de Cambio Oficiales BCV -->
+        <div class="glass-card p-6 rounded-2xl space-y-4">
+            <h3 class="font-bold text-white text-lg flex items-center justify-between border-b border-slate-800 pb-3">
+                <span class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Tasas de Cambio Oficiales BCV</span>
+                </span>
+            </h3>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                    <!-- Dólar BCV -->
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 flex items-center justify-between">
-                        <div>
-                            <div class="text-xs text-slate-400 font-medium">Tasa Oficial Dólar BCV</div>
-                            <div class="text-2xl font-extrabold text-emerald-400 font-mono mt-1">
-                                {{ number_format($bcvUsdRate, 2, ',', '.') }} <span class="text-xs text-slate-500 font-normal">VES</span>
-                            </div>
-                        </div>
-                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold font-mono text-xs">
-                            USD
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                <!-- Dólar BCV -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-slate-400 font-medium">Tasa Oficial Dólar BCV</div>
+                        <div class="text-2xl font-extrabold text-emerald-400 font-mono mt-1">
+                            {{ number_format($bcvUsdRate, 2, ',', '.') }} <span class="text-xs text-slate-500 font-normal">VES</span>
                         </div>
                     </div>
-
-                    <!-- Euro BCV -->
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 flex items-center justify-between">
-                        <div>
-                            <div class="text-xs text-slate-400 font-medium">Tasa Oficial Euro BCV</div>
-                            <div class="text-2xl font-extrabold text-sky-400 font-mono mt-1">
-                                {{ number_format($bcvEurRate, 2, ',', '.') }} <span class="text-xs text-slate-500 font-normal">VES</span>
-                            </div>
-                        </div>
-                        <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 font-bold font-mono text-xs">
-                            EUR
-                        </div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold font-mono text-xs">
+                        USD
                     </div>
                 </div>
-            </div>
 
-            <div class="p-3.5 bg-slate-950/80 rounded-xl border border-slate-800 text-xs text-slate-400 flex items-center gap-2 mt-4">
-                <span class="text-emerald-400">🤖</span>
-                <span class="text-[11px]">Sincronización automática de divisas oficiales BCV integrada vía DolarApi.</span>
+                <!-- Euro BCV -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-slate-400 font-medium">Tasa Oficial Euro BCV</div>
+                        <div class="text-2xl font-extrabold text-sky-400 font-mono mt-1">
+                            {{ number_format($bcvEurRate, 2, ',', '.') }} <span class="text-xs text-slate-500 font-normal">VES</span>
+                        </div>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 font-bold font-mono text-xs">
+                        EUR
+                    </div>
+                </div>
             </div>
         </div>
 
