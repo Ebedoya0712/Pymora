@@ -349,6 +349,7 @@ class DatabaseSeeder extends Seeder
             'plan_tier' => 'pro',
             'months_paid' => 2,
             'notes' => 'Pago recibido vía Pago Móvil Banesco 0414-1112233.',
+            'receipt_image' => '/uploads/receipts/pago_movil_sample.png',
         ]);
 
         SaasPayment::create([
@@ -362,6 +363,7 @@ class DatabaseSeeder extends Seeder
             'plan_tier' => 'pro',
             'months_paid' => 1,
             'notes' => 'Abono verificado vía Binance Pay (USDT).',
+            'receipt_image' => '/uploads/receipts/pago_movil_sample.png',
         ]);
 
         SaasPayment::create([
@@ -375,6 +377,7 @@ class DatabaseSeeder extends Seeder
             'plan_tier' => 'starter',
             'months_paid' => 1,
             'notes' => 'Pago de suscripción Plan Sencillo vía PayPal Checkout.',
+            'receipt_image' => '/uploads/receipts/pago_movil_sample.png',
         ]);
 
         SaasPayment::create([
@@ -388,6 +391,7 @@ class DatabaseSeeder extends Seeder
             'plan_tier' => 'pro',
             'months_paid' => 1,
             'notes' => 'Comprobante recibido mediante Zinli Wallet.',
+            'receipt_image' => '/uploads/receipts/pago_movil_sample.png',
         ]);
     }
 }

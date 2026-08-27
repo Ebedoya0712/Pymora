@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('plan_tier'); // starter, pro, enterprise
             $table->integer('months_paid')->default(1);
             $table->text('notes')->nullable();
+            $table->string('receipt_image')->nullable();
             $table->timestamps();
         });
     }
