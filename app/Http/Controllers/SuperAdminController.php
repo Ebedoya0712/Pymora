@@ -707,14 +707,34 @@ class SuperAdminController extends Controller
     public function updateSettings(Request $request)
     {
         $request->validate([
-            'trial_days' => 'required|integer|min:1',
-            'support_email' => 'required|email',
+            'trial_days' => 'nullable|integer|min:1',
+            'support_email' => 'nullable|email',
+            'bcv_usd_rate' => 'nullable|numeric|min:0.01',
+            'bcv_eur_rate' => 'nullable|numeric|min:0.01',
         ]);
 
-        GlobalSetting::set('trial_days', $request->input('trial_days'), 'saas');
-        GlobalSetting::set('support_email', $request->input('support_email'), 'saas');
+        if ($request->filled('support_email')) {
+            GlobalSetting::set('support_email', $request->input('support_email'), 'saas');
+        }
 
-        return redirect()->route('superadmin.index')->with('success', 'Parámetros SaaS actualizados exitosamente.');
+        if ($request->filled('trial_days')) {
+            GlobalSetting::set('trial_days', $request->input('trial_days'), 'saas');
+        }
+
+        if ($request->filled('bcv_usd_rate')) {
+            $usd = (float) $request->input('bcv_usd_rate');
+            GlobalSetting::set('bcv_usd_rate', $usd, 'exchange');
+            try {
+                Tenant::query()->update(['bcv_rate' => $usd]);
+            } catch (\Exception $e) {}
+        }
+
+        if ($request->filled('bcv_eur_rate')) {
+            $eur = (float) $request->input('bcv_eur_rate');
+            GlobalSetting::set('bcv_eur_rate', $eur, 'exchange');
+        }
+
+        return redirect()->back()->with('success', 'Parámetros del sistema actualizados exitosamente.');
     }
 
     public function storeBroadcast(Request $request)

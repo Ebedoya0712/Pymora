@@ -21,6 +21,31 @@
         </form>
     </div>
 
+    <!-- Alert Notifications -->
+    @if(session('success'))
+        <div x-data="{ showSuccess: true }" x-show="showSuccess" x-transition class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium flex items-center justify-between shadow-lg">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <span>{{ session('success') }}</span>
+            </div>
+            <button type="button" @click="showSuccess = false" title="Cerrar notificación" class="text-emerald-400/80 hover:text-white hover:bg-emerald-500/20 p-1.5 rounded-lg transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div x-data="{ showError: true }" x-show="showError" x-transition class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm font-medium flex items-center justify-between shadow-lg">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>{{ session('error') }}</span>
+            </div>
+            <button type="button" @click="showError = false" title="Cerrar notificación" class="text-rose-400/80 hover:text-white hover:bg-rose-500/20 p-1.5 rounded-lg transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+    @endif
+
     <!-- Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         
@@ -37,6 +62,15 @@
                     <label class="font-semibold text-slate-300">Correo Oficial de Soporte Técnico</label>
                     <input type="email" name="support_email" value="{{ $supportEmail }}" required class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-amber-500 focus:outline-none">
                     <p class="text-[10px] text-slate-500">Recibe las solicitudes de soporte y comprobantes adjuntados.</p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="font-semibold text-slate-300">Días de Prueba Gratis (Nuevas Empresas)</label>
+                    <div class="relative">
+                        <input type="number" name="trial_days" min="1" max="365" value="{{ $trialDays }}" required class="w-full bg-slate-950 border border-slate-800 text-white rounded-lg p-2.5 focus:border-amber-500 focus:outline-none font-mono">
+                        <span class="absolute right-3 top-2.5 text-[10px] text-slate-500 font-mono">Días</span>
+                    </div>
+                    <p class="text-[10px] text-slate-500">Tiempo de gracia asignado automáticamente al registrar un comercio.</p>
                 </div>
 
                 <div class="pt-2">
