@@ -12,13 +12,6 @@
             </h1>
             <p class="text-sm text-slate-400 mt-1">Administra la sincronización de divisas BCV en vivo, días de prueba gratis, avisos globales y correo de soporte.</p>
         </div>
-        <form action="{{ route('superadmin.sync-dolarapi') }}" method="POST">
-            @csrf
-            <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-600/30 transition-all flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                <span>Sincronizar Tasas DolarApi (En Vivo)</span>
-            </button>
-        </form>
     </div>
 
     <!-- Alert Notifications -->
@@ -124,17 +117,9 @@
                 </div>
             </div>
 
-            <div class="p-3.5 bg-slate-950/80 rounded-xl border border-slate-800 text-xs text-slate-400 flex items-center justify-between gap-3 mt-4">
-                <div class="flex items-center gap-2 text-[11px]">
-                    <span class="text-emerald-400">🤖</span>
-                    <span>Sincronización automática de divisas oficiales BCV integrada vía DolarApi.</span>
-                </div>
-                <form action="{{ route('superadmin.sync-dolarapi') }}" method="POST" class="shrink-0">
-                    @csrf
-                    <button type="submit" class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 rounded-lg text-xs font-semibold transition-all">
-                        Forzar Sincronización
-                    </button>
-                </form>
+            <div class="p-3.5 bg-slate-950/80 rounded-xl border border-slate-800 text-xs text-slate-400 flex items-center gap-2 mt-4">
+                <span class="text-emerald-400">🤖</span>
+                <span class="text-[11px]">Sincronización automática de divisas oficiales BCV integrada vía DolarApi.</span>
             </div>
         </div>
 
