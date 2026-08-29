@@ -10,6 +10,8 @@ use App\Http\Controllers\CashBankController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ScannerController;
+use App\Http\Controllers\BatchController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterTenantController;
 
@@ -61,8 +63,19 @@ Route::post('/superadmin/sync-dolarapi', [SuperAdminController::class, 'syncDola
 Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
 Route::post('/pos', [PosController::class, 'store'])->name('pos.store');
 
+Route::get('/scanner', [ScannerController::class, 'index'])->name('scanner.index');
+Route::post('/scanner/lookup', [ScannerController::class, 'lookup'])->name('scanner.lookup');
+Route::post('/scanner/update-stock', [ScannerController::class, 'updateStock'])->name('scanner.updateStock');
+Route::post('/scanner/quick-store', [ScannerController::class, 'quickStore'])->name('scanner.quickStore');
+
 Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
 Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+Route::post('/inventory/update-stock', [InventoryController::class, 'updateStock'])->name('inventory.updateStock');
+Route::post('/inventory/{id}/delete', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+
+Route::get('/batches', [BatchController::class, 'index'])->name('batches.index');
+Route::post('/batches', [BatchController::class, 'store'])->name('batches.store');
+Route::post('/batches/{id}/delete', [BatchController::class, 'destroy'])->name('batches.destroy');
 
 Route::get('/cash-bank', [CashBankController::class, 'index'])->name('cashbank.index');
 Route::get('/cxc-cxp', [CxcCxpController::class, 'index'])->name('cxc.index');

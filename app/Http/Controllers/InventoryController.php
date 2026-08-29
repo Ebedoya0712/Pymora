@@ -7,12 +7,14 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\InventoryStock;
 use App\Models\Branch;
+use App\Models\GlobalSetting;
+use App\Services\DolarApiService;
 use Illuminate\Http\Request;
 use Exception;
 
 class InventoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             $tenant = Tenant::current();
@@ -21,80 +23,176 @@ class InventoryController extends Controller
         }
 
         if (!$tenant) {
-            $tenant = (object) ['id' => 1, 'name' => 'Bodega & Abasto El Sol C.A.'];
-            $categories = collect([
-                (object) ['id' => 1, 'name' => 'Bebidas y Refrescos'],
-                (object) ['id' => 2, 'name' => 'Víveres y Granos'],
-                (object) ['id' => 3, 'name' => 'Charcutería y Lácteos']
-            ]);
-            $branches = collect([
-                (object) ['id' => 1, 'name' => 'Altamira'],
-                (object) ['id' => 2, 'name' => 'Las Mercedes']
-            ]);
-            $products = collect([
-                (object) [
-                    'id' => 1, 'sku' => 'BEB-001', 'name' => 'Refresco Coca-Cola 2L', 'cost_usd' => 1.80, 'price_usd' => 2.50, 'unit' => 'Unidad', 'has_lots' => false,
-                    'category' => (object) ['name' => 'Bebidas y Refrescos'],
-                    'stocks' => collect([
-                        (object) ['branch_id' => 1, 'quantity' => 120],
-                        (object) ['branch_id' => 2, 'quantity' => 50]
-                    ])
-                ],
-                (object) [
-                    'id' => 2, 'sku' => 'VIV-001', 'name' => 'Harina PAN Blanca 1kg', 'cost_usd' => 0.95, 'price_usd' => 1.35, 'unit' => 'Unidad', 'has_lots' => false,
-                    'category' => (object) ['name' => 'Víveres y Granos'],
-                    'stocks' => collect([
-                        (object) ['branch_id' => 1, 'quantity' => 250],
-                        (object) ['branch_id' => 2, 'quantity' => 100]
-                    ])
-                ],
-                (object) [
-                    'id' => 3, 'sku' => 'CHA-001', 'name' => 'Queso Paisa Blanco (Kg)', 'cost_usd' => 5.20, 'price_usd' => 7.80, 'unit' => 'Kg', 'has_lots' => true,
-                    'category' => (object) ['name' => 'Charcutería y Lácteos'],
-                    'stocks' => collect([
-                        (object) ['branch_id' => 1, 'quantity' => 35.5],
-                        (object) ['branch_id' => 2, 'quantity' => 12.0]
-                    ])
-                ]
-            ]);
-        } else {
-            $products = Product::where('tenant_id', $tenant->id)->with(['category', 'stocks'])->get();
-            $categories = Category::where('tenant_id', $tenant->id)->get();
-            $branches = Branch::where('tenant_id', $tenant->id)->get();
+            $tenant = (object) [
+                'id' => 1,
+                'name' => 'Bodega & Abasto El Sol C.A.',
+                'business_type' => 'abasto'
+            ];
         }
 
-        return view('inventory.index', compact('tenant', 'products', 'categories', 'branches'));
+        // Live Exchange Rates
+        $rates = DolarApiService::getRates();
+        $bcvUsdRate = (float) GlobalSetting::get('bcv_usd_rate', $rates['bcv_usd']);
+        $bcvEurRate = (float) GlobalSetting::get('bcv_eur_rate', $rates['bcv_eur']);
+
+        $filter = $request->input('filter', 'all');
+        $categoryId = $request->input('category_id', 'all');
+        $search = trim((string) $request->input('search', ''));
+
+        $query = Product::where('tenant_id', $tenant->id)
+            ->with(['category', 'stocks.branch'])
+            ->orderBy('name', 'asc');
+
+        if ($categoryId !== 'all') {
+            $query->where('category_id', $categoryId);
+        }
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('sku', 'like', "%{$search}%")
+                  ->orWhere('barcode', 'like', "%{$search}%");
+            });
+        }
+
+        $allProducts = $query->get();
+
+        // Calculate total stock and low stock flag for each product
+        $allProducts->each(function ($product) {
+            $product->total_stock = (float) $product->stocks->sum('quantity');
+            $product->min_alert = (float) ($product->min_stock_alert ?? 10);
+            $product->is_low_stock = $product->total_stock <= $product->min_alert;
+        });
+
+        // Filter products based on tab
+        if ($filter === 'low_stock') {
+            $products = $allProducts->filter(fn($p) => $p->is_low_stock)->values();
+        } elseif ($filter === 'normal') {
+            $products = $allProducts->filter(fn($p) => !$p->is_low_stock)->values();
+        } else {
+            $products = $allProducts;
+        }
+
+        // All low stock products for modal alert
+        $lowStockProducts = $allProducts->filter(fn($p) => $p->is_low_stock)->values();
+        $lowStockCount = $lowStockProducts->count();
+        $totalProductsCount = $allProducts->count();
+        $totalStockUnits = $allProducts->sum('total_stock');
+        $totalInventoryValueUsd = $allProducts->sum(fn($p) => $p->total_stock * (float)$p->price_usd);
+        $totalInventoryValueVes = $totalInventoryValueUsd * $bcvUsdRate;
+
+        $categories = Category::where('tenant_id', $tenant->id)->get();
+        $branches = Branch::where('tenant_id', $tenant->id)->get();
+
+        return view('inventory.index', compact(
+            'tenant',
+            'products',
+            'lowStockProducts',
+            'lowStockCount',
+            'totalProductsCount',
+            'totalStockUnits',
+            'totalInventoryValueUsd',
+            'totalInventoryValueVes',
+            'categories',
+            'branches',
+            'filter',
+            'categoryId',
+            'search',
+            'bcvUsdRate',
+            'bcvEurRate'
+        ));
     }
 
     public function store(Request $request)
     {
-        $tenant = Tenant::current();
+        $tenant = Tenant::current() ?? (object)['id' => 1];
 
-        try {
-            $product = Product::create([
-                'tenant_id' => $tenant->id,
-                'category_id' => $request->input('category_id') ?: null,
-                'sku' => $request->input('sku', 'SKU-' . rand(100, 999)),
-                'barcode' => $request->input('barcode', '759' . rand(100000000, 999999999)),
-                'name' => $request->input('name', 'Nuevo Producto'),
-                'description' => $request->input('description', ''),
-                'cost_usd' => $request->input('cost_usd', 1.00),
-                'price_usd' => $request->input('price_usd', 2.00),
-                'price_bcv' => $request->input('price_usd', 2.00) * ($tenant->bcv_rate ?? 52.40),
-                'unit' => $request->input('unit', 'Unidad'),
-                'is_active' => true,
-            ]);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'sku' => 'nullable|string|max:100',
+            'barcode' => 'nullable|string|max:100',
+            'description' => 'nullable|string',
+            'cost_usd' => 'required|numeric|min:0',
+            'price_usd' => 'required|numeric|min:0.01',
+            'min_stock_alert' => 'nullable|numeric|min:0',
+            'stock_quantity' => 'nullable|numeric|min:0',
+            'branch_id' => 'nullable|exists:branches,id',
+            'unit' => 'nullable|string|max:50',
+            'has_lots' => 'nullable|boolean',
+        ]);
 
-            InventoryStock::create([
-                'tenant_id' => $tenant->id,
-                'branch_id' => 1,
-                'product_id' => $product->id,
-                'quantity' => $request->input('stock_quantity', 50),
+        $product = Product::create([
+            'tenant_id' => $tenant->id,
+            'category_id' => $validated['category_id'] ?? null,
+            'name' => $validated['name'],
+            'sku' => $validated['sku'] ?: 'SKU-' . strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $validated['name']), 0, 3)) . '-' . rand(100, 999),
+            'barcode' => $validated['barcode'] ?: null,
+            'description' => $validated['description'] ?? null,
+            'cost_usd' => $validated['cost_usd'],
+            'price_usd' => $validated['price_usd'],
+            'min_stock_alert' => $validated['min_stock_alert'] ?? 10.00,
+            'unit' => $validated['unit'] ?? 'Unidad',
+            'has_lots' => $request->has('has_lots'),
+            'is_active' => true,
+        ]);
+
+        $initialStock = (float) ($request->input('stock_quantity') ?? 0);
+        $branchId = $request->input('branch_id') ?: 1;
+
+        InventoryStock::create([
+            'tenant_id' => $tenant->id,
+            'branch_id' => $branchId,
+            'product_id' => $product->id,
+            'quantity' => $initialStock,
+        ]);
+
+        return redirect()->route('inventory.index')->with('success', '¡Producto "' . $product->name . '" registrado exitosamente con ' . $initialStock . ' unidades en stock!');
+    }
+
+    public function updateStock(Request $request)
+    {
+        $tenant = Tenant::current() ?? (object)['id' => 1];
+
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'branch_id' => 'nullable|exists:branches,id',
+            'quantity' => 'required|numeric|min:0',
+            'min_stock_alert' => 'nullable|numeric|min:0',
+            'operation' => 'nullable|string|in:set,add',
+        ]);
+
+        $branchId = $validated['branch_id'] ?? 1;
+        $stock = InventoryStock::firstOrCreate([
+            'tenant_id' => $tenant->id,
+            'branch_id' => $branchId,
+            'product_id' => $validated['product_id'],
+        ], [
+            'quantity' => 0
+        ]);
+
+        if (($validated['operation'] ?? 'set') === 'add') {
+            $stock->quantity += (float) $validated['quantity'];
+        } else {
+            $stock->quantity = (float) $validated['quantity'];
+        }
+        $stock->save();
+
+        if (isset($validated['min_stock_alert'])) {
+            Product::where('id', $validated['product_id'])->update([
+                'min_stock_alert' => $validated['min_stock_alert']
             ]);
-        } catch (Exception $e) {
-            // fallback
         }
 
-        return redirect()->route('inventory.index')->with('success', '¡Producto "' . $request->input('name', 'Nuevo Producto') . '" registrado exitosamente en ' . $tenant->name . '!');
+        return redirect()->route('inventory.index')->with('success', 'Stock de producto actualizado correctamente.');
+    }
+
+    public function destroy($id)
+    {
+        $tenant = Tenant::current() ?? (object)['id' => 1];
+        $product = Product::where('tenant_id', $tenant->id)->findOrFail($id);
+        $product->delete();
+
+        return redirect()->route('inventory.index')->with('success', 'Producto eliminado del inventario.');
     }
 }

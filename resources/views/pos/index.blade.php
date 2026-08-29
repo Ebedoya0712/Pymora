@@ -7,19 +7,30 @@
 
     <!-- Left Panel: Product Catalog & Search (65%) -->
     <div class="flex-1 flex flex-col gap-4 overflow-hidden">
-        <!-- Search & Filter Bar -->
+        <!-- Search & Barcode Scanner Bar -->
         <div class="glass-card p-3 rounded-xl flex flex-wrap items-center justify-between gap-3">
-            <div class="relative flex-1 min-w-[200px]">
-                <svg class="w-4 h-4 absolute left-3 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <input x-model="searchQuery" type="text" placeholder="Buscar por nombre, SKU o escanear código de barras..." class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono">
+            <div class="relative flex-1 min-w-[240px]">
+                <div class="absolute left-3 top-2.5 flex items-center gap-1.5 text-indigo-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                </div>
+                <input x-ref="posSearchInput" 
+                       x-model="searchQuery" 
+                       @keydown.enter.prevent="handleScanEnter()"
+                       type="text" 
+                       placeholder="Escanea con el lector de barras o busca por nombre / SKU..." 
+                       class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-24 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono">
+                <span class="absolute right-2 top-1.5 px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono text-[10px] font-bold border border-indigo-500/30 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Lector USB</span>
+                </span>
             </div>
             <!-- Category Pills -->
             <div class="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
-                <button @click="selectedCategory = 'all'" :class="selectedCategory === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'" class="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all">
+                <button @click="selectedCategory = 'all'" :class="selectedCategory === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'" class="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer">
                     Todos
                 </button>
                 @foreach($categories as $cat)
-                <button @click="selectedCategory = {{ $cat->id }}" :class="selectedCategory === {{ $cat->id }} ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'" class="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all">
+                <button @click="selectedCategory = {{ $cat->id }}" :class="selectedCategory === {{ $cat->id }} ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'" class="px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer">
                     {{ $cat->name }}
                 </button>
                 @endforeach
@@ -155,6 +166,49 @@ function posSystem() {
                                      (p.barcode && p.barcode.includes(this.searchQuery));
                 return matchesCat && matchesSearch;
             });
+        },
+
+        playBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1800, ctx.currentTime);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.12);
+            } catch (e) {}
+        },
+
+        handleScanEnter() {
+            const query = (this.searchQuery || '').trim().toLowerCase();
+            if (!query) return;
+
+            // 1. Try exact barcode match first
+            let match = this.products.find(p => p.barcode && p.barcode.toLowerCase() === query);
+            
+            // 2. Try exact SKU match
+            if (!match) {
+                match = this.products.find(p => p.sku && p.sku.toLowerCase() === query);
+            }
+
+            // 3. Try partial name match if only 1 result
+            if (!match) {
+                const results = this.filteredProducts;
+                if (results.length === 1) {
+                    match = results[0];
+                }
+            }
+
+            if (match) {
+                this.playBeep();
+                this.addToCart(match);
+                this.searchQuery = '';
+            }
         },
 
         addToCart(product) {

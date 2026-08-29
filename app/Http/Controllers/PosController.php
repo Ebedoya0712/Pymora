@@ -11,6 +11,8 @@ use App\Models\CashSession;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Payment;
+use App\Models\GlobalSetting;
+use App\Services\DolarApiService;
 use Illuminate\Http\Request;
 use Exception;
 
@@ -24,57 +26,50 @@ class PosController extends Controller
             $tenant = null;
         }
 
+        $rates = DolarApiService::getRates();
+        $bcvRate = (float) GlobalSetting::get('bcv_usd_rate', $rates['bcv_usd']);
+
         if (!$tenant) {
-            $tenant = (object) ['id' => 1, 'name' => 'Bodega & Abasto El Sol C.A.', 'bcv_rate' => 52.40];
-            $categories = collect([
-                (object) ['id' => 1, 'name' => 'Bebidas y Refrescos'],
-                (object) ['id' => 2, 'name' => 'Víveres y Granos'],
-                (object) ['id' => 3, 'name' => 'Charcutería y Lácteos'],
-                (object) ['id' => 4, 'name' => 'Limpieza e Higiene']
-            ]);
-            $products = collect([
-                (object) ['id' => 1, 'category_id' => 1, 'name' => 'Refresco Coca-Cola 2L', 'sku' => 'BEB-001', 'barcode' => '7591001001234', 'price_usd' => 2.50],
-                (object) ['id' => 2, 'category_id' => 2, 'name' => 'Harina PAN Blanca 1kg', 'sku' => 'VIV-001', 'barcode' => '7591002005678', 'price_usd' => 1.35],
-                (object) ['id' => 3, 'category_id' => 3, 'name' => 'Queso Paisa Blanco (Kg)', 'sku' => 'CHA-001', 'barcode' => '7591003009012', 'price_usd' => 7.80],
-                (object) ['id' => 4, 'category_id' => 2, 'name' => 'Arroz Primor Supremo 1kg', 'sku' => 'VIV-002', 'barcode' => '7591004003456', 'price_usd' => 1.50],
-                (object) ['id' => 5, 'category_id' => 1, 'name' => 'Jugo del Valle Manzana 1L', 'sku' => 'BEB-002', 'barcode' => '7591005007890', 'price_usd' => 1.80],
-                (object) ['id' => 6, 'category_id' => 4, 'name' => 'Detergente Las Llaves 1kg', 'sku' => 'LIM-001', 'barcode' => '7591006001122', 'price_usd' => 3.20]
-            ]);
-            $customers = collect([
-                (object) ['id' => 1, 'name' => 'Inversiones Los Chaguaramos C.A.', 'tax_id' => 'J-30987654-1'],
-                (object) ['id' => 2, 'name' => 'Juan Pérez (Cliente Detal)', 'tax_id' => 'V-18234567']
-            ]);
+            $tenant = (object) ['id' => 1, 'name' => 'Bodega & Abasto El Sol C.A.', 'bcv_rate' => $bcvRate];
+            $categories = Category::where('tenant_id', 1)->get();
+            $products = Product::where('tenant_id', 1)->where('is_active', true)->get();
+            $customers = Customer::where('tenant_id', 1)->get();
             $activeSession = (object) ['status' => 'open'];
         } else {
+            $tenant->bcv_rate = $bcvRate;
             $categories = Category::where('tenant_id', $tenant->id)->get();
             $products = Product::where('tenant_id', $tenant->id)->where('is_active', true)->get();
             $customers = Customer::where('tenant_id', $tenant->id)->get();
             $activeSession = CashSession::where('tenant_id', $tenant->id)->where('status', 'open')->first();
         }
 
-        return view('pos.index', compact('tenant', 'categories', 'products', 'customers', 'activeSession'));
+        return view('pos.index', compact('tenant', 'categories', 'products', 'customers', 'activeSession', 'bcvRate'));
     }
 
     public function store(Request $request)
     {
-        $tenant = Tenant::current();
+        $tenant = Tenant::current() ?? (object)['id' => 1, 'name' => 'Bodega & Abasto El Sol C.A.'];
+        $rates = DolarApiService::getRates();
+        $bcvRate = (float) GlobalSetting::get('bcv_usd_rate', $rates['bcv_usd']);
+
         $totalUsd = (float) $request->input('total_usd', 15.50);
         if ($totalUsd <= 0) {
             $totalUsd = 15.50;
         }
-        $totalVes = $totalUsd * ($tenant->bcv_rate ?? 52.40);
+        $totalVes = round($totalUsd * $bcvRate, 2);
 
         try {
             Sale::create([
                 'tenant_id' => $tenant->id,
                 'branch_id' => 1,
                 'user_id' => auth()->id() ?? 1,
-                'invoice_number' => 'VTA-' . date('Ymd') . '-' . rand(100, 999),
+                'sale_number' => 'VTA-' . date('Y') . '-' . str_pad((string)rand(1, 9999), 4, '0', STR_PAD_LEFT),
                 'total_usd' => $totalUsd,
                 'total_ves' => $totalVes,
-                'bcv_rate' => $tenant->bcv_rate ?? 52.40,
+                'exchange_rate_bcv' => $bcvRate,
                 'status' => 'completed',
-                'payment_method' => $request->input('payment_method', 'efectivo_usd'),
+                'payment_status' => 'paid',
+                'notes' => 'Pago vía ' . $request->input('payment_method', 'efectivo_usd'),
             ]);
         } catch (Exception $e) {
             // fallback

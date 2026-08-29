@@ -11,6 +11,11 @@ use App\Models\CashSession;
 use App\Models\BankAccount;
 use App\Models\Quote;
 use App\Models\StockTransfer;
+use App\Models\InventoryStock;
+use App\Models\ProductBatch;
+use App\Models\Payment;
+use App\Models\GlobalSetting;
+use App\Services\DolarApiService;
 use Illuminate\Http\Request;
 use Exception;
 
@@ -24,6 +29,11 @@ class DashboardController extends Controller
             $tenant = null;
         }
 
+        // Fetch Live DolarApi & BCV Exchange Rates
+        $rates = DolarApiService::getRates();
+        $bcvUsdRate = (float) GlobalSetting::get('bcv_usd_rate', $rates['bcv_usd']);
+        $bcvEurRate = (float) GlobalSetting::get('bcv_eur_rate', $rates['bcv_eur']);
+
         if (!$tenant) {
             $tenant = (object) [
                 'id' => 1,
@@ -32,7 +42,7 @@ class DashboardController extends Controller
                 'subdomain' => 'elsol',
                 'plan_tier' => 'pro',
                 'business_type' => 'abasto',
-                'bcv_rate' => 52.4000,
+                'bcv_rate' => $bcvUsdRate,
                 'parallel_rate' => 54.1000,
                 'igtf_percentage' => 3.00,
             ];
@@ -51,8 +61,21 @@ class DashboardController extends Controller
             $branches = Branch::where('tenant_id', $tenant->id)->get();
             $activeBranch = $branches->first();
             $salesTodayUsd = (float) Sale::where('tenant_id', $tenant->id)->sum('total_usd');
-            $salesTodayVes = $salesTodayUsd * ($tenant->bcv_rate ?? 52.40);
+            $salesTodayVes = $salesTodayUsd * $bcvUsdRate;
+            $salesTodayEur = $bcvEurRate > 0 ? ($salesTodayVes / $bcvEurRate) : ($salesTodayUsd * 0.92);
+
+            // Actual amounts received natively in each currency
+            $salesUsdReal = (float) Payment::where('tenant_id', $tenant->id)->where('currency', 'USD')->sum('amount_native');
+            if ($salesUsdReal == 0 && $salesTodayUsd > 0) {
+                $salesUsdReal = $salesTodayUsd;
+            }
+            $salesVesReal = (float) Payment::where('tenant_id', $tenant->id)->where('currency', 'VES')->sum('amount_native');
+            $salesEurReal = (float) Payment::where('tenant_id', $tenant->id)->where('currency', 'EUR')->sum('amount_native');
+
             $totalProductsCount = Product::where('tenant_id', $tenant->id)->count();
+            $barcodeProductsCount = Product::where('tenant_id', $tenant->id)->whereNotNull('barcode')->where('barcode', '!=', '')->count();
+            $totalStockUnits = (float) InventoryStock::where('tenant_id', $tenant->id)->sum('quantity');
+            $allProducts = Product::where('tenant_id', $tenant->id)->with('stocks.branch')->get();
             $totalDebtUsd = (float) Customer::where('tenant_id', $tenant->id)->sum('current_debt_usd');
             $activeCashSession = CashSession::where('tenant_id', $tenant->id)->where('status', 'open')->first();
             $bankAccounts = BankAccount::where('tenant_id', $tenant->id)->get();
@@ -66,8 +89,20 @@ class DashboardController extends Controller
             ]);
             $activeBranch = $branches->first();
             $salesTodayUsd = 450.80;
-            $salesTodayVes = $salesTodayUsd * 52.40;
-            $totalProductsCount = 42;
+            $salesTodayVes = $salesTodayUsd * $bcvUsdRate;
+            $salesTodayEur = $bcvEurRate > 0 ? ($salesTodayVes / $bcvEurRate) : ($salesTodayUsd * 0.92);
+            $salesUsdReal = 450.80;
+            $salesVesReal = 0.00;
+            $salesEurReal = 0.00;
+            $totalProductsCount = 4;
+            $barcodeProductsCount = 4;
+            $allProducts = collect([
+                (object) ['id' => 1, 'name' => 'Refresco Coca-Cola 2L', 'sku' => 'BEB-001', 'barcode' => '7591001001234', 'price_usd' => 2.50, 'stocks' => collect([(object)['branch' => (object)['name' => 'Altamira'], 'quantity' => 120]])],
+                (object) ['id' => 2, 'name' => 'Harina PAN Blanca 1kg', 'sku' => 'VIV-001', 'barcode' => '7591002005678', 'price_usd' => 1.35, 'stocks' => collect([(object)['branch' => (object)['name' => 'Altamira'], 'quantity' => 250]])],
+                (object) ['id' => 3, 'name' => 'Queso Paisa Blanco (Kg)', 'sku' => 'CHA-001', 'barcode' => '7591003009012', 'price_usd' => 7.80, 'stocks' => collect([(object)['branch' => (object)['name' => 'Altamira'], 'quantity' => 35.5]])],
+                (object) ['id' => 4, 'name' => 'Arroz Primor Supremo 1kg', 'sku' => 'VIV-002', 'barcode' => '7591004003456', 'price_usd' => 1.50, 'stocks' => collect([(object)['branch' => (object)['name' => 'Altamira'], 'quantity' => 180]])]
+            ]);
+            $totalStockUnits = 735.0;
             $totalDebtUsd = 350.00;
             $activeCashSession = (object) ['status' => 'open', 'initial_cash_usd' => 50.00, 'expected_cash_usd' => 250.00];
             $bankAccounts = collect([
@@ -76,16 +111,38 @@ class DashboardController extends Controller
                 (object) ['name' => 'Efectivo Caja USD Altamira', 'account_number' => 'CAJA-USD', 'currency' => 'USD', 'balance' => 850.00]
             ]);
             $recentSales = collect([
-                (object) ['sale_number' => 'VTA-2026-0001', 'total_usd' => 8.93, 'total_ves' => 467.93, 'customer' => (object) ['name' => 'Juan Pérez']],
-                (object) ['sale_number' => 'VTA-2026-0002', 'total_usd' => 15.50, 'total_ves' => 812.20, 'customer' => (object) ['name' => 'Inversiones Los Chaguaramos']],
-                (object) ['sale_number' => 'VTA-2026-0003', 'total_usd' => 4.20, 'total_ves' => 220.08, 'customer' => (object) ['name' => 'Cliente Detal']]
+                (object) ['sale_number' => 'VTA-2026-0001', 'total_usd' => 8.93, 'total_ves' => round(8.93 * $bcvUsdRate, 2), 'customer' => (object) ['name' => 'Juan Pérez']],
+                (object) ['sale_number' => 'VTA-2026-0002', 'total_usd' => 15.50, 'total_ves' => round(15.50 * $bcvUsdRate, 2), 'customer' => (object) ['name' => 'Inversiones Los Chaguaramos']],
+                (object) ['sale_number' => 'VTA-2026-0003', 'total_usd' => 4.20, 'total_ves' => round(4.20 * $bcvUsdRate, 2), 'customer' => (object) ['name' => 'Cliente Detal']]
             ]);
             $pendingQuotesCount = 3;
             $transfersInTransitCount = 1;
         }
 
+        // Calculate batch expiration alerts count for Abasto
+        try {
+            $batchAlertsCount = ProductBatch::where('tenant_id', $tenant->id)
+                ->whereDate('expiration_date', '<=', now()->addDays(30))
+                ->count();
+        } catch (Exception $e) {
+            $batchAlertsCount = 2;
+        }
+
+        // Calculate low stock products count (stock <= min_stock_alert)
+        try {
+            $lowStockProductsCount = $allProducts->filter(function ($product) {
+                $stockTotal = isset($product->stocks) && is_iterable($product->stocks)
+                    ? $product->stocks->sum('quantity')
+                    : ($product->stock ?? 0);
+                $minStock = (float) ($product->min_stock_alert ?? 10);
+                return $stockTotal <= $minStock;
+            })->count();
+        } catch (Exception $e) {
+            $lowStockProductsCount = 0;
+        }
+
         // Specialized Widget Context Data per Business Type
-        $businessWidgetsData = self::getBusinessWidgetsData($selectedTypeKey);
+        $businessWidgetsData = self::getBusinessWidgetsData($selectedTypeKey, $barcodeProductsCount, $batchAlertsCount, $lowStockProductsCount);
 
         return view('dashboard.index', compact(
             'tenant',
@@ -93,7 +150,16 @@ class DashboardController extends Controller
             'activeBranch',
             'salesTodayUsd',
             'salesTodayVes',
+            'salesTodayEur',
+            'salesUsdReal',
+            'salesVesReal',
+            'salesEurReal',
+            'bcvUsdRate',
+            'bcvEurRate',
             'totalProductsCount',
+            'barcodeProductsCount',
+            'allProducts',
+            'totalStockUnits',
             'totalDebtUsd',
             'activeCashSession',
             'bankAccounts',
@@ -103,11 +169,13 @@ class DashboardController extends Controller
             'allBusinessTypes',
             'selectedTypeKey',
             'currentBusinessType',
-            'businessWidgetsData'
+            'businessWidgetsData',
+            'batchAlertsCount',
+            'lowStockProductsCount'
         ));
     }
 
-    private static function getBusinessWidgetsData(string $type): array
+    private static function getBusinessWidgetsData(string $type, int $barcodeCount = 4, int $batchAlertsCount = 2, int $lowStockCount = 0): array
     {
         switch ($type) {
             case 'restaurante':
@@ -179,8 +247,9 @@ class DashboardController extends Controller
                 ];
             default: // abasto
                 return [
-                    'scans_per_minute' => 14,
-                    'perishables_warning' => 4,
+                    'barcode_products_count' => $barcodeCount,
+                    'perishables_warning' => $batchAlertsCount,
+                    'low_stock_count' => $lowStockCount,
                     'dual_bcv_active' => true,
                 ];
         }

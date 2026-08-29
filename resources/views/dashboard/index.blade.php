@@ -39,159 +39,198 @@
         </div>
 
         <!-- 4 Core Pillars Navigation Bar -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 pt-3 border-t border-slate-800/80">
-            <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">1</div>
-                <div>
-                    <div class="text-xs font-bold text-slate-200">Ventas & Caja</div>
-                    <div class="text-[10px] text-slate-400 truncate">
-                        {{ $selectedTypeKey === 'restaurante' ? 'Cobrar, Mesas & Comandero' : ($selectedTypeKey === 'carniceria_hortalizas' ? 'Balanza Kilos & POS' : 'Cobrar & Devoluciones') }}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 pt-3 border-t border-slate-800/80">
+            <!-- 1. Ventas y Caja -->
+            <a href="{{ route('pos.index') }}" class="group p-2.5 rounded-xl bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 hover:border-emerald-500/50 transition-all duration-200 flex items-center gap-2.5 cursor-pointer shadow-sm hover:shadow-emerald-500/10 hover:-translate-y-0.5">
+                <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/30 group-hover:scale-110 transition-all flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">1</div>
+                <div class="min-w-0 flex-1">
+                    <div class="text-xs font-bold text-slate-200 group-hover:text-emerald-400 transition-colors flex items-center justify-between">
+                        <span class="truncate">Ventas y Caja</span>
+                        <svg class="w-3 h-3 text-emerald-400 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-1 group-hover:translate-x-0 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                    <div class="text-[10px] text-slate-400 truncate group-hover:text-slate-300">
+                        {{ $selectedTypeKey === 'restaurante' ? 'Cobrar, Mesas y Comandero' : ($selectedTypeKey === 'carniceria_hortalizas' ? 'Balanza Kilos y POS' : 'Cobrar y Devoluciones') }}
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs">2</div>
-                <div>
-                    <div class="text-xs font-bold text-slate-200">Inventario</div>
-                    <div class="text-[10px] text-slate-400 truncate">
-                        {{ $selectedTypeKey === 'restaurante' ? 'Recetas & Insumos' : ($selectedTypeKey === 'ropa' ? 'Tallas & Colores' : ($selectedTypeKey === 'tecnologia_electro' ? 'Seriales & IMEIs' : 'Stock & Lotes')) }}
+            <!-- 2. Inventario -->
+            <a href="{{ route('inventory.index') }}" class="group p-2.5 rounded-xl bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 hover:border-purple-500/50 transition-all duration-200 flex items-center gap-2.5 cursor-pointer shadow-sm hover:shadow-purple-500/10 hover:-translate-y-0.5">
+                <div class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 group-hover:bg-purple-500/30 group-hover:scale-110 transition-all flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">2</div>
+                <div class="min-w-0 flex-1">
+                    <div class="text-xs font-bold text-slate-200 group-hover:text-purple-400 transition-colors flex items-center justify-between">
+                        <span class="truncate">Inventario</span>
+                        <svg class="w-3 h-3 text-purple-400 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-1 group-hover:translate-x-0 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                    <div class="text-[10px] text-slate-400 truncate group-hover:text-slate-300">
+                        {{ $selectedTypeKey === 'restaurante' ? 'Recetas e Insumos' : ($selectedTypeKey === 'ropa' ? 'Tallas y Colores' : ($selectedTypeKey === 'tecnologia_electro' ? 'Seriales e IMEIs' : 'Stock y Lotes')) }}
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">3</div>
-                <div>
-                    <div class="text-xs font-bold text-slate-200">Gastos & Reportes</div>
-                    <div class="text-[10px] text-slate-400 truncate">Flujo Real, CXC & CXP</div>
+            <!-- 3. Gastos y Reportes -->
+            <a href="{{ route('cxc.index') }}" class="group p-2.5 rounded-xl bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 hover:border-amber-500/50 transition-all duration-200 flex items-center gap-2.5 cursor-pointer shadow-sm hover:shadow-amber-500/10 hover:-translate-y-0.5">
+                <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 group-hover:bg-amber-500/30 group-hover:scale-110 transition-all flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">3</div>
+                <div class="min-w-0 flex-1">
+                    <div class="text-xs font-bold text-slate-200 group-hover:text-amber-400 transition-colors flex items-center justify-between">
+                        <span class="truncate">Gastos y Reportes</span>
+                        <svg class="w-3 h-3 text-amber-400 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-1 group-hover:translate-x-0 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                    <div class="text-[10px] text-slate-400 truncate group-hover:text-slate-300">Flujo Real, CXC y CXP</div>
                 </div>
-            </div>
+            </a>
 
-            <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs">4</div>
-                <div>
-                    <div class="text-xs font-bold text-slate-200">Configuración & Equipo</div>
-                    <div class="text-[10px] text-slate-400 truncate">Usuarios & Comisiones</div>
+            <!-- 4. Configuración y Equipo -->
+            <a href="{{ route('reports.index') }}" class="group p-2.5 rounded-xl bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 hover:border-indigo-500/50 transition-all duration-200 flex items-center gap-2.5 cursor-pointer shadow-sm hover:shadow-indigo-500/10 hover:-translate-y-0.5">
+                <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 group-hover:bg-indigo-500/30 group-hover:scale-110 transition-all flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">4</div>
+                <div class="min-w-0 flex-1">
+                    <div class="text-xs font-bold text-slate-200 group-hover:text-indigo-400 transition-colors flex items-center justify-between">
+                        <span class="truncate">Configuración y Equipo</span>
+                        <svg class="w-3 h-3 text-indigo-400 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-1 group-hover:translate-x-0 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                    <div class="text-[10px] text-slate-400 truncate group-hover:text-slate-300">Usuarios y Comisiones</div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
-    <!-- Specialized KPI Cards customized per Business Type -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Main KPI Cards: 3 Key Financial & Inventory Pillars -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        <!-- Card 1: Ventas Totales Hoy -->
-        <div class="glass-card glass-card-hover p-4 rounded-xl space-y-2">
+        <!-- Card 1: Ventas Totales Hoy (Interactive Currency Switcher: USD / BCV / EUR) -->
+        <div x-data="{ currency: 'usd' }" class="glass-card glass-card-hover p-4 rounded-xl space-y-2.5 block relative">
             <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
-                <span>Ventas Totales Hoy</span>
-                <span class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                </span>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-white font-semibold">Ventas Totales Hoy</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" title="Tasa Oficial BCV En Vivo"></span>
+                </div>
+
+                <!-- Currency Selector Pills (USD / BCV / EUR) -->
+                <div class="flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[10px] font-mono z-10" @click.stop>
+                    <button type="button" 
+                            @click="currency = 'usd'" 
+                            :class="currency === 'usd' ? 'bg-indigo-600 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+                            class="px-2 py-0.5 rounded-md transition-all cursor-pointer">
+                        USD
+                    </button>
+                    <button type="button" 
+                            @click="currency = 'ves'" 
+                            :class="currency === 'ves' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+                            class="px-2 py-0.5 rounded-md transition-all cursor-pointer">
+                        BCV (Bs)
+                    </button>
+                    <button type="button" 
+                            @click="currency = 'eur'" 
+                            :class="currency === 'eur' ? 'bg-sky-600 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+                            class="px-2 py-0.5 rounded-md transition-all cursor-pointer">
+                        EUR (€)
+                    </button>
+                </div>
             </div>
-            <div class="text-2xl font-extrabold text-white font-display">${{ number_format($salesTodayUsd, 2) }} <span class="text-xs font-normal text-slate-400 font-sans">USD</span></div>
-            <div class="text-xs font-mono text-emerald-400">Bs {{ number_format($salesTodayVes, 2) }} VES</div>
+
+            <!-- Dynamic View by Currency & Direct Link to POS -->
+            <a href="{{ route('pos.index') }}" class="block space-y-2 group">
+                <!-- 1. USD Selected View (Shows amount in USD & equivalence in Bs via BCV API) -->
+                <div x-show="currency === 'usd'" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-y-0.5" x-transition:enter-end="opacity-100 translate-y-0">
+                    <div class="text-2xl font-extrabold text-white font-display">${{ number_format($salesUsdReal, 2) }} <span class="text-xs font-normal text-slate-400 font-sans">USD</span></div>
+                    <div class="flex items-center justify-between text-xs font-mono pt-1.5 border-t border-slate-800/60 mt-1.5">
+                        <span class="text-emerald-400 font-semibold">Equivale a: Bs {{ number_format($salesUsdReal * $bcvUsdRate, 2) }} VES</span>
+                        <span class="text-slate-400 text-[10px]">Tasa: {{ number_format($bcvUsdRate, 2) }}</span>
+                    </div>
+                </div>
+
+                <!-- 2. VES (BCV) Selected View (Shows actual Bolivares earned) -->
+                <div x-show="currency === 'ves'" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-y-0.5" x-transition:enter-end="opacity-100 translate-y-0">
+                    <div class="text-2xl font-extrabold text-emerald-400 font-display">Bs {{ number_format($salesVesReal, 2) }} <span class="text-xs font-normal text-slate-400 font-sans">VES</span></div>
+                </div>
+
+                <!-- 3. EUR Selected View (Shows Euros earned & equivalence in Bs via Euro BCV API) -->
+                <div x-show="currency === 'eur'" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-y-0.5" x-transition:enter-end="opacity-100 translate-y-0">
+                    <div class="text-2xl font-extrabold text-sky-400 font-display">€{{ number_format($salesEurReal, 2) }} <span class="text-xs font-normal text-slate-400 font-sans">EUR</span></div>
+                    <div class="flex items-center justify-between text-xs font-mono pt-1.5 border-t border-slate-800/60 mt-1.5">
+                        <span class="text-sky-300 font-medium">
+                            @if($salesEurReal > 0)
+                                Equivale a: Bs {{ number_format($salesEurReal * $bcvEurRate, 2) }} VES
+                            @else
+                                Sin cobros en Euros registrados hoy
+                            @endif
+                        </span>
+                        <span class="text-slate-400 text-[10px]">Tasa Euro: {{ number_format($bcvEurRate, 2) }}</span>
+                    </div>
+                </div>
+            </a>
         </div>
 
-        <!-- Card 2: Specialized Metric 1 -->
-        <div class="glass-card glass-card-hover p-4 rounded-xl space-y-2">
+        <!-- Card 2: Cantidad de Productos en Stock (Unified Clickable Inventory Card) -->
+        <a href="{{ route('inventory.index') }}" class="glass-card glass-card-hover p-4 rounded-xl space-y-2 block cursor-pointer group">
             <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
-                @if($selectedTypeKey === 'restaurante')
-                    <span>Mesas en Atención</span>
-                    <span class="p-1.5 rounded-lg bg-rose-500/10 text-rose-400">🍽️</span>
-                @elseif($selectedTypeKey === 'ropa')
-                    <span>Variantes de Talla & Color</span>
-                    <span class="p-1.5 rounded-lg bg-pink-500/10 text-pink-400">👗</span>
-                @elseif($selectedTypeKey === 'carniceria_hortalizas')
-                    <span>Kilos Vendidos Hoy</span>
-                    <span class="p-1.5 rounded-lg bg-red-500/10 text-red-400">🥩</span>
-                @elseif($selectedTypeKey === 'tecnologia_electro')
-                    <span>Seriales / IMEIs Registrados</span>
-                    <span class="p-1.5 rounded-lg bg-teal-500/10 text-teal-400">💻</span>
-                @elseif($selectedTypeKey === 'servicios')
-                    <span>Citas Agendadas Hoy</span>
-                    <span class="p-1.5 rounded-lg bg-violet-500/10 text-violet-400">🛠️</span>
-                @elseif($selectedTypeKey === 'distribuidor')
-                    <span>Volumen Mayorista</span>
-                    <span class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400">🚚</span>
-                @elseif($selectedTypeKey === 'fabricante')
-                    <span>Órdenes de Producción</span>
-                    <span class="p-1.5 rounded-lg bg-purple-500/10 text-purple-400">🏭</span>
-                @elseif($selectedTypeKey === 'licoreria')
-                    <span>Botellas & Cajas Vendidas</span>
-                    <span class="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">🍾</span>
-                @elseif($selectedTypeKey === 'repuestos')
-                    <span>Búsquedas por Vehículo</span>
-                    <span class="p-1.5 rounded-lg bg-orange-500/10 text-orange-400">🔧</span>
-                @else
-                    <span>Rotación de Inventario</span>
-                    <span class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">🛒</span>
-                @endif
-            </div>
-
-            <div class="text-2xl font-extrabold text-white font-display">
-                @if($selectedTypeKey === 'restaurante')
-                    {{ $businessWidgetsData['tables_occupied'] }} / {{ $businessWidgetsData['tables_total'] }} <span class="text-xs font-normal text-slate-400 font-sans">Mesas</span>
-                @elseif($selectedTypeKey === 'ropa')
-                    {{ $businessWidgetsData['variants_count'] }} <span class="text-xs font-normal text-slate-400 font-sans">SKUs Talla/Color</span>
-                @elseif($selectedTypeKey === 'carniceria_hortalizas')
-                    {{ $businessWidgetsData['total_kg_sold_today'] }} <span class="text-xs font-normal text-slate-400 font-sans">Kg</span>
-                @elseif($selectedTypeKey === 'tecnologia_electro')
-                    {{ $businessWidgetsData['imei_registered_today'] }} <span class="text-xs font-normal text-slate-400 font-sans">Dispositivos</span>
-                @elseif($selectedTypeKey === 'servicios')
-                    {{ $businessWidgetsData['appointments_today'] }} <span class="text-xs font-normal text-slate-400 font-sans">Clientes</span>
-                @elseif($selectedTypeKey === 'distribuidor')
-                    ${{ number_format($businessWidgetsData['wholesale_volume_usd'], 2) }} <span class="text-xs font-normal text-slate-400 font-sans">USD</span>
-                @elseif($selectedTypeKey === 'fabricante')
-                    {{ $businessWidgetsData['active_production_orders'] }} <span class="text-xs font-normal text-slate-400 font-sans">Lotes</span>
-                @elseif($selectedTypeKey === 'licoreria')
-                    {{ $businessWidgetsData['bottles_sold_today'] }} <span class="text-xs font-normal text-slate-400 font-sans">Bot / {{ $businessWidgetsData['cases_sold_today'] }} Cajas</span>
-                @elseif($selectedTypeKey === 'repuestos')
-                    {{ $businessWidgetsData['oem_matches_count'] }} <span class="text-xs font-normal text-slate-400 font-sans">Códigos OEM</span>
-                @else
-                    {{ $businessWidgetsData['scans_per_minute'] ?? 14 }} <span class="text-xs font-normal text-slate-400 font-sans">items/min</span>
-                @endif
-            </div>
-
-            <div class="text-xs text-indigo-400">
-                @if($selectedTypeKey === 'restaurante')
-                    {{ $businessWidgetsData['kitchen_orders'] }} comanda(s) en cocina
-                @elseif($selectedTypeKey === 'ropa')
-                    Talla 'M' es la más vendida (42%)
-                @elseif($selectedTypeKey === 'carniceria_hortalizas')
-                    Control de merma: {{ $businessWidgetsData['waste_percentage'] }}
-                @elseif($selectedTypeKey === 'tecnologia_electro')
-                    {{ $businessWidgetsData['warranties_issued'] }} garantías activas emitidas
-                @elseif($selectedTypeKey === 'servicios')
-                    {{ $businessWidgetsData['billable_hours'] }} facturables
-                @else
-                    Métricas ajustadas al rubro
-                @endif
-            </div>
-        </div>
-
-        <!-- Card 3: Productos / Insumos / Catalogo -->
-        <div class="glass-card glass-card-hover p-4 rounded-xl space-y-2">
-            <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
-                <span>Catálogo & Stock Activo</span>
-                <span class="p-1.5 rounded-lg bg-purple-500/10 text-purple-400">
+                <span class="group-hover:text-white transition-colors">Cantidad de Productos en Stock</span>
+                <span class="p-1.5 rounded-lg bg-purple-500/10 text-purple-400 group-hover:bg-purple-500/20 transition-all">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                 </span>
             </div>
-            <div class="text-2xl font-extrabold text-white font-display">{{ $totalProductsCount }} <span class="text-xs font-normal text-slate-400 font-sans">Ítems</span></div>
-            <div class="text-xs text-amber-400">Stock controlado en sucursal</div>
-        </div>
-
-        <!-- Card 4: Cuentas por Cobrar (CXC) -->
-        <div class="glass-card glass-card-hover p-4 rounded-xl space-y-2">
-            <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
-                <span>Cuentas por Cobrar (CXC)</span>
-                <span class="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                </span>
+            <div class="text-2xl font-extrabold text-white font-display">{{ $totalProductsCount }} <span class="text-xs font-normal text-slate-400 font-sans">Productos</span></div>
+            <div class="text-xs text-purple-400 flex items-center gap-1.5 pt-1 border-t border-slate-800/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                <span>{{ number_format($totalStockUnits, 1) }} unidades totales en stock</span>
             </div>
-            <div class="text-2xl font-extrabold text-white font-display">${{ number_format($totalDebtUsd, 2) }} <span class="text-xs font-normal text-slate-400 font-sans">USD</span></div>
-            <div class="text-xs text-slate-400">Créditos de clientes vigentes</div>
+        </a>
+
+        <!-- Card 3: Cuentas por Cobrar (CXC - Interactive Currency Switcher) -->
+        <div x-data="{ currency: 'usd' }" class="glass-card glass-card-hover p-4 rounded-xl space-y-2.5 block relative">
+            <div class="flex items-center justify-between text-slate-400 text-xs font-medium">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-white font-semibold">Cuentas por Cobrar (CXC)</span>
+                </div>
+
+                <!-- Currency Selector Pills (USD / BCV / EUR) -->
+                <div class="flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[10px] font-mono z-10" @click.stop>
+                    <button type="button" 
+                            @click="currency = 'usd'" 
+                            :class="currency === 'usd' ? 'bg-indigo-600 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+                            class="px-2 py-0.5 rounded-md transition-all cursor-pointer">
+                        USD
+                    </button>
+                    <button type="button" 
+                            @click="currency = 'ves'" 
+                            :class="currency === 'ves' ? 'bg-amber-600 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+                            class="px-2 py-0.5 rounded-md transition-all cursor-pointer">
+                        BCV (Bs)
+                    </button>
+                    <button type="button" 
+                            @click="currency = 'eur'" 
+                            :class="currency === 'eur' ? 'bg-sky-600 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+                            class="px-2 py-0.5 rounded-md transition-all cursor-pointer">
+                        EUR (€)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dynamic View by Currency & Direct Link to CXC -->
+            <a href="{{ route('cxc.index') }}" class="block space-y-2 group">
+                <!-- 1. USD View -->
+                <div x-show="currency === 'usd'" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-y-0.5" x-transition:enter-end="opacity-100 translate-y-0">
+                    <div class="text-2xl font-extrabold text-white font-display">${{ number_format($totalDebtUsd, 2) }} <span class="text-xs font-normal text-slate-400 font-sans">USD</span></div>
+                    <div class="flex items-center justify-between text-xs font-mono pt-1.5 border-t border-slate-800/60 mt-1.5">
+                        <span class="text-amber-400 font-semibold">Equivale a: Bs {{ number_format($totalDebtUsd * $bcvUsdRate, 2) }} VES</span>
+                        <span class="text-slate-400 text-[10px]">Tasa: {{ number_format($bcvUsdRate, 2) }}</span>
+                    </div>
+                </div>
+
+                <!-- 2. VES (BCV) View (Clean without footer row) -->
+                <div x-show="currency === 'ves'" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-y-0.5" x-transition:enter-end="opacity-100 translate-y-0">
+                    <div class="text-2xl font-extrabold text-amber-400 font-display">Bs {{ number_format($totalDebtUsd * $bcvUsdRate, 2) }} <span class="text-xs font-normal text-slate-400 font-sans">VES</span></div>
+                </div>
+
+                <!-- 3. EUR View -->
+                <div x-show="currency === 'eur'" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-y-0.5" x-transition:enter-end="opacity-100 translate-y-0">
+                    <div class="text-2xl font-extrabold text-sky-400 font-display">€{{ number_format($bcvEurRate > 0 ? ($totalDebtUsd * $bcvUsdRate / $bcvEurRate) : ($totalDebtUsd * 0.92), 2) }} <span class="text-xs font-normal text-slate-400 font-sans">EUR</span></div>
+                    <div class="flex items-center justify-between text-xs font-mono pt-1.5 border-t border-slate-800/60 mt-1.5">
+                        <span class="text-sky-300 font-medium">Equivale a: Bs {{ number_format($totalDebtUsd * $bcvUsdRate, 2) }} VES</span>
+                        <span class="text-slate-400 text-[10px]">Tasa Euro: {{ number_format($bcvEurRate, 2) }}</span>
+                    </div>
+                </div>
+            </a>
         </div>
     </div>
 
@@ -413,20 +452,58 @@
             </div>
 
         @else
-            <!-- ABASTO / DEFAULT: Fast POS Metrics -->
+            <!-- ABASTO / DEFAULT: Fast POS Metrics & Barcode Scanner Tool -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
-                    <div class="font-bold text-white">Escáner POS de Código de Barras</div>
-                    <div class="text-2xl font-extrabold text-emerald-400 font-mono">{{ $businessWidgetsData['scans_per_minute'] ?? 14 }} escaneos/min</div>
-                </div>
-                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
-                    <div class="font-bold text-white">Control de Vencimientos</div>
-                    <div class="text-2xl font-extrabold text-amber-400 font-mono">{{ $businessWidgetsData['perishables_warning'] ?? 4 }} Alertas de Lote</div>
-                </div>
-                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
-                    <div class="font-bold text-white">Doble Tasa Integrada (BCV)</div>
-                    <div class="text-2xl font-extrabold text-indigo-400 font-mono">Activo (USD / VES)</div>
-                </div>
+                <!-- Interactive Barcode Scanner Card (Navigates to dedicated /scanner module) -->
+                <a href="{{ route('scanner.index') }}" class="bg-slate-900/60 hover:bg-slate-800/80 p-4 rounded-xl border border-slate-800 hover:border-indigo-500/50 space-y-2 text-left transition-all group cursor-pointer w-full shadow-sm hover:shadow-indigo-500/10 block">
+                    <div class="flex items-center justify-between text-slate-400">
+                        <span class="font-bold text-white group-hover:text-indigo-400 transition-colors flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                            Escáner de Código de Barras
+                        </span>
+                    </div>
+                    <div class="text-2xl font-extrabold text-emerald-400 font-mono">
+                        {{ $barcodeProductsCount }} <span class="text-xs font-normal text-slate-400 font-sans">Productos con Barcode</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>Haz clic para escanear y verificar precios / stock</span>
+                    </div>
+                </a>
+
+                <!-- Control de Vencimientos / Lotes Card (Navigates to /batches) -->
+                <a href="{{ route('batches.index') }}" class="bg-slate-900/60 hover:bg-slate-800/80 p-4 rounded-xl border border-slate-800 hover:border-amber-500/50 space-y-2 text-left transition-all group cursor-pointer w-full shadow-sm hover:shadow-amber-500/10 block">
+                    <div class="flex items-center justify-between text-slate-400">
+                        <span class="font-bold text-white group-hover:text-amber-400 transition-colors flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Control de Vencimientos
+                        </span>
+                    </div>
+                    <div class="text-2xl font-extrabold text-amber-400 font-mono">
+                        {{ $batchAlertsCount }} <span class="text-xs font-normal text-slate-400 font-sans">Alertas de Lote</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full {{ $batchAlertsCount > 0 ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400' }}"></span>
+                        <span>Haz clic para ver y registrar lotes / caducidad</span>
+                    </div>
+                </a>
+
+                <!-- Stock Bajo y Por Agotarse Card (Navigates to /inventory) -->
+                <a href="{{ route('inventory.index') }}" class="bg-slate-900/60 hover:bg-slate-800/80 p-4 rounded-xl border border-slate-800 hover:border-rose-500/50 space-y-2 text-left transition-all group cursor-pointer w-full shadow-sm hover:shadow-rose-500/10 block">
+                    <div class="flex items-center justify-between text-slate-400">
+                        <span class="font-bold text-white group-hover:text-rose-400 transition-colors flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                            Stock Bajo y Por Agotarse
+                        </span>
+                    </div>
+                    <div class="text-2xl font-extrabold {{ $lowStockProductsCount > 0 ? 'text-rose-400' : 'text-emerald-400' }} font-mono">
+                        {{ $lowStockProductsCount }} <span class="text-xs font-normal text-slate-400 font-sans">Productos con Alerta</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full {{ $lowStockProductsCount > 0 ? 'bg-rose-400 animate-pulse' : 'bg-emerald-400' }}"></span>
+                        <span>Haz clic para revisar y reponer stock</span>
+                    </div>
+                </a>
             </div>
         @endif
     </div>
@@ -434,32 +511,8 @@
     <!-- Main Shared Ledger Grid: Cash Turn & Bank Balances -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- Column 1 & 2: Active Cash Session & Recent Sales -->
+        <!-- Column 1 & 2: Recent Sales Ledger -->
         <div class="lg:col-span-2 space-y-6">
-            <!-- Active Cash Drawer Status -->
-            <div class="glass-card p-5 rounded-xl space-y-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></div>
-                        <h3 class="font-bold text-white text-base">Estado de Caja en Turno</h3>
-                    </div>
-                    <span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-mono rounded-md border border-emerald-500/30">ABIERTA</span>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                        <div class="text-slate-400">Monto Inicial en Turno</div>
-                        <div class="text-sm font-bold text-slate-200 mt-1">$50.00 USD / Bs 1,000</div>
-                    </div>
-                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                        <div class="text-slate-400">Ventas en Efectivo USD</div>
-                        <div class="text-sm font-bold text-emerald-400 mt-1">$200.00 USD</div>
-                    </div>
-                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-                        <div class="text-slate-400">Total Esperado en Arqueo</div>
-                        <div class="text-sm font-bold text-indigo-400 mt-1">$250.00 USD / Bs 5,000</div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Recent Sales Ledger -->
             <div class="glass-card rounded-xl border border-slate-800 overflow-hidden">
@@ -483,7 +536,14 @@
                                     <td class="p-3 font-mono font-bold text-white">{{ $sale->sale_number ?? 'VTA-001' }}</td>
                                     <td class="p-3">{{ $sale->customer->name ?? 'Cliente Detal' }}</td>
                                     <td class="p-3 text-emerald-400 font-bold font-mono">${{ number_format($sale->total_usd ?? 0, 2) }}</td>
-                                    <td class="p-3 text-slate-400 font-mono">Bs {{ number_format($sale->total_ves ?? 0, 2) }}</td>
+                                    <td class="p-3 text-indigo-300 font-mono font-semibold">
+                                        @php
+                                            $vesAmount = ($sale->total_ves && $sale->total_ves > 0 && ($sale->total_ves / max(0.01, (float)($sale->total_usd ?? 1))) >= 100) 
+                                                ? (float)$sale->total_ves 
+                                                : (((float)($sale->total_usd ?? 0)) * $bcvUsdRate);
+                                        @endphp
+                                        Bs {{ number_format($vesAmount, 2) }}
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>

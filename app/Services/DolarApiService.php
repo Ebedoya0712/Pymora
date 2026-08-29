@@ -13,15 +13,15 @@ class DolarApiService
     public static function getRates(bool $forceRefresh = false): array
     {
         if ($forceRefresh) {
-            Cache::forget('dolar_api_rates_v3');
+            Cache::forget('dolar_api_rates_v4');
         }
 
-        return Cache::remember('dolar_api_rates_v3', 300, function () {
-            $bcvUsd = 784.66;
-            $bcvEur = 916.01;
+        return Cache::remember('dolar_api_rates_v4', 180, function () {
+            $bcvUsd = 791.67;
+            $bcvEur = 921.88;
 
             try {
-                $usdResponse = Http::timeout(5)->get(self::USD_URL);
+                $usdResponse = Http::withoutVerifying()->timeout(8)->get(self::USD_URL);
                 if ($usdResponse->successful()) {
                     $usdData = $usdResponse->json();
                     if (isset($usdData['promedio'])) {
@@ -31,7 +31,7 @@ class DolarApiService
             } catch (\Exception $e) {}
 
             try {
-                $eurResponse = Http::timeout(5)->get(self::EUR_URL);
+                $eurResponse = Http::withoutVerifying()->timeout(8)->get(self::EUR_URL);
                 if ($eurResponse->successful()) {
                     $eurData = $eurResponse->json();
                     if (isset($eurData['promedio'])) {
