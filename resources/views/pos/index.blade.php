@@ -101,14 +101,71 @@
             </div>
         </div>
 
-        <!-- Customer Selector -->
-        <div class="px-3.5 py-2 bg-slate-900/60 border-b border-slate-800">
-            <select x-model="selectedCustomerId" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-medium">
-                <option value="">-- Cliente Contado (General) --</option>
-                @foreach($customers as $c)
-                <option value="{{ $c->id }}">{{ $c->name }} ({{ $c->tax_id }})</option>
-                @endforeach
-            </select>
+        <!-- 2. SUPERMARKET CUSTOMER LOOKUP & QUICK REGISTRATION -->
+        <div class="px-3.5 py-2.5 bg-slate-900/80 border-b border-slate-800 space-y-1.5" x-data="{ customerDropdownOpen: false }">
+            <div class="flex items-center justify-between">
+                <label class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Cliente de la Venta</label>
+                <button type="button" @click="openQuickCustomerModal()" class="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer">
+                    <span>+ Nuevo Cliente</span>
+                </button>
+            </div>
+
+            <!-- Customer Search Input / Selected Badge -->
+            <div class="relative">
+                <template x-if="!selectedCustomer">
+                    <div class="relative">
+                        <input type="text" 
+                               x-model="customerQuery" 
+                               @focus="customerDropdownOpen = true"
+                               @click.away="customerDropdownOpen = false"
+                               placeholder="🔍 Cédula, RIF o Nombre..." 
+                               class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono">
+                        
+                        <!-- Dropdown list of matching customers -->
+                        <div x-show="customerDropdownOpen" 
+                             class="absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-40 max-h-48 overflow-y-auto divide-y divide-slate-800">
+                            
+                            <!-- Consumidor Final Option -->
+                            <button type="button" @click="selectCustomer(null); customerDropdownOpen = false" class="w-full text-left p-2 hover:bg-slate-800 flex items-center justify-between text-xs transition-colors">
+                                <span class="font-bold text-slate-200">-- Cliente Contado (General) --</span>
+                                <span class="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400">Consumidor Final</span>
+                            </button>
+
+                            <template x-for="c in filteredCustomers" :key="c.id">
+                                <button type="button" @click="selectCustomer(c); customerDropdownOpen = false" class="w-full text-left p-2 hover:bg-slate-800 flex items-center justify-between text-xs transition-colors">
+                                    <div>
+                                        <div class="font-bold text-slate-100" x-text="c.name"></div>
+                                        <div class="text-[10px] font-mono text-indigo-400" x-text="c.tax_id + (c.phone ? ' • ' + c.phone : '')"></div>
+                                    </div>
+                                    <span class="text-[9px] font-bold text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/40" x-text="c.customer_type || 'Cliente'"></span>
+                                </button>
+                            </template>
+
+                            <template x-if="filteredCustomers.length === 0 && customerQuery.length > 0">
+                                <div class="p-3 text-center text-slate-400 text-xs">
+                                    No existe cliente registrado.<br>
+                                    <button type="button" @click="openQuickCustomerModal(customerQuery); customerDropdownOpen = false" class="mt-1 text-indigo-400 font-bold hover:underline">Registrar "<span x-text="customerQuery"></span>" ahora</button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Selected Customer Card -->
+                <template x-if="selectedCustomer">
+                    <div class="flex items-center justify-between p-2 bg-indigo-950/60 border border-indigo-500/40 rounded-lg text-xs">
+                        <div>
+                            <div class="font-bold text-indigo-200 flex items-center gap-1.5">
+                                <span>👤</span> <span x-text="selectedCustomer.name"></span>
+                            </div>
+                            <div class="text-[10px] font-mono text-indigo-400" x-text="selectedCustomer.tax_id + (selectedCustomer.phone ? ' • ' + selectedCustomer.phone : '')"></div>
+                        </div>
+                        <button type="button" @click="selectCustomer(null)" class="p-1 rounded-md text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                </template>
+            </div>
         </div>
 
         <!-- Cart Items List -->
@@ -234,7 +291,7 @@
             <!-- Modal Content Body -->
             <form action="{{ route('pos.store') }}" method="POST" class="p-5 overflow-y-auto space-y-4 text-xs">
                 @csrf
-                <input type="hidden" name="customer_id" :value="selectedCustomerId">
+                <input type="hidden" name="customer_id" :value="selectedCustomer ? selectedCustomer.id : ''">
                 <input type="hidden" name="total_usd" :value="totalUsd">
                 <input type="hidden" name="items_json" :value="JSON.stringify(cart)">
                 <input type="hidden" name="currency" :value="payCurrency">
@@ -242,6 +299,12 @@
                 <input type="hidden" name="amount_received_native" :value="amountReceived">
                 <input type="hidden" name="change_due_ves" :value="changeDueVes">
                 <input type="hidden" name="change_due_usd" :value="changeDueUsd">
+
+                <!-- Selected Customer Banner inside Modal -->
+                <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <div class="text-slate-400">Cliente de la Venta:</div>
+                    <div class="font-bold text-indigo-300 font-mono" x-text="selectedCustomer ? selectedCustomer.name + ' (' + selectedCustomer.tax_id + ')' : 'Consumidor Final (Cliente Contado)'"></div>
+                </div>
 
                 <!-- Totals Breakdown Widget -->
                 <div class="grid grid-cols-3 gap-2 p-3 bg-slate-950 rounded-xl border border-slate-800 text-center">
@@ -388,6 +451,74 @@
         </div>
     </div>
 
+    <!-- Quick Create Customer Modal -->
+    <div x-show="showQuickCustomerModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-95"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+         style="display: none;">
+        <div class="glass-card w-full max-w-md rounded-2xl border border-slate-800 shadow-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold">
+                        👤
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-sm font-display">Registrar Nuevo Cliente</h3>
+                        <p class="text-[10px] text-slate-400">Agrega el cliente al sistema para esta y futuras ventas</p>
+                    </div>
+                </div>
+                <button @click="showQuickCustomerModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form @submit.prevent="saveQuickCustomer()" class="space-y-3 text-xs">
+                <div>
+                    <label class="font-bold text-slate-300 block mb-1">Cédula o RIF <span class="text-rose-400">*</span></label>
+                    <input type="text" x-model="newCustomer.tax_id" required placeholder="Ej: V-18234567 o J-30987654-1" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-mono uppercase focus:border-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="font-bold text-slate-300 block mb-1">Nombre Completo o Razón Social <span class="text-rose-400">*</span></label>
+                    <input type="text" x-model="newCustomer.name" required placeholder="Ej: Juan Pérez" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="font-bold text-slate-300 block mb-1">Teléfono</label>
+                        <input type="text" x-model="newCustomer.phone" placeholder="Ej: 0412-1234567" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white font-mono focus:border-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-300 block mb-1">Tipo de Cliente</label>
+                        <select x-model="newCustomer.customer_type" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                            <option value="retail">Natural / Detal</option>
+                            <option value="b2b">Jurídico / Mayor</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="font-bold text-slate-300 block mb-1">Dirección Fiscal / Residencia</label>
+                    <input type="text" x-model="newCustomer.address" placeholder="Ej: Av. Principal, Urb. Altamira..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="pt-2 flex gap-2 justify-end">
+                    <button type="button" @click="showQuickCustomerModal = false" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit" :disabled="savingCustomer" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 flex items-center gap-1.5">
+                        <span x-text="savingCustomer ? 'Guardando...' : 'Guardar y Seleccionar'"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -397,12 +528,25 @@ function posSystem() {
         bcvEurRate: {{ $bcvEurRate }},
         searchQuery: '',
         selectedCategory: 'all',
-        selectedCustomerId: '',
         products: @json($products),
+        customers: @json($customers),
         cart: [
             { id: 1, name: 'Refresco Coca-Cola 2L', price: 2.50, qty: 2 },
             { id: 2, name: 'Harina PAN Blanca 1kg', price: 1.35, qty: 2 }
         ],
+
+        // Customer Search & Selection
+        customerQuery: '',
+        selectedCustomer: null,
+        showQuickCustomerModal: false,
+        savingCustomer: false,
+        newCustomer: {
+            tax_id: '',
+            name: '',
+            phone: '',
+            address: '',
+            customer_type: 'retail'
+        },
 
         // Currency Settings
         displayCurrency: 'USD', // 'USD', 'VES', 'EUR'
@@ -424,9 +568,65 @@ function posSystem() {
             });
         },
 
+        get filteredCustomers() {
+            if (!this.customerQuery.trim()) {
+                return this.customers.slice(0, 8);
+            }
+            const q = this.customerQuery.toLowerCase().trim();
+            return this.customers.filter(c => 
+                (c.name && c.name.toLowerCase().includes(q)) || 
+                (c.tax_id && c.tax_id.toLowerCase().includes(q)) ||
+                (c.phone && c.phone.includes(q))
+            );
+        },
+
+        selectCustomer(customer) {
+            this.selectedCustomer = customer;
+            if (!customer) {
+                this.customerQuery = '';
+            }
+        },
+
+        openQuickCustomerModal(initialVal = '') {
+            this.newCustomer = {
+                tax_id: initialVal.match(/^[VJEGPvjegp\d\-]+$/) ? initialVal.toUpperCase() : '',
+                name: !initialVal.match(/^[VJEGPvjegp\d\-]+$/) ? initialVal : '',
+                phone: '',
+                address: '',
+                customer_type: 'retail'
+            };
+            this.showQuickCustomerModal = true;
+        },
+
+        async saveQuickCustomer() {
+            if (!this.newCustomer.name || !this.newCustomer.tax_id) return;
+            this.savingCustomer = true;
+            try {
+                const response = await fetch("{{ route('pos.customers.store') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify(this.newCustomer)
+                });
+                const res = await response.json();
+                if (res.success && res.customer) {
+                    this.customers.unshift(res.customer);
+                    this.selectCustomer(res.customer);
+                    this.showQuickCustomerModal = false;
+                } else {
+                    alert(res.message || 'Error al guardar cliente.');
+                }
+            } catch (err) {
+                alert('Error al guardar cliente.');
+            } finally {
+                this.savingCustomer = false;
+            }
+        },
+
         setCurrency(curr) {
             this.displayCurrency = curr;
-            // If switching to Bolívares (VES), disable IGTF as IGTF does NOT apply to Bs payments
             if (curr === 'VES') {
                 this.applyIgtf = false;
             } else {

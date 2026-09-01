@@ -62,6 +62,7 @@ Route::post('/superadmin/sync-dolarapi', [SuperAdminController::class, 'syncDola
 // Core Business Modules
 Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
 Route::post('/pos', [PosController::class, 'store'])->name('pos.store');
+Route::post('/pos/customers', [PosController::class, 'storeCustomer'])->name('pos.customers.store');
 
 Route::get('/scanner', [ScannerController::class, 'index'])->name('scanner.index');
 Route::post('/scanner/lookup', [ScannerController::class, 'lookup'])->name('scanner.lookup');

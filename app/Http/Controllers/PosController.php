@@ -46,7 +46,7 @@ class PosController extends Controller
 
         $categories = Category::where('tenant_id', $tenantId)->get();
         $products = Product::where('tenant_id', $tenantId)->where('is_active', true)->get();
-        $customers = Customer::where('tenant_id', $tenantId)->get();
+        $customers = Customer::where('tenant_id', $tenantId)->orderBy('name')->get();
         $activeSession = CashSession::where('tenant_id', $tenantId)->where('status', 'open')->first() ?? (object) ['status' => 'open'];
 
         return view('pos.index', compact(
@@ -162,5 +162,39 @@ class PosController extends Controller
             DB::rollBack();
             return redirect()->route('pos.index')->with('error', 'Error al procesar la venta: ' . $e->getMessage());
         }
+    }
+
+    public function storeCustomer(Request $request)
+    {
+        try {
+            $tenant = Tenant::current();
+        } catch (Exception $e) {
+            $tenant = null;
+        }
+
+        $tenantId = $tenant ? $tenant->id : 1;
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'tax_id' => 'required|string|max:50',
+        ]);
+
+        $customer = Customer::create([
+            'tenant_id' => $tenantId,
+            'name' => trim($request->input('name')),
+            'tax_id' => strtoupper(trim($request->input('tax_id'))),
+            'email' => $request->input('email'),
+            'phone' => $request->input('phone'),
+            'address' => $request->input('address'),
+            'customer_type' => $request->input('customer_type', 'retail'),
+            'credit_limit_usd' => 0.00,
+            'current_debt_usd' => 0.00,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cliente registrado exitosamente.',
+            'customer' => $customer
+        ]);
     }
 }
