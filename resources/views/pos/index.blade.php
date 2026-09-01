@@ -11,18 +11,14 @@
         <div class="glass-card p-3 rounded-xl flex flex-wrap items-center justify-between gap-3">
             <div class="relative flex-1 min-w-[240px]">
                 <div class="absolute left-3 top-2.5 flex items-center gap-1.5 text-indigo-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
                 <input x-ref="posSearchInput" 
                        x-model="searchQuery" 
                        @keydown.enter.prevent="handleScanEnter()"
                        type="text" 
-                       placeholder="Escanea con el lector de barras o busca por nombre / SKU..." 
-                       class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-24 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono">
-                <span class="absolute right-2 top-1.5 px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono text-[10px] font-bold border border-indigo-500/30 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>Lector USB</span>
-                </span>
+                       placeholder="Buscar por nombre, código de barras o SKU..." 
+                       class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono">
             </div>
             <!-- Category Pills -->
             <div class="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
@@ -37,22 +33,29 @@
             </div>
         </div>
 
-        <!-- Product Cards Grid -->
+        <!-- Product Cards Grid with Rich Product Images -->
         <div class="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 pr-1">
             <template x-for="p in filteredProducts" :key="p.id">
-                <button @click="addToCart(p)" class="glass-card glass-card-hover p-3 rounded-xl flex flex-col justify-between text-left h-36 transition-all group border border-slate-800 hover:border-indigo-500">
-                    <div class="space-y-1">
-                        <div class="text-[10px] font-mono text-indigo-400 group-hover:text-indigo-300" x-text="p.sku"></div>
-                        <div class="text-xs font-bold text-slate-100 line-clamp-2" x-text="p.name"></div>
+                <button @click="addToCart(p)" class="glass-card glass-card-hover rounded-xl flex flex-col justify-between text-left overflow-hidden transition-all group border border-slate-800 hover:border-indigo-500 h-[210px]">
+                    <!-- Product Image Container -->
+                    <div class="relative w-full h-28 bg-slate-900 overflow-hidden shrink-0">
+                        <img :src="p.image_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80'" 
+                             :alt="p.name" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        <div class="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-slate-950/80 backdrop-blur-md border border-slate-700 text-[9px] font-mono text-indigo-300 font-semibold" x-text="p.sku || 'PROD'"></div>
                     </div>
-                    <div class="mt-2 flex items-end justify-between">
-                        <div>
-                            <div class="text-base font-extrabold text-white font-display" x-text="'$' + p.price_usd.toFixed(2)"></div>
-                            <div class="text-[10px] font-mono text-emerald-400" x-text="'Bs ' + (p.price_usd * bcvRate).toFixed(2)"></div>
+                    <!-- Product Details -->
+                    <div class="p-2.5 flex-1 flex flex-col justify-between">
+                        <div class="text-xs font-bold text-slate-100 line-clamp-1 group-hover:text-indigo-300 transition-colors" x-text="p.name"></div>
+                        <div class="mt-1 flex items-end justify-between">
+                            <div>
+                                <div class="text-sm font-extrabold text-white font-display" x-text="'$' + parseFloat(p.price_usd).toFixed(2)"></div>
+                                <div class="text-[10px] font-mono text-emerald-400 font-semibold" x-text="'Bs ' + formatNumber(p.price_usd * bcvUsdRate)"></div>
+                            </div>
+                            <span class="p-1 rounded-lg bg-indigo-600/20 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            </span>
                         </div>
-                        <span class="p-1.5 rounded-lg bg-indigo-600/20 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        </span>
                     </div>
                 </button>
             </template>
@@ -106,7 +109,7 @@
 
         <!-- Totals Summary & Checkout Button -->
         <div class="p-4 bg-slate-900/90 border-t border-slate-800 space-y-3">
-            <div class="space-y-1.5 text-xs">
+            <div class="space-y-1 text-xs">
                 <div class="flex justify-between text-slate-400">
                     <span>Subtotal:</span>
                     <span class="font-mono text-slate-200" x-text="'$' + subtotalUsd.toFixed(2)"></span>
@@ -119,36 +122,225 @@
                     <span>IGTF (3.0% Divisas):</span>
                     <span class="font-mono text-amber-400" x-text="'$' + igtfUsd.toFixed(2)"></span>
                 </div>
-                <div class="pt-2 border-t border-slate-800 flex justify-between items-end">
-                    <div>
-                        <div class="text-xs font-bold text-slate-300">TOTAL PAGAR</div>
-                        <div class="text-[10px] font-mono text-emerald-400" x-text="'Bs ' + (totalUsd * bcvRate).toFixed(2) + ' VES'"></div>
+                <!-- Converted Totals Display -->
+                <div class="pt-2 border-t border-slate-800 space-y-1">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-300 font-semibold">TOTAL VES (Bs):</span>
+                        <span class="font-mono font-extrabold text-emerald-400" x-text="'Bs ' + formatNumber(totalUsd * bcvUsdRate)"></span>
                     </div>
-                    <div class="text-2xl font-extrabold text-white font-display" x-text="'$' + totalUsd.toFixed(2)"></div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-300 font-semibold">TOTAL EUR (€):</span>
+                        <span class="font-mono font-extrabold text-sky-400" x-text="'€' + ((totalUsd * bcvUsdRate) / bcvEurRate).toFixed(2)"></span>
+                    </div>
+                    <div class="flex justify-between items-center pt-1">
+                        <span class="text-xs font-bold text-slate-100 uppercase">Total Dólares:</span>
+                        <span class="text-2xl font-extrabold text-white font-display" x-text="'$' + totalUsd.toFixed(2)"></span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Checkout Form Button -->
-            <form action="{{ route('pos.store') }}" method="POST">
+            <!-- Open Multi-Currency Checkout Modal Button -->
+            <button @click="openCheckoutModal()" 
+                    :disabled="cart.length === 0" 
+                    class="w-full py-3.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 hover:from-emerald-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition-all font-display uppercase tracking-wider flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span>Procesar Cobro Multimoneda</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Multi-Currency Checkout Modal (Cobro Multimoneda) -->
+    <div x-show="showCheckoutModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-95"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+         style="display: none;">
+        
+        <div class="glass-card w-full max-w-xl rounded-2xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Modal Header -->
+            <div class="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold">
+                        💳
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white font-display">Cobro Multimoneda POS</h3>
+                        <p class="text-[10px] text-slate-400">Selecciona la moneda y método de pago al cambio oficial BCV</p>
+                    </div>
+                </div>
+                <button @click="showCheckoutModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <!-- Modal Content Body -->
+            <form action="{{ route('pos.store') }}" method="POST" class="p-5 overflow-y-auto space-y-4 text-xs">
                 @csrf
                 <input type="hidden" name="customer_id" :value="selectedCustomerId">
                 <input type="hidden" name="total_usd" :value="totalUsd">
                 <input type="hidden" name="items_json" :value="JSON.stringify(cart)">
-                <input type="hidden" name="payment_method" value="cash_usd">
-                <input type="hidden" name="currency" value="USD">
+                <input type="hidden" name="currency" :value="payCurrency">
+                <input type="hidden" name="payment_method" :value="payMethod">
+                <input type="hidden" name="amount_received_native" :value="amountReceived">
+                <input type="hidden" name="change_due_ves" :value="changeDueVes">
+                <input type="hidden" name="change_due_usd" :value="changeDueUsd">
 
-                <button type="submit" :disabled="cart.length === 0" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-500/20 transition-all font-display">
-                    PROCESAR COBRO MULTIMONEDA
-                </button>
+                <!-- Totals Breakdown Widget -->
+                <div class="grid grid-cols-3 gap-2 p-3 bg-slate-950 rounded-xl border border-slate-800 text-center">
+                    <div class="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                        <div class="text-[10px] text-emerald-400 font-semibold uppercase">Total USD ($)</div>
+                        <div class="text-lg font-extrabold text-white font-mono mt-0.5" x-text="'$' + totalUsd.toFixed(2)"></div>
+                    </div>
+                    <div class="p-2 rounded-lg bg-sky-500/10 border border-sky-500/20">
+                        <div class="text-[10px] text-sky-400 font-semibold uppercase">Total VES (Bs)</div>
+                        <div class="text-base font-extrabold text-white font-mono mt-0.5" x-text="'Bs ' + formatNumber(totalUsd * bcvUsdRate)"></div>
+                        <div class="text-[9px] text-slate-400 font-mono">Tasa: <span x-text="bcvUsdRate.toFixed(2)"></span></div>
+                    </div>
+                    <div class="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
+                        <div class="text-[10px] text-indigo-400 font-semibold uppercase">Total EUR (€)</div>
+                        <div class="text-base font-extrabold text-white font-mono mt-0.5" x-text="'€' + totalEurRequired.toFixed(2)"></div>
+                        <div class="text-[9px] text-slate-400 font-mono">Tasa: <span x-text="bcvEurRate.toFixed(2)"></span></div>
+                    </div>
+                </div>
+
+                <!-- 1. Currency Selector -->
+                <div class="space-y-1.5">
+                    <label class="font-bold text-slate-200">Moneda de Pago</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" 
+                                @click="selectCurrency('USD')" 
+                                :class="payCurrency === 'USD' ? 'bg-emerald-600 text-white border-emerald-400' : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'" 
+                                class="p-3 rounded-xl border font-bold flex flex-col items-center gap-1 transition-all cursor-pointer">
+                            <span class="text-lg">💵</span>
+                            <span>Dólares ($ USD)</span>
+                        </button>
+
+                        <button type="button" 
+                                @click="selectCurrency('VES')" 
+                                :class="payCurrency === 'VES' ? 'bg-sky-600 text-white border-sky-400' : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'" 
+                                class="p-3 rounded-xl border font-bold flex flex-col items-center gap-1 transition-all cursor-pointer">
+                            <span class="text-lg">🇻🇪</span>
+                            <span>Bolívares (Bs VES)</span>
+                        </button>
+
+                        <button type="button" 
+                                @click="selectCurrency('EUR')" 
+                                :class="payCurrency === 'EUR' ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'" 
+                                class="p-3 rounded-xl border font-bold flex flex-col items-center gap-1 transition-all cursor-pointer">
+                            <span class="text-lg">💶</span>
+                            <span>Euros (€ EUR)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. Payment Method Selector -->
+                <div class="space-y-1.5">
+                    <label class="font-bold text-slate-200">Método de Pago</label>
+                    <select x-model="payMethod" class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none font-semibold">
+                        <template x-if="payCurrency === 'USD'">
+                            <g>
+                                <option value="cash_usd">Efectivo USD ($)</option>
+                                <option value="zelle">Zelle (USD)</option>
+                                <option value="paypal">PayPal (USD)</option>
+                            </g>
+                        </template>
+                        <template x-if="payCurrency === 'VES'">
+                            <g>
+                                <option value="pago_movil">Pago Móvil (VES)</option>
+                                <option value="pos_ves">Punto de Venta / Tarjeta (VES)</option>
+                                <option value="cash_ves">Efectivo Bolívares (Bs)</option>
+                                <option value="transfer_ves">Transferencia Bancaria (VES)</option>
+                            </g>
+                        </template>
+                        <template x-if="payCurrency === 'EUR'">
+                            <g>
+                                <option value="cash_eur">Efectivo EUR (€)</option>
+                                <option value="transfer_eur">Transferencia Bancaria EUR (€)</option>
+                            </g>
+                        </template>
+                    </select>
+                </div>
+
+                <!-- 3. Amount Received & Change Calculator -->
+                <div class="space-y-2 p-3 bg-slate-950 rounded-xl border border-slate-800">
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold text-slate-200">Monto Recibido del Cliente</label>
+                        <span class="text-[10px] text-slate-400 font-mono" x-text="'Requerido: ' + getRequiredFormatted()"></span>
+                    </div>
+
+                    <div class="relative">
+                        <input type="number" 
+                               step="0.01" 
+                               x-model.number="amountReceived" 
+                               placeholder="Ej: 20.00" 
+                               class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl p-3 font-mono text-base font-bold focus:border-emerald-500 focus:outline-none">
+                        <span class="absolute right-3 top-3.5 font-bold font-mono text-emerald-400" x-text="payCurrency"></span>
+                    </div>
+
+                    <!-- Fast Denomination Quick Buttons -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto pt-1">
+                        <span class="text-[10px] text-slate-500 font-semibold mr-1">Rápido:</span>
+                        <template x-for="denom in getQuickDenominations()" :key="denom">
+                            <button type="button" 
+                                    @click="amountReceived = denom" 
+                                    class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-mono font-bold transition-all">
+                                <span x-text="payCurrency === 'VES' ? 'Bs ' + denom : (payCurrency === 'EUR' ? '€' + denom : '$' + denom)"></span>
+                            </button>
+                        </template>
+                        <button type="button" 
+                                @click="amountReceived = getExactRequiredAmount()" 
+                                class="px-2.5 py-1 rounded-lg bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all ml-auto">
+                            Monto Exacto
+                        </button>
+                    </div>
+
+                    <!-- Calculated Change / Vuelto Box -->
+                    <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-bold text-slate-300">Vuelto / Cambio a Entregar</div>
+                            <div class="text-[10px] text-slate-500 font-mono" x-text="'Equivalente: $' + changeDueUsd.toFixed(2) + ' USD'"></div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-extrabold text-emerald-400 font-mono" x-text="'Bs ' + formatNumber(changeDueVes) + ' VES'"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Reference Code / Memo (Optional) -->
+                <div class="space-y-1">
+                    <label class="font-semibold text-slate-300">Código de Referencia / Comprobante (Opcional)</label>
+                    <input type="text" 
+                           name="reference_code" 
+                           placeholder="Ej: PM-998822 / Ref 4321..." 
+                           class="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none font-mono">
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-2 flex gap-3">
+                    <button type="button" @click="showCheckoutModal = false" class="w-1/3 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit" 
+                            :disabled="amountReceived < getExactRequiredAmount() - 0.05" 
+                            class="w-2/3 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-extrabold rounded-xl shadow-lg shadow-emerald-500/20 transition-all font-display text-sm tracking-wider uppercase">
+                        Confirmar Venta y Cobro
+                    </button>
+                </div>
             </form>
         </div>
     </div>
+
 </div>
 
 <script>
 function posSystem() {
     return {
-        bcvRate: {{ $tenant->bcv_rate }},
+        bcvUsdRate: {{ $bcvUsdRate }},
+        bcvEurRate: {{ $bcvEurRate }},
         searchQuery: '',
         selectedCategory: 'all',
         selectedCustomerId: '',
@@ -158,6 +350,12 @@ function posSystem() {
             { id: 2, name: 'Harina PAN Blanca 1kg', price: 1.35, qty: 2 }
         ],
 
+        // Modal States
+        showCheckoutModal: false,
+        payCurrency: 'USD',
+        payMethod: 'cash_usd',
+        amountReceived: 0,
+
         get filteredProducts() {
             return this.products.filter(p => {
                 const matchesCat = this.selectedCategory === 'all' || p.category_id === this.selectedCategory;
@@ -166,6 +364,10 @@ function posSystem() {
                                      (p.barcode && p.barcode.includes(this.searchQuery));
                 return matchesCat && matchesSearch;
             });
+        },
+
+        formatNumber(val) {
+            return parseFloat(val || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         },
 
         playBeep() {
@@ -188,15 +390,10 @@ function posSystem() {
             const query = (this.searchQuery || '').trim().toLowerCase();
             if (!query) return;
 
-            // 1. Try exact barcode match first
             let match = this.products.find(p => p.barcode && p.barcode.toLowerCase() === query);
-            
-            // 2. Try exact SKU match
             if (!match) {
                 match = this.products.find(p => p.sku && p.sku.toLowerCase() === query);
             }
-
-            // 3. Try partial name match if only 1 result
             if (!match) {
                 const results = this.filteredProducts;
                 if (results.length === 1) {
@@ -250,6 +447,87 @@ function posSystem() {
 
         get totalUsd() {
             return this.subtotalUsd + this.taxUsd + this.igtfUsd;
+        },
+
+        get totalEurRequired() {
+            const totalVes = this.totalUsd * this.bcvUsdRate;
+            return totalVes / this.bcvEurRate;
+        },
+
+        openCheckoutModal() {
+            if (this.cart.length === 0) return;
+            this.payCurrency = 'USD';
+            this.payMethod = 'cash_usd';
+            this.amountReceived = Math.ceil(this.totalUsd);
+            this.showCheckoutModal = true;
+        },
+
+        selectCurrency(curr) {
+            this.payCurrency = curr;
+            if (curr === 'USD') {
+                this.payMethod = 'cash_usd';
+                this.amountReceived = Math.ceil(this.totalUsd);
+            } else if (curr === 'VES') {
+                this.payMethod = 'pago_movil';
+                this.amountReceived = Math.ceil(this.totalUsd * this.bcvUsdRate);
+            } else if (curr === 'EUR') {
+                this.payMethod = 'cash_eur';
+                this.amountReceived = Math.ceil(this.totalEurRequired);
+            }
+        },
+
+        getExactRequiredAmount() {
+            if (this.payCurrency === 'USD') {
+                return parseFloat(this.totalUsd.toFixed(2));
+            } else if (this.payCurrency === 'VES') {
+                return parseFloat((this.totalUsd * this.bcvUsdRate).toFixed(2));
+            } else if (this.payCurrency === 'EUR') {
+                return parseFloat(this.totalEurRequired.toFixed(2));
+            }
+            return 0;
+        },
+
+        getRequiredFormatted() {
+            if (this.payCurrency === 'USD') {
+                return '$' + this.totalUsd.toFixed(2) + ' USD';
+            } else if (this.payCurrency === 'VES') {
+                return 'Bs ' + this.formatNumber(this.totalUsd * this.bcvUsdRate) + ' VES';
+            } else if (this.payCurrency === 'EUR') {
+                return '€' + this.totalEurRequired.toFixed(2) + ' EUR';
+            }
+            return '';
+        },
+
+        getQuickDenominations() {
+            if (this.payCurrency === 'USD') {
+                return [10, 20, 50, 100];
+            } else if (this.payCurrency === 'VES') {
+                const req = Math.ceil(this.totalUsd * this.bcvUsdRate);
+                return [req, Math.ceil(req * 1.1 / 100) * 100, Math.ceil(req * 1.2 / 500) * 500];
+            } else if (this.payCurrency === 'EUR') {
+                return [10, 20, 50, 100];
+            }
+            return [];
+        },
+
+        get changeDueVes() {
+            const reqNative = this.getExactRequiredAmount();
+            const rec = parseFloat(this.amountReceived || 0);
+            if (rec <= reqNative) return 0;
+            
+            const diffNative = rec - reqNative;
+            if (this.payCurrency === 'VES') {
+                return diffNative;
+            } else if (this.payCurrency === 'USD') {
+                return diffNative * this.bcvUsdRate;
+            } else if (this.payCurrency === 'EUR') {
+                return diffNative * this.bcvEurRate;
+            }
+            return 0;
+        },
+
+        get changeDueUsd() {
+            return this.changeDueVes / this.bcvUsdRate;
         }
     }
 }
