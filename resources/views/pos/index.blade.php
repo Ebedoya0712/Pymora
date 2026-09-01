@@ -7,7 +7,7 @@
 
     <!-- Left Panel: Product Catalog & Search (65%) -->
     <div class="flex-1 flex flex-col gap-4 overflow-hidden">
-        <!-- Search & Barcode Scanner Bar -->
+        <!-- Search Bar & Categories -->
         <div class="glass-card p-3 rounded-xl flex flex-wrap items-center justify-between gap-3">
             <div class="relative flex-1 min-w-[240px]">
                 <div class="absolute left-3 top-2.5 flex items-center gap-1.5 text-indigo-400">
@@ -62,20 +62,48 @@
         </div>
     </div>
 
-    <!-- Right Panel: Live Cart & Checkout (35%) -->
+    <!-- Right Panel: Live Cart & Ticket (35%) -->
     <div class="w-full md:w-96 glass-card rounded-xl flex flex-col overflow-hidden">
         <!-- Cart Header -->
-        <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="p-3.5 border-b border-slate-800 flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
                 <h3 class="font-bold text-white text-sm font-display">Ticket de Venta POS</h3>
             </div>
-            <button @click="clearCart()" class="text-xs text-rose-400 hover:underline">Vaciar</button>
+            <button @click="clearCart()" class="text-xs text-rose-400 hover:underline font-semibold">Vaciar</button>
+        </div>
+
+        <!-- 1. MONEDA DE COBRO SELECTOR (USD, VES, EUR) -->
+        <div class="px-3.5 py-2 bg-slate-900/90 border-b border-slate-800 space-y-1">
+            <div class="flex items-center justify-between text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+                <span>Moneda de Cobro</span>
+                <span class="text-indigo-400 font-mono" x-text="displayCurrency"></span>
+            </div>
+            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
+                <button type="button" 
+                        @click="setCurrency('USD')" 
+                        :class="displayCurrency === 'USD' ? 'bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'" 
+                        class="py-1.5 rounded-lg text-xs transition-all flex items-center justify-center gap-1 cursor-pointer">
+                    <span>💵</span><span class="font-mono">USD ($)</span>
+                </button>
+                <button type="button" 
+                        @click="setCurrency('VES')" 
+                        :class="displayCurrency === 'VES' ? 'bg-sky-600 text-white font-bold shadow-lg shadow-sky-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'" 
+                        class="py-1.5 rounded-lg text-xs transition-all flex items-center justify-center gap-1 cursor-pointer">
+                    <span>🇻🇪</span><span class="font-mono">VES (Bs)</span>
+                </button>
+                <button type="button" 
+                        @click="setCurrency('EUR')" 
+                        :class="displayCurrency === 'EUR' ? 'bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'" 
+                        class="py-1.5 rounded-lg text-xs transition-all flex items-center justify-center gap-1 cursor-pointer">
+                    <span>💶</span><span class="font-mono">EUR (€)</span>
+                </button>
+            </div>
         </div>
 
         <!-- Customer Selector -->
-        <div class="px-4 py-2 bg-slate-900/60 border-b border-slate-800">
-            <select x-model="selectedCustomerId" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+        <div class="px-3.5 py-2 bg-slate-900/60 border-b border-slate-800">
+            <select x-model="selectedCustomerId" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-medium">
                 <option value="">-- Cliente Contado (General) --</option>
                 @foreach($customers as $c)
                 <option value="{{ $c->id }}">{{ $c->name }} ({{ $c->tax_id }})</option>
@@ -84,20 +112,20 @@
         </div>
 
         <!-- Cart Items List -->
-        <div class="flex-1 overflow-y-auto p-4 space-y-3 divide-y divide-slate-800">
+        <div class="flex-1 overflow-y-auto p-3.5 space-y-2.5 divide-y divide-slate-800">
             <template x-for="(item, index) in cart" :key="item.id">
                 <div class="pt-2 flex items-center justify-between gap-2 text-xs">
                     <div class="flex-1">
                         <div class="font-semibold text-slate-200" x-text="item.name"></div>
-                        <div class="text-[10px] text-slate-400 font-mono" x-text="'$' + item.price.toFixed(2) + ' c/u'"></div>
+                        <div class="text-[10px] text-slate-400 font-mono" x-text="getItemUnitPriceFormatted(item)"></div>
                     </div>
                     <!-- Quantity controls -->
-                    <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700 rounded-lg p-1">
+                    <div class="flex items-center gap-1 bg-slate-900 border border-slate-700 rounded-lg p-1">
                         <button @click="updateQty(index, -1)" class="w-5 h-5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center justify-center font-bold text-xs">-</button>
                         <span class="w-6 text-center font-mono font-bold text-white text-xs" x-text="item.qty"></span>
                         <button @click="updateQty(index, 1)" class="w-5 h-5 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 flex items-center justify-center font-bold text-xs">+</button>
                     </div>
-                    <div class="text-right font-mono font-bold text-white min-w-[50px]" x-text="'$' + (item.price * item.qty).toFixed(2)"></div>
+                    <div class="text-right font-mono font-bold text-white min-w-[65px]" x-text="getItemSubtotalFormatted(item)"></div>
                 </div>
             </template>
             <template x-if="cart.length === 0">
@@ -107,34 +135,60 @@
             </template>
         </div>
 
-        <!-- Totals Summary & Checkout Button -->
+        <!-- Totals Summary & Fiscal Tax Breakdown -->
         <div class="p-4 bg-slate-900/90 border-t border-slate-800 space-y-3">
-            <div class="space-y-1 text-xs">
+            <div class="space-y-1.5 text-xs">
+                <!-- Subtotal -->
                 <div class="flex justify-between text-slate-400">
                     <span>Subtotal:</span>
-                    <span class="font-mono text-slate-200" x-text="'$' + subtotalUsd.toFixed(2)"></span>
+                    <span class="font-mono text-slate-200 font-semibold" x-text="subtotalFormatted"></span>
                 </div>
+
+                <!-- IVA (16%) -->
                 <div class="flex justify-between text-slate-400">
                     <span>IVA (16%):</span>
-                    <span class="font-mono text-slate-200" x-text="'$' + taxUsd.toFixed(2)"></span>
+                    <span class="font-mono text-slate-200 font-semibold" x-text="taxFormatted"></span>
                 </div>
-                <div class="flex justify-between text-slate-400">
-                    <span>IGTF (3.0% Divisas):</span>
-                    <span class="font-mono text-amber-400" x-text="'$' + igtfUsd.toFixed(2)"></span>
+
+                <!-- IGTF (3.0% Divisas - Optional / Auto) -->
+                <div class="flex justify-between items-center text-slate-400">
+                    <label class="flex items-center gap-1.5 cursor-pointer text-slate-400 hover:text-amber-300 transition-colors">
+                        <input type="checkbox" x-model="applyIgtf" class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0 w-3.5 h-3.5">
+                        <span class="text-[11px]" :class="isDivisa && applyIgtf ? 'text-amber-400 font-semibold' : 'text-slate-500'">IGTF (3.0% Divisas):</span>
+                    </label>
+                    <span class="font-mono font-bold" :class="isDivisa && applyIgtf ? 'text-amber-400' : 'text-slate-500'" x-text="igtfFormatted"></span>
                 </div>
+
                 <!-- Converted Totals Display -->
                 <div class="pt-2 border-t border-slate-800 space-y-1">
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-300 font-semibold">TOTAL VES (Bs):</span>
-                        <span class="font-mono font-extrabold text-emerald-400" x-text="'Bs ' + formatNumber(totalUsd * bcvUsdRate)"></span>
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-300 font-semibold">TOTAL EUR (€):</span>
-                        <span class="font-mono font-extrabold text-sky-400" x-text="'€' + ((totalUsd * bcvUsdRate) / bcvEurRate).toFixed(2)"></span>
-                    </div>
-                    <div class="flex justify-between items-center pt-1">
-                        <span class="text-xs font-bold text-slate-100 uppercase">Total Dólares:</span>
-                        <span class="text-2xl font-extrabold text-white font-display" x-text="'$' + totalUsd.toFixed(2)"></span>
+                    <template x-if="displayCurrency !== 'VES'">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="text-slate-400 font-semibold">Equivalente VES (Bs):</span>
+                            <span class="font-mono font-bold text-emerald-400" x-text="'Bs ' + formatNumber(totalUsd * bcvUsdRate)"></span>
+                        </div>
+                    </template>
+
+                    <template x-if="displayCurrency !== 'USD'">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="text-slate-400 font-semibold">Equivalente USD ($):</span>
+                            <span class="font-mono font-bold text-emerald-400" x-text="'$' + totalUsd.toFixed(2)"></span>
+                        </div>
+                    </template>
+
+                    <template x-if="displayCurrency !== 'EUR'">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="text-slate-400 font-semibold">Equivalente EUR (€):</span>
+                            <span class="font-mono font-bold text-sky-400" x-text="'€' + totalEurRequired.toFixed(2)"></span>
+                        </div>
+                    </template>
+
+                    <!-- TOTAL A PAGAR IN SELECTED CURRENCY -->
+                    <div class="flex justify-between items-end pt-2 border-t border-slate-800/80">
+                        <div>
+                            <div class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">TOTAL A PAGAR</div>
+                            <div class="text-[9px] text-slate-400 font-mono" x-text="'Moneda: ' + displayCurrency"></div>
+                        </div>
+                        <div class="text-2xl font-extrabold text-white font-display" x-text="totalFormatted"></div>
                     </div>
                 </div>
             </div>
@@ -144,7 +198,7 @@
                     :disabled="cart.length === 0" 
                     class="w-full py-3.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600 hover:from-emerald-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition-all font-display uppercase tracking-wider flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                <span>Procesar Cobro Multimoneda</span>
+                <span>Cobrar en <span x-text="displayCurrency"></span></span>
             </button>
         </div>
     </div>
@@ -209,7 +263,7 @@
 
                 <!-- 1. Currency Selector -->
                 <div class="space-y-1.5">
-                    <label class="font-bold text-slate-200">Moneda de Pago</label>
+                    <label class="font-bold text-slate-200">Moneda de Pago Seleccionada</label>
                     <div class="grid grid-cols-3 gap-2">
                         <button type="button" 
                                 @click="selectCurrency('USD')" 
@@ -350,6 +404,10 @@ function posSystem() {
             { id: 2, name: 'Harina PAN Blanca 1kg', price: 1.35, qty: 2 }
         ],
 
+        // Currency Settings
+        displayCurrency: 'USD', // 'USD', 'VES', 'EUR'
+        applyIgtf: true,
+
         // Modal States
         showCheckoutModal: false,
         payCurrency: 'USD',
@@ -364,6 +422,16 @@ function posSystem() {
                                      (p.barcode && p.barcode.includes(this.searchQuery));
                 return matchesCat && matchesSearch;
             });
+        },
+
+        setCurrency(curr) {
+            this.displayCurrency = curr;
+            // If switching to Bolívares (VES), disable IGTF as IGTF does NOT apply to Bs payments
+            if (curr === 'VES') {
+                this.applyIgtf = false;
+            } else {
+                this.applyIgtf = true;
+            }
         },
 
         formatNumber(val) {
@@ -433,6 +501,25 @@ function posSystem() {
             this.cart = [];
         },
 
+        getItemUnitPriceFormatted(item) {
+            if (this.displayCurrency === 'VES') {
+                return 'Bs ' + this.formatNumber(item.price * this.bcvUsdRate) + ' c/u';
+            } else if (this.displayCurrency === 'EUR') {
+                return '€' + ((item.price * this.bcvUsdRate) / this.bcvEurRate).toFixed(2) + ' c/u';
+            }
+            return '$' + item.price.toFixed(2) + ' c/u';
+        },
+
+        getItemSubtotalFormatted(item) {
+            const sub = item.price * item.qty;
+            if (this.displayCurrency === 'VES') {
+                return 'Bs ' + this.formatNumber(sub * this.bcvUsdRate);
+            } else if (this.displayCurrency === 'EUR') {
+                return '€' + ((sub * this.bcvUsdRate) / this.bcvEurRate).toFixed(2);
+            }
+            return '$' + sub.toFixed(2);
+        },
+
         get subtotalUsd() {
             return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
         },
@@ -442,7 +529,10 @@ function posSystem() {
         },
 
         get igtfUsd() {
-            return this.subtotalUsd * 0.03;
+            if (this.displayCurrency === 'VES' || !this.applyIgtf) {
+                return 0;
+            }
+            return (this.subtotalUsd + this.taxUsd) * 0.03;
         },
 
         get totalUsd() {
@@ -454,11 +544,51 @@ function posSystem() {
             return totalVes / this.bcvEurRate;
         },
 
+        get isDivisa() {
+            return this.displayCurrency === 'USD' || this.displayCurrency === 'EUR';
+        },
+
+        get subtotalFormatted() {
+            if (this.displayCurrency === 'VES') {
+                return 'Bs ' + this.formatNumber(this.subtotalUsd * this.bcvUsdRate);
+            } else if (this.displayCurrency === 'EUR') {
+                return '€' + ((this.subtotalUsd * this.bcvUsdRate) / this.bcvEurRate).toFixed(2);
+            }
+            return '$' + this.subtotalUsd.toFixed(2);
+        },
+
+        get taxFormatted() {
+            if (this.displayCurrency === 'VES') {
+                return 'Bs ' + this.formatNumber(this.taxUsd * this.bcvUsdRate);
+            } else if (this.displayCurrency === 'EUR') {
+                return '€' + ((this.taxUsd * this.bcvUsdRate) / this.bcvEurRate).toFixed(2);
+            }
+            return '$' + this.taxUsd.toFixed(2);
+        },
+
+        get igtfFormatted() {
+            if (this.displayCurrency === 'VES' || !this.applyIgtf) {
+                return 'Bs 0,00 (0%)';
+            }
+            if (this.displayCurrency === 'EUR') {
+                return '€' + ((this.igtfUsd * this.bcvUsdRate) / this.bcvEurRate).toFixed(2);
+            }
+            return '$' + this.igtfUsd.toFixed(2);
+        },
+
+        get totalFormatted() {
+            if (this.displayCurrency === 'VES') {
+                return 'Bs ' + this.formatNumber(this.totalUsd * this.bcvUsdRate);
+            } else if (this.displayCurrency === 'EUR') {
+                return '€' + ((this.totalUsd * this.bcvUsdRate) / this.bcvEurRate).toFixed(2);
+            }
+            return '$' + this.totalUsd.toFixed(2);
+        },
+
         openCheckoutModal() {
             if (this.cart.length === 0) return;
-            this.payCurrency = 'USD';
-            this.payMethod = 'cash_usd';
-            this.amountReceived = Math.ceil(this.totalUsd);
+            this.payCurrency = this.displayCurrency;
+            this.selectCurrency(this.displayCurrency);
             this.showCheckoutModal = true;
         },
 
