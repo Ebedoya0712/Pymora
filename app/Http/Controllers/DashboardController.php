@@ -48,12 +48,14 @@ class DashboardController extends Controller
             ];
         }
 
-        // Allow previewing business types via query string e.g. ?type=restaurante
+        // Determine business type from logged-in tenant (with fallback and preview support)
         $allBusinessTypes = Tenant::getBusinessTypes();
         $selectedTypeKey = $request->input('type', $tenant->business_type ?? 'abasto');
         if (!array_key_exists($selectedTypeKey, $allBusinessTypes)) {
             $selectedTypeKey = 'abasto';
         }
+
+        session(['business_type' => $selectedTypeKey]);
 
         $currentBusinessType = $allBusinessTypes[$selectedTypeKey];
 

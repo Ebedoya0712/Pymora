@@ -5,36 +5,20 @@
 @section('content')
 <div class="space-y-6">
 
-    <!-- Business Type Selector Banner & 4 Core Pillars -->
+    <!-- Business Type Header Banner & 4 Core Pillars -->
     <div class="glass-card p-5 rounded-2xl border border-slate-800 bg-slate-900/80 space-y-4">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-xl border flex items-center justify-center text-2xl shadow-inner {{ $currentBusinessType['badge_color'] }}">
-                    {{ $currentBusinessType['icon'] }}
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h2 class="text-xl font-bold text-white font-display">{{ $currentBusinessType['name'] }}</h2>
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border uppercase tracking-wider {{ $currentBusinessType['badge_color'] }}">
-                            Rubro Activo
-                        </span>
-                    </div>
-                    <p class="text-xs text-slate-400 mt-0.5">{{ $currentBusinessType['description'] }}</p>
-                </div>
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl border flex items-center justify-center text-2xl shadow-inner {{ $currentBusinessType['badge_color'] }}">
+                {{ $currentBusinessType['icon'] }}
             </div>
-
-            <!-- Business Type Switcher for Live Demo -->
-            <div class="flex items-center gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-mono px-2">Ver Dashboard de:</span>
-                <form action="{{ route('dashboard') }}" method="GET" class="flex items-center">
-                    <select name="type" onchange="this.form.submit()" class="bg-slate-900 border border-slate-700 text-xs text-indigo-300 font-semibold rounded-lg px-3 py-1.5 focus:border-indigo-500 focus:outline-none">
-                        @foreach($allBusinessTypes as $key => $bType)
-                            <option value="{{ $key }}" {{ $selectedTypeKey === $key ? 'selected' : '' }}>
-                                {{ $bType['icon'] }} {{ $bType['name'] }}
-                            </option>
-                        @endforeach
-                    </select>
-                </form>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h2 class="text-xl font-bold text-white font-display">{{ $currentBusinessType['name'] }}</h2>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border uppercase tracking-wider {{ $currentBusinessType['badge_color'] }}">
+                        Rubro Activo
+                    </span>
+                </div>
+                <p class="text-xs text-slate-400 mt-0.5">{{ $currentBusinessType['description'] }}</p>
             </div>
         </div>
 
@@ -49,7 +33,19 @@
                         <svg class="w-3 h-3 text-emerald-400 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-1 group-hover:translate-x-0 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </div>
                     <div class="text-[10px] text-slate-400 truncate group-hover:text-slate-300">
-                        {{ $selectedTypeKey === 'restaurante' ? 'Cobrar, Mesas y Comandero' : ($selectedTypeKey === 'carniceria_hortalizas' ? 'Balanza Kilos y POS' : 'Cobrar y Devoluciones') }}
+                        {{ match($selectedTypeKey) {
+                            'restaurante' => 'Cobrar, Mesas y Comandero',
+                            'carniceria_hortalizas' => 'Balanza Kilos y POS',
+                            'licoreria' => 'Venta Botellas / Cajas POS',
+                            'tecnologia_electro' => 'POS Seriales e IMEIs',
+                            'servicios' => 'Agenda y Cobro de Citas',
+                            'distribuidor' => 'Venta Mayorista y Despacho',
+                            'fabricante' => 'Despacho de Producción',
+                            'ropa' => 'Punto de Venta (Tallas)',
+                            'repuestos' => 'Búsqueda y Venta de Piezas',
+                            'articulos' => 'Punto de Venta Rápido',
+                            default => 'Cobrar y Devoluciones'
+                        } }}
                     </div>
                 </div>
             </a>
@@ -63,7 +59,19 @@
                         <svg class="w-3 h-3 text-purple-400 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-1 group-hover:translate-x-0 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </div>
                     <div class="text-[10px] text-slate-400 truncate group-hover:text-slate-300">
-                        {{ $selectedTypeKey === 'restaurante' ? 'Recetas e Insumos' : ($selectedTypeKey === 'ropa' ? 'Tallas y Colores' : ($selectedTypeKey === 'tecnologia_electro' ? 'Seriales e IMEIs' : 'Stock y Lotes')) }}
+                        {{ match($selectedTypeKey) {
+                            'restaurante' => 'Recetas e Insumos Críticos',
+                            'ropa' => 'Tallas, Colores y Marcas',
+                            'tecnologia_electro' => 'Seriales, IMEIs y Garantías',
+                            'licoreria' => 'Stock de Licores y Cajas',
+                            'carniceria_hortalizas' => 'Kilos, Desposte y Mermas',
+                            'fabricante' => 'Recetas BOM e Insumos',
+                            'repuestos' => 'Catálogo Marca/Modelo/Año',
+                            'distribuidor' => 'Stock Almacén Mayorista',
+                            'servicios' => 'Repuestos y Mano de Obra',
+                            'articulos' => 'Variedades, Combos y Packs',
+                            default => 'Stock y Lotes con Vencimiento'
+                        } }}
                     </div>
                 </div>
             </a>
@@ -76,7 +84,14 @@
                         <span class="truncate">Gastos y Reportes</span>
                         <svg class="w-3 h-3 text-amber-400 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-1 group-hover:translate-x-0 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </div>
-                    <div class="text-[10px] text-slate-400 truncate group-hover:text-slate-300">Flujo Real, CXC y CXP</div>
+                    <div class="text-[10px] text-slate-400 truncate group-hover:text-slate-300">
+                        {{ match($selectedTypeKey) {
+                            'licoreria' => 'Flujo Real, IGTF y Licores',
+                            'distribuidor' => 'Flujo Real, Rutas y CXC',
+                            'fabricante' => 'Costeo Fabril y CXP',
+                            default => 'Flujo Real, CXC y CXP'
+                        } }}
+                    </div>
                 </div>
             </a>
 
@@ -88,7 +103,14 @@
                         <span class="truncate">Configuración y Equipo</span>
                         <svg class="w-3 h-3 text-indigo-400 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-1 group-hover:translate-x-0 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </div>
-                    <div class="text-[10px] text-slate-400 truncate group-hover:text-slate-300">Usuarios y Comisiones</div>
+                    <div class="text-[10px] text-slate-400 truncate group-hover:text-slate-300">
+                        {{ match($selectedTypeKey) {
+                            'restaurante' => 'Meseros, Cocina y Propinas',
+                            'distribuidor' => 'Vendedores y Rutas',
+                            'servicios' => 'Técnicos y Especialistas',
+                            default => 'Usuarios y Comisiones'
+                        } }}
+                    </div>
                 </div>
             </a>
         </div>
@@ -448,6 +470,53 @@
                 <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
                     <div class="font-bold text-white">Garantías de Repuestos</div>
                     <div class="text-2xl font-extrabold text-indigo-400 font-mono">{{ $businessWidgetsData['warranties_active'] }} Activas</div>
+                </div>
+            </div>
+
+        @elseif($selectedTypeKey === 'fabricante')
+            <!-- FABRICANTE: Production Orders & BOM Recipes -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-white">Órdenes de Producción Activas</div>
+                    <div class="text-[11px] text-slate-400">Lotes en proceso de fabricación:</div>
+                    <div class="text-2xl font-extrabold text-purple-400 font-mono">{{ $businessWidgetsData['active_production_orders'] ?? 3 }} Órdenes</div>
+                </div>
+
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-white">Insumos & Recetas BOM</div>
+                    <div class="text-[11px] text-slate-400">Materias primas vinculadas:</div>
+                    <div class="text-2xl font-extrabold text-emerald-400 font-mono">{{ $businessWidgetsData['raw_materials_count'] ?? 28 }} Insumos</div>
+                </div>
+
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-white">Unidades Fabricadas (Semana)</div>
+                    <div class="text-[11px] text-slate-400">Rendimiento de planta:</div>
+                    <div class="text-2xl font-extrabold text-indigo-400 font-mono">{{ $businessWidgetsData['completed_this_week'] ?? 120 }} Unidades</div>
+                </div>
+            </div>
+
+        @elseif($selectedTypeKey === 'articulos')
+            <!-- ARTICULOS: Promos, Combos & Fast Movers -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-white">Promociones Activas</div>
+                    <div class="text-[11px] text-slate-400">Descuentos por categoría:</div>
+                    <div class="text-2xl font-extrabold text-sky-400 font-mono">{{ $businessWidgetsData['promos_active'] ?? 3 }} Promos</div>
+                </div>
+
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-white">Combos y Packs Vendidos</div>
+                    <div class="text-[11px] text-slate-400">Packs agrupados hoy:</div>
+                    <div class="text-2xl font-extrabold text-emerald-400 font-mono">{{ $businessWidgetsData['bundles_sold'] ?? 12 }} Packs</div>
+                </div>
+
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-white">Artículos Top Rotación</div>
+                    <div class="flex flex-wrap gap-1.5 pt-1">
+                        @foreach($businessWidgetsData['fast_movers'] ?? ['Audífonos Bluetooth', 'Cargador Rápido', 'Protector'] as $item)
+                            <span class="px-2.5 py-1 rounded bg-slate-800 text-slate-200 border border-slate-700 font-semibold">🛍️ {{ $item }}</span>
+                        @endforeach
+                    </div>
                 </div>
             </div>
 

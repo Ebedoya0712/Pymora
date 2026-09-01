@@ -259,17 +259,26 @@
                                 'carniceria_hortalizas' => 'Punto de Venta (Báscula/Kg)',
                                 'tecnologia_electro' => 'Punto de Venta (Seriales/IMEI)',
                                 'servicios' => 'Agenda de Citas & POS',
+                                'licoreria' => 'Punto de Venta (Botellas/Cajas)',
+                                'ropa' => 'Punto de Venta (Tallas)',
+                                'distribuidor' => 'Punto de Venta Mayorista',
+                                'fabricante' => 'Punto de Venta / Despacho',
+                                'repuestos' => 'Punto de Venta (Autopartes)',
+                                'articulos' => 'Punto de Venta (Variedades)',
                                 default => 'Punto de Venta (POS)',
                             };
 
                             $invLabel = match($bTypeKey) {
-                                'restaurante' => 'Inventario & Recetas',
+                                'restaurante' => 'Inventario & Recetas / Insumos',
                                 'fabricante' => 'Insumos & Recetas BOM',
                                 'ropa' => 'Inventario (Tallas & Colores)',
                                 'carniceria_hortalizas' => 'Inventario (Kilos & Mermas)',
                                 'tecnologia_electro' => 'Stock (Seriales & Garantías)',
                                 'repuestos' => 'Catálogo Marca/Modelo/Año',
                                 'servicios' => 'Órdenes de Trabajo & Servicios',
+                                'licoreria' => 'Inventario de Licores',
+                                'distribuidor' => 'Inventario Mayorista & Rutas',
+                                'articulos' => 'Inventario de Variedades & Combos',
                                 default => 'Inventario Inteligente',
                             };
                         @endphp

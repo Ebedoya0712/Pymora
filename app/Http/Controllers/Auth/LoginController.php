@@ -26,6 +26,7 @@ class LoginController extends Controller
 
         // Handle Demo Quick Logins for testing
         if ($role) {
+            $firstTenant = \App\Models\Tenant::first();
             session([
                 'user_role' => $role,
                 'user_email' => $request->input('email'),
@@ -35,7 +36,10 @@ class LoginController extends Controller
                     'cashier' => 'Pedro Gómez (Cajero)',
                     'warehouse_manager' => 'Luis Almacén',
                     default => 'Usuario Pymora'
-                }
+                },
+                'tenant_id' => $firstTenant->id ?? 1,
+                'company_name' => $firstTenant->name ?? 'Bodega & Abasto El Sol C.A.',
+                'business_type' => $firstTenant->business_type ?? 'abasto',
             ]);
 
             return match($role) {
@@ -50,11 +54,15 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->has('remember'))) {
             $request->session()->regenerate();
             $user = Auth::user();
+            $tenant = $user->tenant;
 
             session([
                 'user_role' => $user->role,
                 'user_email' => $user->email,
                 'user_name' => $user->name,
+                'tenant_id' => $user->tenant_id,
+                'company_name' => $tenant?->name ?? 'Bodega & Abasto El Sol C.A.',
+                'business_type' => $tenant?->business_type ?? 'abasto',
             ]);
 
             return match($user->role ?? 'owner') {
