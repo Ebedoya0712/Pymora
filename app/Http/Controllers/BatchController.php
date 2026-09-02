@@ -115,12 +115,32 @@ class BatchController extends Controller
         return redirect()->route('batches.index')->with('success', '¡Lote de producto registrado exitosamente con fecha de vencimiento!');
     }
 
+    public function update(Request $request, $id)
+    {
+        $tenant = Tenant::current() ?? (object)['id' => 1];
+        $batch = ProductBatch::where('tenant_id', $tenant->id)->findOrFail($id);
+
+        $validated = $request->validate([
+            'batch_number' => 'required|string|max:100',
+            'quantity' => 'required|numeric|min:0.01',
+            'expiration_date' => 'required|date',
+            'manufactured_date' => 'nullable|date',
+            'branch_id' => 'nullable|exists:branches,id',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $batch->update($validated);
+
+        return redirect()->route('batches.index')->with('success', '¡Lote #' . $batch->batch_number . ' actualizado correctamente!');
+    }
+
     public function destroy($id)
     {
         $tenant = Tenant::current() ?? (object)['id' => 1];
         $batch = ProductBatch::where('tenant_id', $tenant->id)->findOrFail($id);
+        $batchNum = $batch->batch_number;
         $batch->delete();
 
-        return redirect()->route('batches.index')->with('success', 'Lote eliminado del sistema.');
+        return redirect()->route('batches.index')->with('success', 'Lote #' . $batchNum . ' eliminado del sistema.');
     }
 }

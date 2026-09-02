@@ -15,12 +15,8 @@
                 📷
             </div>
             <div>
-                <div class="flex items-center gap-2">
+                <div>
                     <h2 class="text-xl font-bold text-white font-display">Módulo de Escáner de Productos</h2>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        Dispositivo Activo
-                    </span>
                 </div>
                 <p class="text-xs text-slate-400 mt-0.5">Escaneo en vivo por cámara web/móvil, lector láser USB/Bluetooth y búsqueda manual.</p>
             </div>
@@ -52,7 +48,7 @@
                         <span class="font-bold">Lector USB / Láser</span>
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                     </div>
-                    <div class="text-[11px] text-slate-300 font-mono">Pistola Lista</div>
+                    <div class="text-[11px] text-slate-300 font-mono">Lector Láser Listo</div>
                     <div class="text-[9px] text-slate-500">Escucha automática activa</div>
                 </div>
 
@@ -109,7 +105,7 @@
                     <label class="text-xs font-bold text-slate-200 flex items-center gap-2">
                         <span>Entrada del Escáner / Búsqueda Manual:</span>
                     </label>
-                    <span class="text-[10px] text-slate-400 font-mono">Presiona Enter o dispara con la pistola</span>
+                    <span class="text-[10px] text-slate-400 font-mono">Presiona Enter o dispara con el lector láser</span>
                 </div>
 
                 <div class="relative">
@@ -120,20 +116,14 @@
                            x-ref="mainScannerInput"
                            x-model="scanQuery" 
                            @keydown.enter.prevent="executeScan()"
-                           placeholder="Escanea con la pistola o escribe el código de barras, SKU o nombre..." 
-                           class="w-full pl-11 pr-28 py-3.5 bg-slate-950 border-2 border-indigo-500/40 focus:border-indigo-400 rounded-xl text-white font-mono text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-inner">
-                    <button type="button" 
-                            @click="executeScan()" 
-                            class="absolute right-2 top-2 bottom-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-md font-display">
-                        <span>Escanear</span>
-                        <kbd class="text-[9px] bg-indigo-800 px-1 py-0.5 rounded font-mono">↵ Enter</kbd>
-                    </button>
+                           placeholder="Escanea con el lector láser o escribe el código de barras, SKU o nombre..." 
+                           class="w-full pl-11 pr-4 py-3.5 bg-slate-950 border-2 border-indigo-500/40 focus:border-indigo-400 rounded-xl text-white font-mono text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-inner">
                 </div>
 
                 <!-- Quick Click-to-Scan Simulator Badges -->
                 <div class="space-y-2 pt-2 border-t border-slate-800">
                     <div class="text-[11px] font-semibold text-slate-400 flex items-center justify-between">
-                        <span>⚡ Códigos del Catálogo para prueba rápida (Haz clic para escanear):</span>
+                        <span>Selecciona un producto para escanear directamente:</span>
                         <span class="text-slate-500 text-[10px] font-mono">{{ $barcodeProductsCount }} productos</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
@@ -319,16 +309,55 @@
                 </div>
             </div>
 
-            <!-- Device Connection Guide & Tips -->
-            <div class="glass-card p-4 rounded-xl border border-slate-800 text-xs space-y-2 text-slate-400">
-                <div class="font-bold text-white flex items-center gap-1.5">
-                    <span>💡 Instrucciones de Conexión:</span>
+            <!-- Detailed Scanner Guide & Step-by-Step Instructions -->
+            <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3.5 text-xs">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                    <h4 class="font-bold text-white font-display text-sm">Guía de Uso e Instrucciones</h4>
+                    <span class="text-[10px] font-mono text-indigo-400 font-semibold px-2 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20">3 Modos de Escaneo</span>
                 </div>
-                <ul class="list-disc list-inside space-y-1 text-[11px] text-slate-400 leading-relaxed">
-                    <li><strong>Cámara de Video:</strong> Haz clic en <span class="text-emerald-400 font-semibold">"Activar Cámara"</span>. El sistema encenderá el lente con detección óptica en tiempo real.</li>
-                    <li><strong>Lectores USB:</strong> Conéctalo al puerto USB. Cada lectura se capturará automáticamente sin necesidad de seleccionar la caja de texto.</li>
-                    <li><strong>Lectores Bluetooth:</strong> Emparéjalo con tu equipo o tablet. Cada disparo se procesará al instante con sonido de confirmación.</li>
-                </ul>
+
+                <div class="space-y-3 text-[11px] leading-relaxed">
+                    <!-- 1. Pistola USB / Bluetooth -->
+                    <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-1">
+                        <div class="font-bold text-indigo-300">
+                            1. Lectores Láser USB / Bluetooth:
+                        </div>
+                        <p class="text-slate-400">
+                            Conecta tu lector láser al puerto USB o emparéjalo por Bluetooth. Apunta al código y presiona el gatillo. <strong class="text-slate-200">No necesitas hacer clic en la pantalla</strong>; el sistema captura el disparo automáticamente desde cualquier lugar de la página.
+                        </p>
+                    </div>
+
+                    <!-- 2. Cámara Web / Móvil -->
+                    <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-1">
+                        <div class="font-bold text-emerald-300">
+                            2. Cámara Web o Cámara del Celular / Tablet:
+                        </div>
+                        <p class="text-slate-400">
+                            Presiona el botón <strong class="text-emerald-400">"Activar Cámara"</strong> en la parte superior y autoriza los permisos del navegador. Centra el código de barras en el visor y el lector óptico lo detectará en milisegundos emitiendo un sonido <em>beep</em> de confirmación.
+                        </p>
+                    </div>
+
+                    <!-- 3. Entrada Manual -->
+                    <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-1">
+                        <div class="font-bold text-sky-300">
+                            3. Búsqueda Manual / Código Incompleto:
+                        </div>
+                        <p class="text-slate-400">
+                            Si la etiqueta del producto está dañada o borrosa, escribe los dígitos del código de barras, SKU o nombre en la barra de búsqueda y presiona <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-200 font-mono text-[10px]">Enter</kbd>.
+                        </p>
+                    </div>
+
+                    <!-- 4. Acciones del Resultado -->
+                    <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-1">
+                        <div class="font-bold text-amber-300">
+                            4. Acciones Tras el Escaneo:
+                        </div>
+                        <ul class="text-slate-400 space-y-1 list-disc list-inside">
+                            <li><strong class="text-slate-200">Producto Encontrado:</strong> Verás precio en USD y Bolívares (VES a tasa BCV), existencias por sucursal y accesos directos para cobrar en POS o ajustar stock.</li>
+                            <li><strong class="text-slate-200">Código Nuevo / No Registrado:</strong> Se abrirá automáticamente un formulario para registrarlo en el catálogo en 5 segundos sin salir del escáner.</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
         </div>

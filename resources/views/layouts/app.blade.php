@@ -367,18 +367,51 @@
             </div>
 
             <!-- User Info & Logout Footer -->
+            @php
+                $authUser = auth()->user();
+                $tenantObj = \App\Models\Tenant::current();
+                $tenantOwner = $tenantObj ? \App\Models\User::where('tenant_id', $tenantObj->id)->where('role', 'owner')->first() : null;
+
+                if ($authUser && $authUser->role !== 'super_admin') {
+                    $sidebarUserName = $authUser->name;
+                    $sidebarUserRole = $authUser->role;
+                    $sidebarUserAvatar = $authUser->avatar ?? null;
+                } elseif (session('user_role') && session('user_role') !== 'super_admin') {
+                    $sidebarUserName = session('user_name', $tenantOwner->name ?? 'Carlos Mendoza (Dueño)');
+                    $sidebarUserRole = session('user_role', 'owner');
+                    $sidebarUserAvatar = null;
+                } elseif ($tenantObj && !request()->routeIs('superadmin.*')) {
+                    $sidebarUserName = $tenantOwner ? $tenantOwner->name : (session('user_name') && session('user_name') !== 'Super Admin Pymora' ? session('user_name') : 'Carlos Mendoza (Dueño)');
+                    $sidebarUserRole = $tenantOwner ? $tenantOwner->role : (session('user_role') && session('user_role') !== 'super_admin' ? session('user_role') : 'owner');
+                    $sidebarUserAvatar = $tenantOwner->avatar ?? null;
+                } else {
+                    $sidebarUserName = session('user_name', $authUser->name ?? 'Super Admin Pymora');
+                    $sidebarUserRole = session('user_role', $authUser->role ?? 'super_admin');
+                    $sidebarUserAvatar = $authUser->avatar ?? null;
+                }
+
+                $roleLabel = match($sidebarUserRole) {
+                    'super_admin' => 'Super Admin SaaS',
+                    'owner' => 'Dueño del Negocio',
+                    'branch_manager' => 'Gerente de Sucursal',
+                    'cashier' => 'Cajero / POS',
+                    'warehouse_manager' => 'Jefe de Almacén',
+                    'accountant' => 'Contador',
+                    default => ucfirst(str_replace('_', ' ', $sidebarUserRole))
+                };
+            @endphp
             <div class="p-4 border-t border-slate-800 flex items-center justify-between bg-slate-900/50">
                 <div class="flex items-center gap-3">
-                    @if(auth()->check() && auth()->user()->avatar && \Illuminate\Support\Facades\Storage::disk('public')->exists(auth()->user()->avatar))
-                        <img src="{{ asset('storage/' . auth()->user()->avatar) }}" class="w-8 h-8 rounded-full object-cover border border-slate-700 shadow">
+                    @if($sidebarUserAvatar && \Illuminate\Support\Facades\Storage::disk('public')->exists($sidebarUserAvatar))
+                        <img src="{{ asset('storage/' . $sidebarUserAvatar) }}" class="w-8 h-8 rounded-full object-cover border border-slate-700 shadow">
                     @else
                         <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white text-xs">
-                            {{ strtoupper(substr(session('user_name', 'Super Admin'), 0, 2)) }}
+                            {{ strtoupper(substr($sidebarUserName, 0, 2)) }}
                         </div>
                     @endif
-                    <div>
-                        <div class="text-xs font-semibold text-slate-200">{{ session('user_name', 'Super Admin Pymora') }}</div>
-                        <div class="text-[10px] text-slate-400 font-medium capitalize">{{ str_replace('_', ' ', session('user_role', 'super_admin')) }}</div>
+                    <div class="truncate max-w-[130px]">
+                        <div class="text-xs font-semibold text-slate-200 truncate" title="{{ $sidebarUserName }}">{{ $sidebarUserName }}</div>
+                        <div class="text-[10px] text-slate-400 font-medium truncate">{{ $roleLabel }}</div>
                     </div>
                 </div>
 

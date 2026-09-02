@@ -12,11 +12,8 @@
                 📦
             </div>
             <div>
-                <div class="flex items-center gap-2">
+                <div>
                     <h2 class="text-xl font-bold text-white font-display">Inventario Inteligente Multialmacén</h2>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-wider">
-                        Control en Tiempo Real
-                    </span>
                 </div>
                 <p class="text-xs text-slate-400 mt-0.5">Control de existencias, semáforo de stock mínimo crítico, valoración multimoneda y reposición.</p>
             </div>
@@ -33,7 +30,7 @@
 
             <button type="button" @click="openCreateModal = true" class="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2 font-display cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                <span>+ Agregar Producto</span>
+                <span>Agregar Producto</span>
             </button>
         </div>
     </div>
@@ -54,7 +51,7 @@
                 <span>📋</span>
             </div>
             <div class="text-2xl font-extrabold text-white font-mono">{{ $totalProductsCount }}</div>
-            <div class="text-[10px] text-slate-400">{{ number_format($totalStockUnits, 1) }} unidades totales</div>
+            <div class="text-[10px] text-slate-400">{{ number_format($totalStockUnits, 0) }} unidades totales</div>
         </div>
 
         <!-- Stock Bajo / Crítico Card -->
@@ -89,7 +86,6 @@
                 <span class="text-[10px] font-mono text-slate-400">Tasa: {{ number_format($bcvUsdRate, 2) }}</span>
             </div>
             <div class="text-2xl font-extrabold text-indigo-400 font-mono">Bs {{ number_format($totalInventoryValueVes, 2) }}</div>
-            <div class="text-[10px] text-slate-400">Sincronizado con API DolarApi Oficial</div>
         </div>
     </div>
 
@@ -115,16 +111,32 @@
 
             <!-- Search & Category Filter -->
             <div class="flex items-center gap-2">
-                <select name="category_id" onchange="this.form.submit()" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-indigo-500">
-                    <option value="all" {{ $categoryId === 'all' ? 'selected' : '' }}>Todas las Categorías</option>
+                <select name="category_id" 
+                        x-model="selectedCategory" 
+                        class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-indigo-500 cursor-pointer">
+                    <option value="all">Todas las Categorías</option>
                     @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}" {{ $categoryId == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                     @endforeach
                 </select>
 
-                <div class="relative min-w-[220px]">
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por Nombre, SKU, Barcode..." class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                <div class="relative min-w-[240px]">
+                    <input type="text" 
+                           name="search" 
+                           x-model="searchQuery" 
+                           @keydown.enter.prevent
+                           placeholder="Buscar por Nombre, SKU, Barcode..." 
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-8 pr-7 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
                     <svg class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    
+                    <!-- Botón para limpiar búsqueda rápida -->
+                    <button type="button" 
+                            x-show="searchQuery.length > 0" 
+                            @click="searchQuery = ''" 
+                            class="absolute right-2 top-2 text-slate-400 hover:text-white transition-colors"
+                            title="Limpiar búsqueda">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
                 </div>
             </div>
         </form>
@@ -149,7 +161,8 @@
                 </thead>
                 <tbody class="divide-y divide-slate-800/80">
                     @forelse($products as $p)
-                        <tr class="transition-colors {{ $p->is_low_stock ? 'bg-rose-950/20 border-l-4 border-rose-500 hover:bg-rose-900/30' : 'hover:bg-slate-900/50' }}">
+                        <tr x-show="matchesSearch('{{ addslashes($p->name) }}', '{{ addslashes($p->sku ?? '') }}', '{{ addslashes($p->barcode ?? '') }}', '{{ $p->category_id ?? '' }}', '{{ addslashes($p->category->name ?? 'General') }}')" 
+                            class="transition-colors {{ $p->is_low_stock ? 'bg-rose-950/20 border-l-4 border-rose-500 hover:bg-rose-900/30' : 'hover:bg-slate-900/50' }}">
                             <!-- Producto -->
                             <td class="p-3.5">
                                 <div class="font-bold text-white text-sm flex items-center gap-2">
@@ -191,12 +204,12 @@
 
                             <!-- Stock Total (RED IF LOW) -->
                             <td class="p-3.5 font-mono font-extrabold text-sm {{ $p->is_low_stock ? 'text-rose-400 font-black' : 'text-white' }}">
-                                {{ number_format($p->total_stock, 1) }} <span class="text-xs font-normal text-slate-400 font-sans">{{ $p->unit }}</span>
+                                {{ (float)$p->total_stock == (int)$p->total_stock ? number_format($p->total_stock, 0) : rtrim(rtrim(number_format($p->total_stock, 2), '0'), '.') }} <span class="text-xs font-normal text-slate-400 font-sans">{{ $p->unit }}</span>
                             </td>
 
                             <!-- Mínimo Alerta -->
                             <td class="p-3.5 font-mono text-slate-400 text-xs">
-                                {{ number_format($p->min_alert, 1) }} {{ $p->unit }}
+                                {{ (float)$p->min_alert == (int)$p->min_alert ? number_format($p->min_alert, 0) : rtrim(rtrim(number_format($p->min_alert, 2), '0'), '.') }} {{ $p->unit }}
                             </td>
 
                             <!-- Estado Stock (RED BADGE IF LOW) -->
@@ -222,12 +235,33 @@
                                         <span>+ Reponer</span>
                                     </button>
 
-                                    <form action="{{ route('inventory.destroy', $p->id) }}" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar este producto?');" class="inline">
-                                        @csrf
-                                        <button type="submit" class="p-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 transition-colors" title="Eliminar Producto">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                        </button>
-                                    </form>
+                                    <!-- Botón Editar Producto -->
+                                    <button type="button" 
+                                            @click="openEditProductModal({
+                                                id: {{ $p->id }},
+                                                name: '{{ addslashes($p->name) }}',
+                                                category_id: '{{ $p->category_id }}',
+                                                sku: '{{ addslashes($p->sku ?? '') }}',
+                                                barcode: '{{ addslashes($p->barcode ?? '') }}',
+                                                unit: '{{ addslashes($p->unit ?? 'Unidad') }}',
+                                                cost_usd: '{{ $p->cost_usd }}',
+                                                price_usd: '{{ $p->price_usd }}',
+                                                min_stock_alert: '{{ $p->min_stock_alert ?? 10 }}',
+                                                has_lots: {{ $p->has_lots ? 'true' : 'false' }},
+                                                description: '{{ addslashes($p->description ?? '') }}'
+                                            })" 
+                                            class="p-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/25 text-indigo-400 hover:text-indigo-300 transition-colors" 
+                                            title="Editar Información del Producto">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    </button>
+
+                                    <!-- Botón Eliminar Producto (Abre Modal de Confirmación) -->
+                                    <button type="button" 
+                                            @click="openDeleteProductModal('{{ $p->id }}', '{{ addslashes($p->name) }}')" 
+                                            class="p-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/25 text-rose-400 hover:text-rose-300 transition-colors" 
+                                            title="Eliminar Producto">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -238,6 +272,15 @@
                             </td>
                         </tr>
                     @endforelse
+
+                    <!-- Mensaje en vivo cuando la búsqueda no coincide con ningún producto -->
+                    <tr x-show="visibleCount === 0 && productsList.length > 0" x-cloak>
+                        <td colspan="9" class="p-8 text-center text-slate-400 text-xs space-y-1">
+                            <div class="text-xl">🔍</div>
+                            <div class="text-sm font-semibold text-white">No se encontraron productos que coincidan</div>
+                            <div class="text-[11px] text-slate-400">No hay coincidencias para "<span class="text-indigo-400 font-semibold" x-text="searchQuery"></span>". Prueba con otro nombre, SKU o código de barras.</div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -293,9 +336,9 @@
                                 <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-mono text-indigo-300">SKU: {{ $lowP->sku }}</span>
                             </div>
                             <div class="text-xs text-slate-300 mt-1 flex items-center gap-3">
-                                <span>Existencia Actual: <strong class="text-rose-400 font-mono font-bold text-sm">{{ $lowP->total_stock }} {{ $lowP->unit }}</strong></span>
+                                <span>Existencia Actual: <strong class="text-rose-400 font-mono font-bold text-sm">{{ (float)$lowP->total_stock == (int)$lowP->total_stock ? number_format($lowP->total_stock, 0) : number_format($lowP->total_stock, 2) }} {{ $lowP->unit }}</strong></span>
                                 <span>•</span>
-                                <span>Alerta Mínima: <strong class="text-slate-200 font-mono">{{ $lowP->min_alert }} {{ $lowP->unit }}</strong></span>
+                                <span>Alerta Mínima: <strong class="text-slate-200 font-mono">{{ (float)$lowP->min_alert == (int)$lowP->min_alert ? number_format($lowP->min_alert, 0) : number_format($lowP->min_alert, 2) }} {{ $lowP->unit }}</strong></span>
                             </div>
                         </div>
 
@@ -494,6 +537,165 @@
         </div>
     </div>
 
+    <!-- ========================================================= -->
+    <!-- ✏️ MODAL: EDITAR INFORMACIÓN DE PRODUCTO                  -->
+    <!-- ========================================================= -->
+    <div x-show="openEditModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        
+        <div @click.away="openEditModal = false" 
+             class="glass-card w-full max-w-2xl rounded-2xl border border-slate-700 bg-slate-900/95 shadow-2xl p-6 space-y-5"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0">
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-lg shadow-inner">
+                        ✏️
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white font-display">Editar Información del Producto</h3>
+                        <p class="text-xs text-slate-400">Actualiza precios, códigos, categoría y parámetros de inventario</p>
+                    </div>
+                </div>
+                <button type="button" @click="openEditModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form :action="'/inventory/' + editProductData.id + '/update'" method="POST" class="space-y-4 text-xs">
+                @csrf
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-200">Nombre del Producto *</label>
+                        <input type="text" name="name" x-model="editProductData.name" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:border-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-200">Categoría</label>
+                        <select name="category_id" x-model="editProductData.category_id" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-indigo-500 focus:outline-none">
+                            <option value="">-- Sin categoría --</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-200">Código SKU</label>
+                        <input type="text" name="sku" x-model="editProductData.sku" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:border-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-200">Código de Barras (EAN/UPC)</label>
+                        <input type="text" name="barcode" x-model="editProductData.barcode" placeholder="Ej: 7591001..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:border-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-200">Unidad de Medida</label>
+                        <input type="text" name="unit" x-model="editProductData.unit" placeholder="Ej: Unidad, Kg, Litro..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-200">Costo ($ USD) *</label>
+                        <input type="number" step="0.01" min="0" name="cost_usd" x-model="editProductData.cost_usd" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:border-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-200">Precio Venta ($ USD) *</label>
+                        <input type="number" step="0.01" min="0.01" name="price_usd" x-model="editProductData.price_usd" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:border-indigo-500 focus:outline-none">
+                        <div class="text-[10px] text-emerald-400 font-mono" x-text="'Equivale a: Bs ' + ((parseFloat(editProductData.price_usd) || 0) * {{ $bcvUsdRate }}).toFixed(2) + ' VES'"></div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="font-bold text-rose-300">Stock Mínimo Alerta *</label>
+                        <input type="number" step="0.01" min="0" name="min_stock_alert" x-model="editProductData.min_stock_alert" required class="w-full bg-slate-950 border border-rose-500/40 rounded-xl px-3 py-2 text-rose-200 font-mono focus:border-rose-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-200">Descripción / Detalles (Opcional)</label>
+                    <textarea name="description" x-model="editProductData.description" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:border-indigo-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-slate-200">Manejo de Lotes y Vencimientos</div>
+                        <div class="text-[10px] text-slate-400">Habilita trazabilidad por fecha de caducidad en anaquel</div>
+                    </div>
+                    <input type="checkbox" name="has_lots" value="1" x-model="editProductData.has_lots" class="rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-0 w-4 h-4">
+                </div>
+
+                <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+                    <button type="button" @click="openEditModal = false" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all font-display">
+                        ✓ Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- 🗑️ MODAL: CONFIRMAR ELIMINACIÓN DE PRODUCTO               -->
+    <!-- ========================================================= -->
+    <div x-show="openDeleteModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        
+        <div @click.away="openDeleteModal = false" 
+             class="glass-card w-full max-w-md rounded-2xl border border-rose-500/40 bg-slate-900/95 shadow-2xl p-6 space-y-4 text-center"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0">
+            
+            <div class="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-2xl mx-auto shadow-inner">
+                🚨
+            </div>
+
+            <div>
+                <h3 class="text-base font-bold text-white font-display">¿Eliminar Producto del Inventario?</h3>
+                <p class="text-xs text-slate-300 mt-2">
+                    Estás a punto de eliminar el producto <strong class="text-white font-semibold" x-text="deleteProductName"></strong>.
+                </p>
+                <p class="text-[11px] text-rose-400/90 mt-1 font-medium bg-rose-500/10 border border-rose-500/20 rounded-lg p-2">
+                    ⚠️ Esta acción borrará el registro de stock y no se puede deshacer.
+                </p>
+            </div>
+
+            <form :action="'/inventory/' + deleteProductId + '/delete'" method="POST" class="flex items-center justify-center gap-3 pt-2">
+                @csrf
+                <button type="button" @click="openDeleteModal = false" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition-colors text-xs">
+                    Cancelar
+                </button>
+                <button type="submit" class="w-1/2 py-2.5 bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white font-bold rounded-xl shadow-lg shadow-rose-600/30 transition-all text-xs font-display">
+                    Sí, Eliminar
+                </button>
+            </form>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -502,11 +704,64 @@ function inventoryManager(hasLowStock) {
         showLowStockAlertModal: hasLowStock,
         openCreateModal: false,
         openStockModal: false,
+        openEditModal: false,
+        openDeleteModal: false,
+
+        searchQuery: '{{ addslashes($search) }}',
+        selectedCategory: '{{ $categoryId }}',
+
+        productsList: {!! $productsJson !!},
+
+        get visibleCount() {
+            const q = (this.searchQuery || '').toLowerCase().trim();
+            const cat = this.selectedCategory;
+            return this.productsList.filter(p => {
+                const matchCat = (cat === 'all' || cat === '' || cat === p.category_id);
+                const matchText = !q || 
+                    p.name.toLowerCase().includes(q) || 
+                    p.sku.toLowerCase().includes(q) || 
+                    p.barcode.toLowerCase().includes(q) || 
+                    p.category_name.toLowerCase().includes(q);
+                return matchCat && matchText;
+            }).length;
+        },
+
+        matchesSearch(name, sku, barcode, categoryId, categoryName) {
+            const cat = this.selectedCategory;
+            if (cat !== 'all' && cat !== '' && cat != categoryId) {
+                return false;
+            }
+            if (!this.searchQuery || this.searchQuery.trim() === '') {
+                return true;
+            }
+            const q = this.searchQuery.toLowerCase().trim();
+            return name.toLowerCase().includes(q) || 
+                   sku.toLowerCase().includes(q) || 
+                   barcode.toLowerCase().includes(q) || 
+                   categoryName.toLowerCase().includes(q);
+        },
 
         adjustProductId: null,
         adjustProductName: '',
         adjustCurrentStock: 0,
         adjustMinAlert: 10,
+
+        deleteProductId: null,
+        deleteProductName: '',
+
+        editProductData: {
+            id: null,
+            name: '',
+            category_id: '',
+            sku: '',
+            barcode: '',
+            unit: 'Unidad',
+            cost_usd: 0,
+            price_usd: 0,
+            min_stock_alert: 10,
+            has_lots: false,
+            description: ''
+        },
 
         openAdjustModal(id, name, stock, minAlert) {
             this.adjustProductId = id;
@@ -514,6 +769,17 @@ function inventoryManager(hasLowStock) {
             this.adjustCurrentStock = stock;
             this.adjustMinAlert = minAlert;
             this.openStockModal = true;
+        },
+
+        openEditProductModal(prod) {
+            this.editProductData = Object.assign({}, prod);
+            this.openEditModal = true;
+        },
+
+        openDeleteProductModal(id, name) {
+            this.deleteProductId = id;
+            this.deleteProductName = name;
+            this.openDeleteModal = true;
         }
     };
 }

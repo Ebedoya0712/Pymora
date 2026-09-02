@@ -84,9 +84,21 @@ class InventoryController extends Controller
         $categories = Category::where('tenant_id', $tenant->id)->get();
         $branches = Branch::where('tenant_id', $tenant->id)->get();
 
+        $productsJson = $products->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'name' => $p->name,
+                'sku' => $p->sku ?? '',
+                'barcode' => $p->barcode ?? '',
+                'category_id' => (string)($p->category_id ?? ''),
+                'category_name' => $p->category->name ?? 'General',
+            ];
+        })->values()->toJson();
+
         return view('inventory.index', compact(
             'tenant',
             'products',
+            'productsJson',
             'lowStockProducts',
             'lowStockCount',
             'totalProductsCount',
@@ -187,12 +199,47 @@ class InventoryController extends Controller
         return redirect()->route('inventory.index')->with('success', 'Stock de producto actualizado correctamente.');
     }
 
+    public function update(Request $request, $id)
+    {
+        $tenant = Tenant::current() ?? (object)['id' => 1];
+        $product = Product::where('tenant_id', $tenant->id)->findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'sku' => 'nullable|string|max:100',
+            'barcode' => 'nullable|string|max:100',
+            'description' => 'nullable|string',
+            'cost_usd' => 'required|numeric|min:0',
+            'price_usd' => 'required|numeric|min:0.01',
+            'min_stock_alert' => 'nullable|numeric|min:0',
+            'unit' => 'nullable|string|max:50',
+            'has_lots' => 'nullable|boolean',
+        ]);
+
+        $product->update([
+            'category_id' => $validated['category_id'] ?? null,
+            'name' => $validated['name'],
+            'sku' => $validated['sku'] ?: $product->sku,
+            'barcode' => $validated['barcode'] ?: null,
+            'description' => $validated['description'] ?? null,
+            'cost_usd' => $validated['cost_usd'],
+            'price_usd' => $validated['price_usd'],
+            'min_stock_alert' => $validated['min_stock_alert'] ?? 10.00,
+            'unit' => $validated['unit'] ?? 'Unidad',
+            'has_lots' => $request->has('has_lots'),
+        ]);
+
+        return redirect()->route('inventory.index')->with('success', '¡Producto "' . $product->name . '" actualizado correctamente!');
+    }
+
     public function destroy($id)
     {
         $tenant = Tenant::current() ?? (object)['id' => 1];
         $product = Product::where('tenant_id', $tenant->id)->findOrFail($id);
+        $productName = $product->name;
         $product->delete();
 
-        return redirect()->route('inventory.index')->with('success', 'Producto eliminado del inventario.');
+        return redirect()->route('inventory.index')->with('success', 'Producto "' . $productName . '" eliminado del inventario.');
     }
 }

@@ -194,7 +194,7 @@
             <div class="text-2xl font-extrabold text-white font-display">{{ $totalProductsCount }} <span class="text-xs font-normal text-slate-400 font-sans">Productos</span></div>
             <div class="text-xs text-purple-400 flex items-center gap-1.5 pt-1 border-t border-slate-800/60">
                 <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                <span>{{ number_format($totalStockUnits, 1) }} unidades totales en stock</span>
+                <span>{{ (float)$totalStockUnits == (int)$totalStockUnits ? number_format($totalStockUnits, 0) : number_format($totalStockUnits, 2) }} unidades totales en stock</span>
             </div>
         </a>
 

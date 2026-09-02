@@ -89,8 +89,23 @@
                 <button type="button" 
                         @click="setCurrency('VES')" 
                         :class="displayCurrency === 'VES' ? 'bg-sky-600 text-white font-bold shadow-lg shadow-sky-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'" 
-                        class="py-1.5 rounded-lg text-xs transition-all flex items-center justify-center gap-1 cursor-pointer">
-                    <span>🇻🇪</span><span class="font-mono">VES (Bs)</span>
+                        class="py-1.5 rounded-lg text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <svg class="w-4 h-2.5 rounded-[2px] shadow-sm shrink-0 inline-block overflow-hidden" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="900" height="200" fill="#FFCC00"/>
+                        <rect y="200" width="900" height="200" fill="#00247D"/>
+                        <rect y="400" width="900" height="200" fill="#CF142B"/>
+                        <g fill="#FFFFFF" transform="translate(450, 360)">
+                            <g id="vzla_star_mini"><polygon points="0,-14 4.1,-4.3 14,-4.3 6,1.6 9,11.3 0,5.3 -9,11.3 -6,1.6 -14,-4.3 -4.1,-4.3"/></g>
+                            <use href="#vzla_star_mini" transform="rotate(-60) translate(0, -95)"/>
+                            <use href="#vzla_star_mini" transform="rotate(-40) translate(0, -95)"/>
+                            <use href="#vzla_star_mini" transform="rotate(-20) translate(0, -95)"/>
+                            <use href="#vzla_star_mini" transform="rotate(0) translate(0, -95)"/>
+                            <use href="#vzla_star_mini" transform="rotate(20) translate(0, -95)"/>
+                            <use href="#vzla_star_mini" transform="rotate(40) translate(0, -95)"/>
+                            <use href="#vzla_star_mini" transform="rotate(60) translate(0, -95)"/>
+                        </g>
+                    </svg>
+                    <span class="font-mono">VES (Bs)</span>
                 </button>
                 <button type="button" 
                         @click="setCurrency('EUR')" 
@@ -339,8 +354,22 @@
                         <button type="button" 
                                 @click="selectCurrency('VES')" 
                                 :class="payCurrency === 'VES' ? 'bg-sky-600 text-white border-sky-400' : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'" 
-                                class="p-3 rounded-xl border font-bold flex flex-col items-center gap-1 transition-all cursor-pointer">
-                            <span class="text-lg">🇻🇪</span>
+                                class="p-3 rounded-xl border font-bold flex flex-col items-center gap-1.5 transition-all cursor-pointer">
+                            <svg class="w-6 h-4 rounded-[2px] shadow-sm shrink-0 inline-block overflow-hidden" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="900" height="200" fill="#FFCC00"/>
+                                <rect y="200" width="900" height="200" fill="#00247D"/>
+                                <rect y="400" width="900" height="200" fill="#CF142B"/>
+                                <g fill="#FFFFFF" transform="translate(450, 360)">
+                                    <g id="vzla_star_modal"><polygon points="0,-14 4.1,-4.3 14,-4.3 6,1.6 9,11.3 0,5.3 -9,11.3 -6,1.6 -14,-4.3 -4.1,-4.3"/></g>
+                                    <use href="#vzla_star_modal" transform="rotate(-60) translate(0, -95)"/>
+                                    <use href="#vzla_star_modal" transform="rotate(-40) translate(0, -95)"/>
+                                    <use href="#vzla_star_modal" transform="rotate(-20) translate(0, -95)"/>
+                                    <use href="#vzla_star_modal" transform="rotate(0) translate(0, -95)"/>
+                                    <use href="#vzla_star_modal" transform="rotate(20) translate(0, -95)"/>
+                                    <use href="#vzla_star_modal" transform="rotate(40) translate(0, -95)"/>
+                                    <use href="#vzla_star_modal" transform="rotate(60) translate(0, -95)"/>
+                                </g>
+                            </svg>
                             <span>Bolívares (Bs VES)</span>
                         </button>
 

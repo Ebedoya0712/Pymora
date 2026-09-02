@@ -26,7 +26,7 @@
         <div class="flex items-center gap-2.5">
             <button type="button" @click="openModal = true" class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2 font-display cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                <span>+ Registrar Nuevo Lote</span>
+                <span>Registrar Nuevo Lote</span>
             </button>
             <a href="{{ route('dashboard') }}" class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-all flex items-center gap-1.5">
                 <span>Volver al Dashboard</span>
@@ -181,12 +181,33 @@
                                 </span>
                             </td>
                             <td class="p-3.5 text-right">
-                                <form action="{{ route('batches.destroy', $b->id) }}" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar este lote?');" class="inline">
-                                    @csrf
-                                    <button type="submit" class="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 transition-colors" title="Eliminar Lote">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <!-- Botón Editar Lote -->
+                                    <button type="button" 
+                                            @click="openEditBatchModal({
+                                                id: {{ $b->id }},
+                                                batch_number: '{{ addslashes($b->batch_number) }}',
+                                                product_id: {{ $b->product_id }},
+                                                product_name: '{{ addslashes($b->product->name ?? '') }}',
+                                                quantity: {{ $b->quantity }},
+                                                expiration_date: '{{ $b->expiration_date ? $b->expiration_date->format('Y-m-d') : '' }}',
+                                                manufactured_date: '{{ $b->manufactured_date ? $b->manufactured_date->format('Y-m-d') : '' }}',
+                                                branch_id: '{{ $b->branch_id }}',
+                                                notes: '{{ addslashes($b->notes ?? '') }}'
+                                            })" 
+                                            class="p-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/25 text-indigo-400 hover:text-indigo-300 transition-colors" 
+                                            title="Editar Lote">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    </button>
+
+                                    <!-- Botón Eliminar Lote (Abre Modal de Confirmación) -->
+                                    <button type="button" 
+                                            @click="openDeleteBatchModal('{{ $b->id }}', '{{ addslashes($b->batch_number) }}', '{{ addslashes($b->product->name ?? 'Producto') }}')" 
+                                            class="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/25 text-rose-400 hover:text-rose-300 transition-colors" 
+                                            title="Eliminar Lote">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </button>
-                                </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -307,18 +328,181 @@
             </form>
         </div>
     </div>
+
+    <!-- ========================================================= -->
+    <!-- ✏️ MODAL: EDITAR INFORMACIÓN DE LOTE                      -->
+    <!-- ========================================================= -->
+    <div x-show="openEditModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        
+        <div @click.away="openEditModal = false" 
+             class="glass-card w-full max-w-xl rounded-2xl border border-slate-700 bg-slate-900/95 shadow-2xl p-6 space-y-5"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0">
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-lg shadow-inner">
+                        ✏️
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-white font-display">Editar Lote de Producto</h3>
+                        <p class="text-xs text-slate-400" x-text="'Producto: ' + editBatchData.product_name"></p>
+                    </div>
+                </div>
+                <button type="button" @click="openEditModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form :action="'/batches/' + editBatchData.id + '/update'" method="POST" class="space-y-4 text-xs">
+                @csrf
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-200">Número / Código de Lote *</label>
+                        <input type="text" name="batch_number" x-model="editBatchData.batch_number" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white font-mono focus:border-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-200">Cantidad / Unidades del Lote *</label>
+                        <input type="number" step="0.01" min="0.01" name="quantity" x-model="editBatchData.quantity" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white font-mono focus:border-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-200">Fecha de Vencimiento *</label>
+                        <input type="date" name="expiration_date" x-model="editBatchData.expiration_date" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white font-mono focus:border-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-200">Fecha de Fabricación (Opcional)</label>
+                        <input type="date" name="manufactured_date" x-model="editBatchData.manufactured_date" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white font-mono focus:border-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-200">Sucursal de Almacenamiento</label>
+                    <select name="branch_id" x-model="editBatchData.branch_id" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                        @foreach($branches as $branch)
+                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-200">Notas / Ubicación en Anaquel</label>
+                    <input type="text" name="notes" x-model="editBatchData.notes" placeholder="Ej: Nevera 2, anaquel central..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+                    <button type="button" @click="openEditModal = false" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all font-display">
+                        ✓ Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- 🗑️ MODAL: CONFIRMAR ELIMINACIÓN DE LOTE                  -->
+    <!-- ========================================================= -->
+    <div x-show="openDeleteModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        
+        <div @click.away="openDeleteModal = false" 
+             class="glass-card w-full max-w-md rounded-2xl border border-rose-500/40 bg-slate-900/95 shadow-2xl p-6 space-y-4 text-center"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0">
+            
+            <div class="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-2xl mx-auto shadow-inner">
+                🚨
+            </div>
+
+            <div>
+                <h3 class="text-base font-bold text-white font-display">¿Eliminar este Lote?</h3>
+                <p class="text-xs text-slate-300 mt-2">
+                    Estás a punto de eliminar el lote <strong class="text-amber-300 font-mono font-bold" x-text="deleteBatchNumber"></strong> del producto <strong class="text-white font-semibold" x-text="deleteProductName"></strong>.
+                </p>
+                <p class="text-[11px] text-rose-400/90 mt-1 font-medium bg-rose-500/10 border border-rose-500/20 rounded-lg p-2">
+                    ⚠️ Esta acción removerá el control de vencimiento y no se puede deshacer.
+                </p>
+            </div>
+
+            <form :action="'/batches/' + deleteBatchId + '/delete'" method="POST" class="flex items-center justify-center gap-3 pt-2">
+                @csrf
+                <button type="button" @click="openDeleteModal = false" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition-colors text-xs">
+                    Cancelar
+                </button>
+                <button type="submit" class="w-1/2 py-2.5 bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white font-bold rounded-xl shadow-lg shadow-rose-600/30 transition-all text-xs font-display">
+                    Sí, Eliminar
+                </button>
+            </form>
+        </div>
+    </div>
+
 </div>
 
 <script>
 function batchManager() {
     return {
         openModal: false,
+        openEditModal: false,
+        openDeleteModal: false,
         expDate: '',
+
+        deleteBatchId: null,
+        deleteBatchNumber: '',
+        deleteProductName: '',
+
+        editBatchData: {
+            id: null,
+            batch_number: '',
+            product_id: null,
+            product_name: '',
+            quantity: 0,
+            expiration_date: '',
+            manufactured_date: '',
+            branch_id: 1,
+            notes: ''
+        },
 
         setDays(days) {
             const d = new Date();
             d.setDate(d.getDate() + days);
             this.expDate = d.toISOString().split('T')[0];
+        },
+
+        openEditBatchModal(batch) {
+            this.editBatchData = Object.assign({}, batch);
+            this.openEditModal = true;
+        },
+
+        openDeleteBatchModal(id, batchNumber, productName) {
+            this.deleteBatchId = id;
+            this.deleteBatchNumber = batchNumber;
+            this.deleteProductName = productName;
+            this.openDeleteModal = true;
         }
     };
 }
