@@ -416,18 +416,67 @@
                 </button>
             </div>
 
-            <form action="{{ route('inventory.store') }}" method="POST" class="space-y-4 text-xs">
+            <form action="{{ route('inventory.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
                 @csrf
                 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="space-y-1">
-                        <label class="font-bold text-slate-200">Nombre del Producto *</label>
-                        <input type="text" name="name" required placeholder="Ej: Harina de Maíz Juana 1kg" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-200">Nombre del Producto *</label>
+                    <input type="text" name="name" required placeholder="Ej: Harina de Maíz Juana 1kg" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                </div>
+
+                <!-- Subir Imagen del Producto -->
+                <div class="space-y-1" x-data="{ imagePreview: null, uploadMode: 'file' }">
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold text-slate-200 flex items-center gap-1.5">
+                            <span>📷 Imagen del Producto</span>
+                        </label>
+                        <div class="flex items-center gap-2 text-[10px] font-mono">
+                            <button type="button" @click="uploadMode = 'file'" :class="uploadMode === 'file' ? 'text-indigo-400 font-bold underline' : 'text-slate-400 hover:text-slate-300'">Subir Archivo</button>
+                            <span class="text-slate-700">|</span>
+                            <button type="button" @click="uploadMode = 'url'" :class="uploadMode === 'url' ? 'text-indigo-400 font-bold underline' : 'text-slate-400 hover:text-slate-300'">Ingresar URL</button>
+                        </div>
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="font-bold text-slate-200">URL de Imagen (Opcional)</label>
-                        <input type="text" name="image_url" placeholder="https://..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white font-mono text-xs focus:border-indigo-500 focus:outline-none">
+                    <!-- Modo Subir Archivo -->
+                    <div x-show="uploadMode === 'file'" class="relative">
+                        <label class="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-slate-700/80 hover:border-indigo-500/80 rounded-xl cursor-pointer bg-slate-950/60 hover:bg-slate-900/80 transition-all group">
+                            <template x-if="!imagePreview">
+                                <div class="flex items-center gap-3 px-3">
+                                    <div class="w-9 h-9 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <p class="text-xs text-slate-200 font-medium"><span class="text-indigo-400 font-bold">Haz clic aquí para seleccionar imagen</span></p>
+                                        <p class="text-[10px] text-slate-500">Formatos permitidos: JPG, PNG, WEBP (Máx 4MB)</p>
+                                    </div>
+                                </div>
+                            </template>
+                            <template x-if="imagePreview">
+                                <div class="flex items-center justify-between gap-3 p-2 w-full">
+                                    <div class="flex items-center gap-3">
+                                        <img :src="imagePreview" class="w-16 h-14 object-cover rounded-lg border border-slate-700 shadow">
+                                        <div class="text-left">
+                                            <p class="text-xs font-bold text-emerald-400">✓ Imagen seleccionada</p>
+                                            <p class="text-[10px] text-slate-400">Haz clic para cambiar el archivo</p>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click.stop="imagePreview = null" class="px-2 py-1 text-[10px] bg-rose-500/20 text-rose-300 rounded hover:bg-rose-500/30">Quitar</button>
+                                </div>
+                            </template>
+                            <input type="file" name="image" accept="image/*" class="hidden" @change="
+                                const file = $event.target.files[0];
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (e) => imagePreview = e.target.result;
+                                    reader.readAsDataURL(file);
+                                }
+                            ">
+                        </label>
+                    </div>
+
+                    <!-- Modo Enlace URL -->
+                    <div x-show="uploadMode === 'url'">
+                        <input type="text" name="image_url" placeholder="https://ejemplo.com/imagen-producto.jpg" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-xs focus:border-indigo-500 focus:outline-none">
                     </div>
                 </div>
 
@@ -592,7 +641,7 @@
                 </button>
             </div>
 
-            <form :action="'/inventory/' + editProductData.id + '/update'" method="POST" class="space-y-4 text-xs">
+            <form :action="'/inventory/' + editProductData.id + '/update'" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
                 @csrf
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -612,9 +661,60 @@
                     </div>
                 </div>
 
-                <div class="space-y-1">
-                    <label class="font-bold text-slate-200">URL de Imagen del Producto (Opcional)</label>
-                    <input type="text" name="image_url" x-model="editProductData.image_url" placeholder="https://..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-xs focus:border-indigo-500 focus:outline-none">
+                <!-- Subir / Actualizar Imagen del Producto -->
+                <div class="space-y-1" x-data="{ imagePreview: null, uploadMode: 'file' }">
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold text-slate-200 flex items-center gap-1.5">
+                            <span>📷 Cambiar o Subir Imagen</span>
+                        </label>
+                        <div class="flex items-center gap-2 text-[10px] font-mono">
+                            <button type="button" @click="uploadMode = 'file'" :class="uploadMode === 'file' ? 'text-indigo-400 font-bold underline' : 'text-slate-400 hover:text-slate-300'">Subir Archivo</button>
+                            <span class="text-slate-700">|</span>
+                            <button type="button" @click="uploadMode = 'url'" :class="uploadMode === 'url' ? 'text-indigo-400 font-bold underline' : 'text-slate-400 hover:text-slate-300'">Ingresar URL</button>
+                        </div>
+                    </div>
+
+                    <!-- Modo Subir Archivo -->
+                    <div x-show="uploadMode === 'file'" class="relative">
+                        <label class="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-slate-700/80 hover:border-indigo-500/80 rounded-xl cursor-pointer bg-slate-950/60 hover:bg-slate-900/80 transition-all group">
+                            <template x-if="!imagePreview && !editProductData.image_url">
+                                <div class="flex items-center gap-3 px-3">
+                                    <div class="w-9 h-9 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <p class="text-xs text-slate-200 font-medium"><span class="text-indigo-400 font-bold">Haz clic aquí para seleccionar imagen</span></p>
+                                        <p class="text-[10px] text-slate-500">JPG, PNG, WEBP (Máx 4MB)</p>
+                                    </div>
+                                </div>
+                            </template>
+                            <template x-if="imagePreview || editProductData.image_url">
+                                <div class="flex items-center justify-between gap-3 p-2 w-full">
+                                    <div class="flex items-center gap-3">
+                                        <img :src="imagePreview || editProductData.image_url" class="w-16 h-14 object-cover rounded-lg border border-slate-700 shadow">
+                                        <div class="text-left">
+                                            <p class="text-xs font-bold text-emerald-400">✓ Imagen del producto</p>
+                                            <p class="text-[10px] text-slate-400">Haz clic para cambiar el archivo</p>
+                                        </div>
+                                    </div>
+                                    <span class="px-2 py-1 text-[10px] bg-indigo-500/20 text-indigo-300 rounded font-mono">Cambiar</span>
+                                </div>
+                            </template>
+                            <input type="file" name="image" accept="image/*" class="hidden" @change="
+                                const file = $event.target.files[0];
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (e) => imagePreview = e.target.result;
+                                    reader.readAsDataURL(file);
+                                }
+                            ">
+                        </label>
+                    </div>
+
+                    <!-- Modo Enlace URL -->
+                    <div x-show="uploadMode === 'url'">
+                        <input type="text" name="image_url" x-model="editProductData.image_url" placeholder="https://ejemplo.com/imagen-producto.jpg" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-xs focus:border-indigo-500 focus:outline-none">
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">

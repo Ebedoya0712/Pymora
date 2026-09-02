@@ -125,6 +125,7 @@ class InventoryController extends Controller
             'category_id' => 'nullable|exists:categories,id',
             'sku' => 'nullable|string|max:100',
             'barcode' => 'nullable|string|max:100',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:4096',
             'image_url' => 'nullable|string',
             'description' => 'nullable|string',
             'cost_usd' => 'required|numeric|min:0',
@@ -136,13 +137,21 @@ class InventoryController extends Controller
             'has_lots' => 'nullable|boolean',
         ]);
 
+        $imageUrl = null;
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $imageUrl = '/storage/' . $path;
+        } elseif (!empty($validated['image_url'])) {
+            $imageUrl = $validated['image_url'];
+        }
+
         $product = Product::create([
             'tenant_id' => $tenant->id,
             'category_id' => $validated['category_id'] ?? null,
             'name' => $validated['name'],
             'sku' => $validated['sku'] ?: 'SKU-' . strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $validated['name']), 0, 3)) . '-' . rand(100, 999),
             'barcode' => $validated['barcode'] ?: null,
-            'image_url' => $validated['image_url'] ?? null,
+            'image_url' => $imageUrl,
             'description' => $validated['description'] ?? null,
             'cost_usd' => $validated['cost_usd'],
             'price_usd' => $validated['price_usd'],
@@ -212,6 +221,7 @@ class InventoryController extends Controller
             'category_id' => 'nullable|exists:categories,id',
             'sku' => 'nullable|string|max:100',
             'barcode' => 'nullable|string|max:100',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:4096',
             'image_url' => 'nullable|string',
             'description' => 'nullable|string',
             'cost_usd' => 'required|numeric|min:0',
@@ -221,12 +231,20 @@ class InventoryController extends Controller
             'has_lots' => 'nullable|boolean',
         ]);
 
+        $imageUrl = $product->image_url;
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $imageUrl = '/storage/' . $path;
+        } elseif ($request->filled('image_url')) {
+            $imageUrl = $validated['image_url'];
+        }
+
         $product->update([
             'category_id' => $validated['category_id'] ?? null,
             'name' => $validated['name'],
             'sku' => $validated['sku'] ?: $product->sku,
             'barcode' => $validated['barcode'] ?: null,
-            'image_url' => $validated['image_url'] ?? null,
+            'image_url' => $imageUrl,
             'description' => $validated['description'] ?? null,
             'cost_usd' => $validated['cost_usd'],
             'price_usd' => $validated['price_usd'],
