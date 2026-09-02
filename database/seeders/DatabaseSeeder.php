@@ -152,6 +152,7 @@ class DatabaseSeeder extends Seeder
             'price_usd' => 2.50,
             'tax_rate' => 16.00,
             'min_stock_alert' => 10,
+            'image_url' => 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&auto=format&fit=crop&q=80',
         ]);
 
         $p2 = Product::create([
@@ -165,6 +166,7 @@ class DatabaseSeeder extends Seeder
             'price_usd' => 1.35,
             'tax_rate' => 16.00,
             'min_stock_alert' => 20,
+            'image_url' => 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&auto=format&fit=crop&q=80',
         ]);
 
         $p3 = Product::create([
@@ -179,6 +181,7 @@ class DatabaseSeeder extends Seeder
             'tax_rate' => 16.00,
             'has_lots' => true,
             'min_stock_alert' => 5,
+            'image_url' => 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400&auto=format&fit=crop&q=80',
         ]);
 
         $p4 = Product::create([
@@ -192,6 +195,7 @@ class DatabaseSeeder extends Seeder
             'price_usd' => 1.50,
             'tax_rate' => 16.00,
             'min_stock_alert' => 15,
+            'image_url' => 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80',
         ]);
 
         // 7. Inventory Stocks

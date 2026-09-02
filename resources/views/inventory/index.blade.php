@@ -165,18 +165,31 @@
                             class="transition-colors {{ $p->is_low_stock ? 'bg-rose-950/20 border-l-4 border-rose-500 hover:bg-rose-900/30' : 'hover:bg-slate-900/50' }}">
                             <!-- Producto -->
                             <td class="p-3.5">
-                                <div class="font-bold text-white text-sm flex items-center gap-2">
-                                    <span class="{{ $p->is_low_stock ? 'text-rose-200' : 'text-white' }}">{{ $p->name }}</span>
-                                    @if($p->has_lots)
-                                        <span class="bg-amber-500/20 text-amber-300 text-[9px] px-1.5 py-0.5 rounded font-mono font-bold">LOTE</span>
-                                    @endif
-                                </div>
-                                <div class="flex items-center gap-2 text-[10px] font-mono text-slate-400 mt-0.5">
-                                    <span class="text-indigo-400 font-bold">SKU: {{ $p->sku }}</span>
-                                    @if($p->barcode)
-                                        <span>•</span>
-                                        <span class="text-slate-400">Barcode: {{ $p->barcode }}</span>
-                                    @endif
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 rounded-xl bg-slate-950 border border-slate-700/80 overflow-hidden shrink-0 shadow-md relative group">
+                                        @if($p->image_url)
+                                            <img src="{{ $p->image_url }}" alt="{{ $p->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                        @else
+                                            <div class="w-full h-full flex items-center justify-center bg-slate-900 text-indigo-400 font-extrabold text-xs font-mono border border-slate-800">
+                                                📦
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-white text-sm flex items-center gap-2">
+                                            <span class="{{ $p->is_low_stock ? 'text-rose-200' : 'text-white' }}">{{ $p->name }}</span>
+                                            @if($p->has_lots)
+                                                <span class="bg-amber-500/20 text-amber-300 text-[9px] px-1.5 py-0.5 rounded font-mono font-bold">LOTE</span>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center gap-2 text-[10px] font-mono text-slate-400 mt-0.5">
+                                            <span class="text-indigo-400 font-bold">SKU: {{ $p->sku }}</span>
+                                            @if($p->barcode)
+                                                <span>•</span>
+                                                <span class="text-slate-400">Barcode: {{ $p->barcode }}</span>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
 
@@ -243,6 +256,7 @@
                                                 category_id: '{{ $p->category_id }}',
                                                 sku: '{{ addslashes($p->sku ?? '') }}',
                                                 barcode: '{{ addslashes($p->barcode ?? '') }}',
+                                                image_url: '{{ addslashes($p->image_url ?? '') }}',
                                                 unit: '{{ addslashes($p->unit ?? 'Unidad') }}',
                                                 cost_usd: '{{ $p->cost_usd }}',
                                                 price_usd: '{{ $p->price_usd }}',
@@ -405,9 +419,16 @@
             <form action="{{ route('inventory.store') }}" method="POST" class="space-y-4 text-xs">
                 @csrf
                 
-                <div class="space-y-1">
-                    <label class="font-bold text-slate-200">Nombre del Producto *</label>
-                    <input type="text" name="name" required placeholder="Ej: Harina de Maíz Juana 1kg" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-200">Nombre del Producto *</label>
+                        <input type="text" name="name" required placeholder="Ej: Harina de Maíz Juana 1kg" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="font-bold text-slate-200">URL de Imagen (Opcional)</label>
+                        <input type="text" name="image_url" placeholder="https://..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-white font-mono text-xs focus:border-indigo-500 focus:outline-none">
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -591,6 +612,11 @@
                     </div>
                 </div>
 
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-200">URL de Imagen del Producto (Opcional)</label>
+                    <input type="text" name="image_url" x-model="editProductData.image_url" placeholder="https://..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-xs focus:border-indigo-500 focus:outline-none">
+                </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="space-y-1">
                         <label class="font-bold text-slate-200">Código SKU</label>
@@ -755,6 +781,7 @@ function inventoryManager(hasLowStock) {
             category_id: '',
             sku: '',
             barcode: '',
+            image_url: '',
             unit: 'Unidad',
             cost_usd: 0,
             price_usd: 0,

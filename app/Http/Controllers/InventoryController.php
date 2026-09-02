@@ -92,6 +92,7 @@ class InventoryController extends Controller
                 'barcode' => $p->barcode ?? '',
                 'category_id' => (string)($p->category_id ?? ''),
                 'category_name' => $p->category->name ?? 'General',
+                'image_url' => $p->image_url ?? '',
             ];
         })->values()->toJson();
 
@@ -124,6 +125,7 @@ class InventoryController extends Controller
             'category_id' => 'nullable|exists:categories,id',
             'sku' => 'nullable|string|max:100',
             'barcode' => 'nullable|string|max:100',
+            'image_url' => 'nullable|string',
             'description' => 'nullable|string',
             'cost_usd' => 'required|numeric|min:0',
             'price_usd' => 'required|numeric|min:0.01',
@@ -140,6 +142,7 @@ class InventoryController extends Controller
             'name' => $validated['name'],
             'sku' => $validated['sku'] ?: 'SKU-' . strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $validated['name']), 0, 3)) . '-' . rand(100, 999),
             'barcode' => $validated['barcode'] ?: null,
+            'image_url' => $validated['image_url'] ?? null,
             'description' => $validated['description'] ?? null,
             'cost_usd' => $validated['cost_usd'],
             'price_usd' => $validated['price_usd'],
@@ -209,6 +212,7 @@ class InventoryController extends Controller
             'category_id' => 'nullable|exists:categories,id',
             'sku' => 'nullable|string|max:100',
             'barcode' => 'nullable|string|max:100',
+            'image_url' => 'nullable|string',
             'description' => 'nullable|string',
             'cost_usd' => 'required|numeric|min:0',
             'price_usd' => 'required|numeric|min:0.01',
@@ -222,6 +226,7 @@ class InventoryController extends Controller
             'name' => $validated['name'],
             'sku' => $validated['sku'] ?: $product->sku,
             'barcode' => $validated['barcode'] ?: null,
+            'image_url' => $validated['image_url'] ?? null,
             'description' => $validated['description'] ?? null,
             'cost_usd' => $validated['cost_usd'],
             'price_usd' => $validated['price_usd'],
