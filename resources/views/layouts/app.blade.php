@@ -279,7 +279,7 @@
                                 'licoreria' => 'Inventario de Licores',
                                 'distribuidor' => 'Inventario Mayorista & Rutas',
                                 'articulos' => 'Inventario de Variedades & Combos',
-                                default => 'Inventario Inteligente',
+                                default => 'Inventario de Productos',
                             };
                         @endphp
 

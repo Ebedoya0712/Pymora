@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Inventario Inteligente Multialmacén - ' . $tenant->name . ' - Pymora')
+@section('title', 'Inventario de Productos - ' . $tenant->name . ' - Pymora')
 
 @section('content')
 <div x-data="inventoryManager({{ $lowStockCount > 0 ? 'true' : 'false' }})" class="space-y-6">
@@ -13,9 +13,9 @@
             </div>
             <div>
                 <div>
-                    <h2 class="text-xl font-bold text-white font-display">Inventario Inteligente Multialmacén</h2>
+                    <h2 class="text-xl font-bold text-white font-display">Inventario de Productos</h2>
                 </div>
-                <p class="text-xs text-slate-400 mt-0.5">Control de existencias, semáforo de stock mínimo crítico, valoración multimoneda y reposición.</p>
+                <p class="text-xs text-slate-400 mt-0.5">Gestión de existencias en tiempo real, alertas de stock crítico y valoración multimoneda (USD / VES).</p>
             </div>
         </div>
 
