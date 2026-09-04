@@ -265,4 +265,240 @@ class InventoryController extends Controller
 
         return redirect()->route('inventory.index')->with('success', 'Producto "' . $productName . '" eliminado del inventario.');
     }
+
+    /**
+     * Download Excel template for bulk product import
+     */
+    public function downloadTemplate()
+    {
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Productos');
+
+        // Headers
+        $headers = ['Nombre *', 'Categoría', 'SKU', 'Código de Barras', 'Costo USD *', 'Precio Venta USD *', 'Stock Inicial', 'Alerta Stock Mínimo', 'Unidad', 'URL Imagen', 'Descripción'];
+        foreach ($headers as $col => $header) {
+            $cell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col + 1) . '1';
+            $sheet->setCellValue($cell, $header);
+        }
+
+        // Style headers
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 11],
+            'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '4F46E5']],
+            'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]],
+        ];
+        $sheet->getStyle('A1:K1')->applyFromArray($headerStyle);
+
+        // Example rows
+        $examples = [
+            ['Harina PAN Blanca 1kg', 'Víveres y Granos', 'VIV-001', '7591002005678', 0.95, 1.35, 350, 20, 'Unidad', '', 'Harina de maíz precocida'],
+            ['Refresco Coca-Cola 2L', 'Bebidas y Refrescos', 'BEB-001', '7591001001234', 1.80, 2.50, 170, 10, 'Unidad', '', 'Refresco de cola 2 litros'],
+            ['Queso Blanco (Kg)', 'Charcutería y Lácteos', 'CHA-001', '7591003009012', 5.20, 7.80, 35, 5, 'Kg', '', 'Queso blanco tipo paisa'],
+        ];
+
+        foreach ($examples as $rowIndex => $row) {
+            foreach ($row as $colIndex => $value) {
+                $cell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1) . ($rowIndex + 2);
+                $sheet->setCellValue($cell, $value);
+            }
+        }
+
+        // Style example rows with light bg
+        $exampleStyle = [
+            'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F0F0FF']],
+            'font' => ['italic' => true, 'color' => ['rgb' => '666666']],
+        ];
+        $sheet->getStyle('A2:K4')->applyFromArray($exampleStyle);
+
+        // Auto-size columns
+        foreach (range('A', 'K') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Instructions sheet
+        $instrSheet = $spreadsheet->createSheet();
+        $instrSheet->setTitle('Instrucciones');
+
+        $instructions = [
+            ['📋 INSTRUCCIONES PARA CARGA MASIVA DE PRODUCTOS'],
+            [''],
+            ['COLUMNA', 'DESCRIPCIÓN', 'OBLIGATORIO', 'EJEMPLO'],
+            ['Nombre', 'Nombre del producto tal como se mostrará en el sistema', 'SÍ ✅', 'Harina PAN Blanca 1kg'],
+            ['Categoría', 'Nombre exacto de la categoría existente en tu sistema', 'NO', 'Víveres y Granos'],
+            ['SKU', 'Código interno único del producto. Si se deja vacío se genera automáticamente', 'NO', 'VIV-001'],
+            ['Código de Barras', 'Código de barras EAN/UPC del producto', 'NO', '7591002005678'],
+            ['Costo USD', 'Precio de compra/costo en dólares americanos (USD)', 'SÍ ✅', '0.95'],
+            ['Precio Venta USD', 'Precio de venta al público en dólares (USD)', 'SÍ ✅', '1.35'],
+            ['Stock Inicial', 'Cantidad inicial en inventario. Si se deja vacío = 0', 'NO', '350'],
+            ['Alerta Stock Mínimo', 'Nivel mínimo antes de que se active la alerta roja. Por defecto = 10', 'NO', '20'],
+            ['Unidad', 'Unidad de medida: Unidad, Kg, Litro, Caja, etc. Por defecto = Unidad', 'NO', 'Unidad'],
+            ['URL Imagen', 'Enlace público a una imagen del producto', 'NO', 'https://ejemplo.com/img.jpg'],
+            ['Descripción', 'Descripción opcional del producto', 'NO', 'Harina de maíz precocida'],
+            [''],
+            ['⚠️ IMPORTANTE:'],
+            ['• Los campos marcados como obligatorios (SÍ ✅) deben tener un valor en cada fila.'],
+            ['• La hoja "Productos" es la que se procesa. No cambies el nombre de las columnas.'],
+            ['• Las filas de ejemplo (en gris) puedes borrarlas o sobreescribirlas con tus datos.'],
+            ['• Formatos aceptados: .xlsx, .xls, .csv'],
+            ['• Máximo recomendado: 500 productos por archivo.'],
+        ];
+
+        foreach ($instructions as $rowIndex => $row) {
+            foreach ($row as $colIndex => $value) {
+                $cell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1) . ($rowIndex + 1);
+                $instrSheet->setCellValue($cell, $value);
+            }
+        }
+
+        // Style instructions
+        $instrSheet->getStyle('A1')->applyFromArray([
+            'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => '4F46E5']],
+        ]);
+        $instrSheet->getStyle('A3:D3')->applyFromArray([
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '334155']],
+        ]);
+        foreach (range('A', 'D') as $col) {
+            $instrSheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $spreadsheet->setActiveSheetIndex(0);
+
+        $fileName = 'plantilla_productos_pymora.xlsx';
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $fileName . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
+     * Bulk import products from Excel/CSV file
+     */
+    public function bulkImport(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        $tenant = Tenant::current() ?? (object)['id' => 1];
+        $file = $request->file('file');
+
+        try {
+            $extension = $file->getClientOriginalExtension();
+            $reader = match(strtolower($extension)) {
+                'csv' => new \PhpOffice\PhpSpreadsheet\Reader\Csv(),
+                'xls' => new \PhpOffice\PhpSpreadsheet\Reader\Xls(),
+                default => new \PhpOffice\PhpSpreadsheet\Reader\Xlsx(),
+            };
+
+            $spreadsheet = $reader->load($file->getPathname());
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray(null, true, true, true);
+
+            // Remove header row
+            $headerRow = array_shift($rows);
+
+            // Map columns by position
+            $categories = Category::where('tenant_id', $tenant->id)->pluck('id', 'name')->toArray();
+            $categoriesLower = [];
+            foreach ($categories as $name => $id) {
+                $categoriesLower[mb_strtolower(trim($name))] = $id;
+            }
+
+            $imported = 0;
+            $skipped = 0;
+            $errors = [];
+
+            foreach ($rows as $rowIndex => $row) {
+                $rowNum = $rowIndex + 1;
+                $values = array_values($row);
+
+                $name = trim($values[0] ?? '');
+                $categoryName = trim($values[1] ?? '');
+                $sku = trim($values[2] ?? '');
+                $barcode = trim($values[3] ?? '');
+                $costUsd = $values[4] ?? null;
+                $priceUsd = $values[5] ?? null;
+                $stockQty = $values[6] ?? 0;
+                $minAlert = $values[7] ?? 10;
+                $unit = trim($values[8] ?? '') ?: 'Unidad';
+                $imageUrl = trim($values[9] ?? '');
+                $description = trim($values[10] ?? '');
+
+                // Skip completely empty rows
+                if (empty($name)) {
+                    continue;
+                }
+
+                // Validate required fields
+                if (!is_numeric($costUsd) || !is_numeric($priceUsd) || (float)$priceUsd <= 0) {
+                    $errors[] = "Fila {$rowNum}: \"{$name}\" — Costo o Precio USD inválido.";
+                    $skipped++;
+                    continue;
+                }
+
+                // Resolve category
+                $categoryId = null;
+                if ($categoryName !== '') {
+                    $catKey = mb_strtolower($categoryName);
+                    if (isset($categoriesLower[$catKey])) {
+                        $categoryId = $categoriesLower[$catKey];
+                    } else {
+                        // Auto-create category
+                        $newCat = Category::create([
+                            'tenant_id' => $tenant->id,
+                            'name' => $categoryName,
+                            'slug' => \Illuminate\Support\Str::slug($categoryName),
+                        ]);
+                        $categories[$categoryName] = $newCat->id;
+                        $categoriesLower[$catKey] = $newCat->id;
+                        $categoryId = $newCat->id;
+                    }
+                }
+
+                $product = Product::create([
+                    'tenant_id' => $tenant->id,
+                    'category_id' => $categoryId,
+                    'name' => $name,
+                    'sku' => $sku ?: 'SKU-' . strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $name), 0, 3)) . '-' . rand(100, 999),
+                    'barcode' => $barcode ?: null,
+                    'image_url' => $imageUrl ?: null,
+                    'description' => $description ?: null,
+                    'cost_usd' => (float)$costUsd,
+                    'price_usd' => (float)$priceUsd,
+                    'min_stock_alert' => is_numeric($minAlert) ? (float)$minAlert : 10,
+                    'unit' => $unit,
+                    'is_active' => true,
+                ]);
+
+                $initialStock = is_numeric($stockQty) ? (float)$stockQty : 0;
+                InventoryStock::create([
+                    'tenant_id' => $tenant->id,
+                    'branch_id' => 1,
+                    'product_id' => $product->id,
+                    'quantity' => $initialStock,
+                ]);
+
+                $imported++;
+            }
+
+            $message = "✅ Carga masiva completada: {$imported} productos importados.";
+            if ($skipped > 0) {
+                $message .= " ⚠️ {$skipped} filas omitidas por errores.";
+            }
+            if (!empty($errors)) {
+                $message .= ' | Errores: ' . implode(' | ', array_slice($errors, 0, 5));
+            }
+
+            return redirect()->route('inventory.index')->with('success', $message);
+        } catch (Exception $e) {
+            return redirect()->route('inventory.index')->with('error', '❌ Error al procesar el archivo: ' . $e->getMessage());
+        }
+    }
 }

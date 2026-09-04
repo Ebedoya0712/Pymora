@@ -28,6 +28,11 @@
                 </button>
             @endif
 
+            <button type="button" @click="openBulkModal = true" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-emerald-500/50 font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-2 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span>Carga Masiva Excel</span>
+            </button>
+
             <button type="button" @click="openCreateModal = true" class="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2 font-display cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 <span>Agregar Producto</span>
@@ -39,6 +44,13 @@
         <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>{{ session('error') }}</span>
         </div>
     @endif
 
@@ -820,6 +832,133 @@
                 </button>
             </form>
         </div>
+    </div>    <!-- ============================================ -->
+    <!-- MODAL: Carga Masiva de Productos desde Excel -->
+    <!-- ============================================ -->
+    <div x-show="openBulkModal" x-cloak class="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4" @click.self="openBulkModal = false" x-transition>
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl p-6" @click.stop>
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-lg">📊</div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white font-display">Carga Masiva de Productos</h3>
+                        <p class="text-[11px] text-slate-400">Importa cientos de productos desde un archivo Excel o CSV</p>
+                    </div>
+                </div>
+                <button type="button" @click="openBulkModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <!-- Paso 1: Descargar Plantilla -->
+            <div class="mb-5 p-4 rounded-xl bg-indigo-500/5 border border-indigo-500/20">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-extrabold text-xs shrink-0 mt-0.5">1</div>
+                    <div class="space-y-2 w-full">
+                        <p class="text-sm font-bold text-white">Descarga la plantilla Excel</p>
+                        <p class="text-xs text-slate-400">Descarga nuestra plantilla con las columnas correctas y ejemplos. Luego llénala con tus productos.</p>
+                        <a href="{{ route('inventory.downloadTemplate') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-500/20 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            <span>Descargar Plantilla (.xlsx)</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 2: Referencia de Columnas -->
+            <div class="mb-5 p-4 rounded-xl bg-slate-800/50 border border-slate-700/80">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 font-extrabold text-xs shrink-0 mt-0.5">2</div>
+                    <div class="space-y-2 w-full">
+                        <p class="text-sm font-bold text-white">Estructura de las columnas</p>
+                        <p class="text-xs text-slate-400 mb-2">Tu archivo debe contener estas columnas en orden. Los campos con <span class="text-rose-400 font-bold">*</span> son obligatorios.</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-[11px]">
+                                <thead>
+                                    <tr class="border-b border-slate-700/80">
+                                        <th class="text-left py-1.5 px-2 text-slate-300 font-bold">#</th>
+                                        <th class="text-left py-1.5 px-2 text-slate-300 font-bold">Columna</th>
+                                        <th class="text-left py-1.5 px-2 text-slate-300 font-bold">Detalle</th>
+                                        <th class="text-center py-1.5 px-2 text-slate-300 font-bold">Requerido</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800/60">
+                                    <tr><td class="py-1 px-2 text-slate-500 font-mono">A</td><td class="py-1 px-2 text-white font-medium">Nombre</td><td class="py-1 px-2 text-slate-400">Nombre del producto</td><td class="py-1 px-2 text-center"><span class="text-rose-400 font-bold">Sí *</span></td></tr>
+                                    <tr><td class="py-1 px-2 text-slate-500 font-mono">B</td><td class="py-1 px-2 text-white font-medium">Categoría</td><td class="py-1 px-2 text-slate-400">Nombre de la categoría (se crea si no existe)</td><td class="py-1 px-2 text-center text-slate-500">No</td></tr>
+                                    <tr><td class="py-1 px-2 text-slate-500 font-mono">C</td><td class="py-1 px-2 text-white font-medium">SKU</td><td class="py-1 px-2 text-slate-400">Código interno (auto si vacío)</td><td class="py-1 px-2 text-center text-slate-500">No</td></tr>
+                                    <tr><td class="py-1 px-2 text-slate-500 font-mono">D</td><td class="py-1 px-2 text-white font-medium">Código de Barras</td><td class="py-1 px-2 text-slate-400">EAN/UPC del producto</td><td class="py-1 px-2 text-center text-slate-500">No</td></tr>
+                                    <tr><td class="py-1 px-2 text-slate-500 font-mono">E</td><td class="py-1 px-2 text-white font-medium">Costo USD</td><td class="py-1 px-2 text-slate-400">Precio de compra en dólares</td><td class="py-1 px-2 text-center"><span class="text-rose-400 font-bold">Sí *</span></td></tr>
+                                    <tr><td class="py-1 px-2 text-slate-500 font-mono">F</td><td class="py-1 px-2 text-white font-medium">Precio Venta USD</td><td class="py-1 px-2 text-slate-400">Precio de venta al público</td><td class="py-1 px-2 text-center"><span class="text-rose-400 font-bold">Sí *</span></td></tr>
+                                    <tr><td class="py-1 px-2 text-slate-500 font-mono">G</td><td class="py-1 px-2 text-white font-medium">Stock Inicial</td><td class="py-1 px-2 text-slate-400">Cantidad en inventario (defecto: 0)</td><td class="py-1 px-2 text-center text-slate-500">No</td></tr>
+                                    <tr><td class="py-1 px-2 text-slate-500 font-mono">H</td><td class="py-1 px-2 text-white font-medium">Alerta Mínimo</td><td class="py-1 px-2 text-slate-400">Stock mínimo para alerta (defecto: 10)</td><td class="py-1 px-2 text-center text-slate-500">No</td></tr>
+                                    <tr><td class="py-1 px-2 text-slate-500 font-mono">I</td><td class="py-1 px-2 text-white font-medium">Unidad</td><td class="py-1 px-2 text-slate-400">Unidad, Kg, Litro, Caja... (defecto: Unidad)</td><td class="py-1 px-2 text-center text-slate-500">No</td></tr>
+                                    <tr><td class="py-1 px-2 text-slate-500 font-mono">J</td><td class="py-1 px-2 text-white font-medium">URL Imagen</td><td class="py-1 px-2 text-slate-400">Enlace público a imagen del producto</td><td class="py-1 px-2 text-center text-slate-500">No</td></tr>
+                                    <tr><td class="py-1 px-2 text-slate-500 font-mono">K</td><td class="py-1 px-2 text-white font-medium">Descripción</td><td class="py-1 px-2 text-slate-400">Descripción del producto</td><td class="py-1 px-2 text-center text-slate-500">No</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 3: Subir Archivo -->
+            <div class="mb-4 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-extrabold text-xs shrink-0 mt-0.5">3</div>
+                    <div class="space-y-3 w-full">
+                        <p class="text-sm font-bold text-white">Sube tu archivo con los productos</p>
+                        <form action="{{ route('inventory.bulkImport') }}" method="POST" enctype="multipart/form-data" x-data="{ bulkFile: null, bulkFileName: '' }">
+                            @csrf
+                            <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-700/80 hover:border-emerald-500/80 rounded-xl cursor-pointer bg-slate-950/60 hover:bg-slate-900/80 transition-all group mb-3">
+                                <template x-if="!bulkFileName">
+                                    <div class="flex items-center gap-3 px-3">
+                                        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="text-sm text-slate-200 font-medium"><span class="text-emerald-400 font-bold">Haz clic para seleccionar archivo</span></p>
+                                            <p class="text-[11px] text-slate-500">Formatos permitidos: .xlsx, .xls, .csv (Máx 10MB)</p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template x-if="bulkFileName">
+                                    <div class="flex items-center justify-between gap-3 p-2 w-full">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xl">📄</div>
+                                            <div class="text-left">
+                                                <p class="text-xs font-bold text-emerald-400">✓ Archivo seleccionado</p>
+                                                <p class="text-[11px] text-slate-300 font-mono" x-text="bulkFileName"></p>
+                                            </div>
+                                        </div>
+                                        <span class="px-2 py-1 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-mono font-bold">Listo</span>
+                                    </div>
+                                </template>
+                                <input type="file" name="file" accept=".xlsx,.xls,.csv" class="hidden" @change="
+                                    const f = $event.target.files[0];
+                                    if (f) { bulkFileName = f.name; bulkFile = f; }
+                                ">
+                            </label>
+
+                            <div class="flex items-center gap-3">
+                                <button type="button" @click="openBulkModal = false" class="w-1/3 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl transition-colors text-xs">
+                                    Cancelar
+                                </button>
+                                <button type="submit" :disabled="!bulkFileName" :class="bulkFileName ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 shadow-lg shadow-emerald-500/20' : 'bg-slate-800 text-slate-500 cursor-not-allowed'" class="w-2/3 py-2.5 text-white font-bold rounded-xl transition-all text-xs font-display flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                    <span>Importar Productos</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="px-3 py-2.5 rounded-lg bg-amber-500/5 border border-amber-500/20 text-[10px] text-amber-300/80 flex items-start gap-2">
+                <span class="text-amber-400 text-xs mt-0.5">💡</span>
+                <span>Si una categoría del Excel no existe en tu sistema, se creará automáticamente. Las filas sin nombre o con precios inválidos serán omitidas.</span>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -832,6 +971,7 @@ function inventoryManager(hasLowStock) {
         openStockModal: false,
         openEditModal: false,
         openDeleteModal: false,
+        openBulkModal: false,
 
         searchQuery: '{{ addslashes($search) }}',
         selectedCategory: '{{ $categoryId }}',

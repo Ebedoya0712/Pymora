@@ -74,6 +74,8 @@ Route::post('/inventory', [InventoryController::class, 'store'])->name('inventor
 Route::post('/inventory/update-stock', [InventoryController::class, 'updateStock'])->name('inventory.updateStock');
 Route::post('/inventory/{id}/update', [InventoryController::class, 'update'])->name('inventory.update');
 Route::post('/inventory/{id}/delete', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+Route::get('/inventory/template/download', [InventoryController::class, 'downloadTemplate'])->name('inventory.downloadTemplate');
+Route::post('/inventory/bulk-import', [InventoryController::class, 'bulkImport'])->name('inventory.bulkImport');
 
 Route::get('/batches', [BatchController::class, 'index'])->name('batches.index');
 Route::post('/batches', [BatchController::class, 'store'])->name('batches.store');
